@@ -1,0 +1,32 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"jsonforms-extension-desc": "",
+	"jsonforms-loading-placeholder": "loading form",
+	"jsonformsdemo": "JsonFormsDemo",
+	"specialpages-group-jsonforms": "JsonForms",
+	"jsonformsmanage": "JsonForms Manage",
+	
+	"jsonformsbrowse": "JsonForms",
+	"jsonformsbrowsedata": "Manage data",
+	"jsonformsbrowsequeries": "Manage queries",
+	"jsonformsbrowseforms": "Manage forms",
+	"jsonformsbrowseschemas": "Manage schemas",
+	"jsonformsbrowsedata-topnav": "'''navigation'''",
+
+	"jsonforms-jsmodule-return-message": "data edited in article <a target=\"_blank\" href=\"$2\">$1</a>",
+	"jsonforms-jsmodule-return-errors": "errors editing form data $1",
+
+	"jsonformsmanageforms": "Manage Forms",
+	"jsonformsmanageschemas": "Manage Schemas",
+	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and form schema. Each schema must be wrapped in a form descriptor to determine its use.",
+	"jsonforms-manage-form-button-add-form": "New form",
+	"jsonforms-manage-form-button-add-schema": "New schema",
+	"jsonforms-special-browse-form-search-legend": "search",
+	"jsonforms-special-browse-form-search-schema-label": "",
+	"jsonforms-special-browse-form-search-submit": "submit",
+	"jsonforms-special-browse-pager-header-pagetitle": "page",
+	"jsonforms-special-browse-pager-header-actions": "actions",
+	"jsonforms-special-browse-schemas-description": "Here you can create/edit json-schema for the use inside form descriptors <b>Attention!! This feature is to be completed: create the schema manually in the JsonSchema namespace.</b>"
+}

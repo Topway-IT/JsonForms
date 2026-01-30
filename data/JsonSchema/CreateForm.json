@@ -1,0 +1,247 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"title": "Create/edit form",
+	"additionalProperties": false,
+	"required": [
+		"name",
+		"schema"
+	],
+	"properties": {
+		"name": {
+			"type": "string",
+			"title": "Form name",
+			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms:[form name]}}",
+			"minLength": 1
+		},
+		"schema": {
+			"type": "string",
+			"title": "JSON Schema",
+			"description": "",
+			"default": "",
+			"options": {
+				"wikitext": {
+					"description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}"
+				}
+			},
+			"enumSource": [
+				{
+					"source": "jsonSchemasSource",
+					"filter": "jsonSchemasFilter",
+					"title": "jsonSchemasTitle",
+					"value": "jsonSchemasValue"
+				}
+			]
+		},
+		"uischema": {
+			"type": "string",
+			"title": "UI Schema",
+			"description": "UI schema for customizing form rendering",
+			"default": "",
+			"enumSource": [
+				{
+					"source": "jsonSchemasSource",
+					"filter": "jsonSchemasFilter",
+					"title": "jsonSchemasTitle",
+					"value": "jsonSchemasValue"
+				}
+			]
+		},
+		"edit_categories": {
+			"type": "boolean",
+			"title": "Edit categories",
+			"default": false,
+			"description": "Is the user allowed to edit categories before submitting the form ?"
+		},
+		"default_categories": {
+			"title": "Default categories",
+			"description": "only if Edit categories is enabled",
+			"type": "array",
+			"items": {
+				"type": "string",
+				"options": {
+					"input": {
+						"name": "categorymultiselect"
+					}
+				}
+			}
+		},
+		"default_data_slot": {
+			"type": "string",
+			"title": "Default slot",
+			"description": "Default slot for form data: if different than main the related article will be saved as a Multi-Content-Revision",
+			"options": {
+				"wikitext": {
+					"description": "Default slot for form data: if different than main the related article will be saved as a [https://www.mediawiki.org/wiki/Multi-Content_Revisions/Content_Meta-Data Multi-Content-Revision]"
+				}
+			},
+			"default": "main",
+			"enumSource": [
+				{
+					"source": "jsonSlotsSource"
+				}
+			]
+		},
+		"edit_data_slot": {
+			"type": "boolean",
+			"title": "Edit data slot",
+			"description": "Is the user allowed to choose the target slot ?",
+			"default": false
+		},
+		"edit_main_slot_content_model": {
+			"type": "boolean",
+			"title": "Edit main slot content model",
+			"description": "Is the user allowed to edit the content model of the main slot ?",
+			"default": true,
+			"options": {
+				"dependencies": {
+					"default_data_slot": {
+						"!=": "main"
+					}
+				}
+			}
+		},
+		"edit_main_slot_content": {
+			"type": "boolean",
+			"title": "Edit main slot content",
+			"description": "Is the user allowed to edit the content of main slot ? (usually wikitext)",
+			"default": false,
+			"options": {
+				"dependencies": {
+					"default_data_slot": {
+						"!=": "main"
+					}
+				}
+			}
+		},
+		"default_main_slot_content_model": {
+			"type": "string",
+			"title": "Default content model of main slot",
+			"default": "wikitext",
+			"enumSource": [
+				{
+					"source": "contentModelsSource"
+				}
+			],
+			"options": {
+				"dependencies": {
+					"default_data_slot": {
+						"!=": "main"
+					}
+				}
+			}
+		},
+		"pagename_formula": {
+			"type": "string",
+			"title": "Page name formula",
+			"default": "",
+			"options": {
+				"dependencies": {
+					"edit_page": ""
+				}
+			}
+		},
+		"overwrite_existing_article_on_create": {
+			"type": "boolean",
+			"title": "Overwrite existing article",
+			"description": "If enabled, existing articles with the same name will be overwritten",
+			"default": false
+		},
+		"view": {
+			"type": "string",
+			"title": "View mode",
+			"enum": [
+				"inline",
+				"popup"
+			],
+			"default": "inline"
+		},
+		"callback": {
+			"type": "string",
+			"title": "Callback",
+			"description": "JavaScript callback or handler name",
+			"default": ""
+		},
+		"edit_page": {
+			"type": "string",
+			"title": "Edit page",
+			"description": "Page to redirect to after editing",
+			"default": "",
+			"options": {
+				"input": {
+					"name": "title"
+				}
+			}
+		},
+		"preload": {
+			"type": "string",
+			"title": "Preload page",
+			"description": "Page to preload content from",
+			"default": "",
+			"options": {
+				"input": {
+					"name": "title"
+				}
+			}
+		},
+		"preload_data": {
+			"type": "string",
+			"title": "Preload data",
+			"description": "Inline preload data",
+			"default": ""
+		},
+		"preload_data_separator": {
+			"type": "string",
+			"title": "Preload data separator",
+			"default": ""
+		},
+		"return_page": {
+			"type": "string",
+			"title": "Return page",
+			"description": "Page to redirect to after completion",
+			"default": ""
+		},
+		"return_url": {
+			"type": "string",
+			"title": "Return URL",
+			"description": "External URL to redirect to after completion",
+			"format": "uri",
+			"default": ""
+		},
+		"popup_size": {
+			"type": "string",
+			"title": "Popup size",
+			"description": "Popup size definition",
+			"default": "medium",
+			"enum": [
+				"medium",
+				"large",
+				"small"
+			]
+		},
+		"css_class": {
+			"type": "string",
+			"title": "CSS class",
+			"description": "CSS class applied to the rendered view",
+			"default": ""
+		},
+		"editor_options": {
+			"type": "string",
+			"title": "editor options",
+			"description": "Editor options in the MediaWiki: namespace in javascript content model",
+			"default": "MediaWiki:DefaultEditorOptions",
+			"options": {
+				"input": {
+					"name": "title"
+				}
+			}
+		},
+		"width": {
+			"type": "string",
+			"title": "width",
+			"description": "",
+			"default": "600px"
+		}
+	}
+}
+

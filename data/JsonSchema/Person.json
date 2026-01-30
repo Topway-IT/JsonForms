@@ -1,0 +1,94 @@
+{
+	"options": {
+		"layout": {
+			"name": "paged"
+		}
+	},
+	"$ref": "JsonSchema:BasicPerson",
+	"additionalProperties": true,
+	"properties": {
+		"location": {
+			"type": "object",
+			"title": "Location",
+			"properties": {
+				"city": {
+					"type": "string"
+				},
+				"state": {
+					"type": "string"
+				},
+				"citystate": {
+					"type": "string",
+					"description": "This is generated automatically from the previous two fields",
+					"template": "{{city}}, {{state}}",
+					"watch_": {
+						"city": "location.city",
+						"state": "location.state"
+					}
+				}
+			}
+		},
+		"pets": {
+			"type": "array",
+			"options": {
+				"layout": {
+					"name": "table"
+				}
+			},
+			"title": "Pets",
+			"uniqueItems": true,
+			"items": {
+				"type": "object",
+				"properties": {
+					"type": {
+						"type": "string",
+						"enum": [
+							"cat",
+							"dog",
+							"bird",
+							"reptile",
+							"other"
+						],
+						"default": "dog"
+					},
+					"name": {
+						"type": "string"
+					},
+					"fixed": {
+						"type": "boolean",
+						"title": "spayed / neutered",
+						"options": {
+							"input": {
+								"name": "checkbox"
+							}
+						}
+					}
+				}
+			}
+		},
+		"cars": {
+			"type": "array",
+			"options": {
+				"layout": {
+					"name": "tabs"
+				}
+			},
+			"title": "Cars",
+			"uniqueItems": false,
+			"items": {
+				"type": "object",
+				"title": "Car",
+				"additionalProperties": true,
+				"properties": {
+					"manufacturer": {
+						"type": "string"
+					},
+					"model": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
+}
+

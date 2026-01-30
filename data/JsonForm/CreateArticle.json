@@ -1,0 +1,13 @@
+{
+	"name": "Create Article",
+	"edit_categories": true,
+	"edit_data_slot": true,
+	"default_data_slot": "jsondata",
+	"edit_main_slot_content_model": true,
+	"edit_main_slot_content": true,
+	"default_main_slot_content_model": "wikitext",
+	"overwrite_existing_article_on_create": false,
+	"view": "inline",
+	"editor_options": "MediaWiki:DefaultEditorOptions"
+}
+

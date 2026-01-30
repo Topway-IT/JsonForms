@@ -1,0 +1,425 @@
+/**
+ * This file is part of the MediaWiki extension JsonForms.
+ *
+ * JsonForms is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JsonForms is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JsonForms.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup extensions
+ * @author thomas-topway-it <support@topway.it>
+ * @copyright Copyright ©2021-2024, https://wikisphere.org
+ */
+
+/* stylelint-disable block-no-empty */
+/* stylelint-disable declaration-no-important */
+
+.jsonforms-dialogs-non-modal {
+	position: -webkit-sticky;
+	position: sticky;
+	bottom: 1em;
+	margin: auto;
+	max-width: 50em;
+	background-color: #fff;
+}
+
+.jsonforms-dialogs-non-modal .oo-ui-window {
+	border: 1px solid #a2a9b1;
+	box-shadow: 0 0 4px 0 rgba( 0, 0, 0, 0.25 );
+}
+
+.jsonforms-form .oo-ui-menuLayout.oo-ui-menuLayout-hideMenu > .oo-ui-menuLayout-menu {
+	display: none;
+}
+
+.jsonforms-formcontrol {
+	padding: 10px 0;
+}
+
+.jsonforms-formcontrol .jsonforms-field-container {
+	display: flex !important;
+	align-items: stretch;
+	gap: 2px;
+	justify-content: space-between;
+}
+
+.jsonforms-remove-object {
+	text-align: right;
+	display: block;
+}
+
+.jsonforms-header {
+	margin-top: 0.5em !important;
+}
+
+.jsonforms-form .compact > h2 {
+	display: none;
+}
+
+.jsonforms-form .jsonforms-outerform {
+	padding: 0;
+	border: none;
+}
+
+.jsonforms-form .jsonforms-innerform {
+	padding: 0;
+}
+
+.jsonforms-form .jsonforms-innerform-options {
+	padding: 8px;
+}
+
+.jsonforms-form .jsonforms-innerform > .oo-ui-widget > .oo-ui-layout > .oo-ui-menuLayout-content > .oo-ui-layout > .oo-ui-layout {
+	padding: 0;
+}
+
+.jsonforms-switcher {
+	float: right;
+	width: auto;
+	margin-right: 0;
+	margin-left: 0 !important;
+	z-index: 100;
+}
+
+.oo-ui-menuSelectWidget {
+}
+
+.jsonforms-panel {
+}
+
+.jsonforms-panel-border {
+	border: 1px solid #ccc;
+	padding: 8px;
+	margin-bottom: 8px;
+}
+
+.jsonforms-controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.jsonforms-controls h3 {
+	margin: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.jsonforms-controls-left {
+}
+
+.jsonforms-controls-right {
+}
+
+.jsonforms-form {
+	width: 600px;
+}
+
+.jsonforms-form .expander-button {
+    width: 100%;
+    display: block;
+    margin-top: 12px;
+}
+
+.jsonforms-form .expander-button a {
+    width: 100%;
+}
+
+.jsonforms-form .expander-button a:focus {
+    outline: none !important; /* stylelint-disable-line declaration-property-value-disallowed-list */
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+.jsonforms-array-controls {
+	text-align: right;
+	padding: 4px;
+	display: block;
+}
+
+.jsonforms-form .oo-ui-toolbar-bar {
+	display: flex;
+}
+
+.jsonforms-form .oo-ui-toolbar-actions {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.jsonforms-form .jsonforms-outerform-buttons {
+    border: none;
+}
+
+.jsonforms-form .jsonforms-outerform-buttons .oo-ui-fieldsetLayout-group {
+    display: flex;
+    gap: 10px;
+}
+
+.jsonforms-form .jsonforms-addproperty-button a {
+	border-radius: 32px;
+	margin: 2px;
+}
+
+.jsonforms-form .jsonforms-outlineitem-selected {
+	background-color: #f7f7f7;
+}
+
+.jsonforms-form .jsonforms-survey-table {
+	border-collapse: collapse;
+	width: 100%;
+	background-color: #f7f7f7;
+}
+
+.jsonforms-form .jsonforms-survey-header-cell {
+	border: 1px solid #ccc;
+	padding: 4px 8px;
+}
+
+.jsonforms-form .jsonforms-survey-header-cell-span {
+	padding: 6px;
+}
+
+.jsonforms-form .jsonforms-survey-row-header {
+	border: 1px solid #ccc;
+	padding: 6px;
+}
+
+.jsonforms-form .jsonforms-survey-leaf-cell {
+	border: 1px solid #ccc;
+	padding: 6px;
+}
+
+.jsonforms-page-nav-footer {
+	display: flex;
+	justify-content: space-between;
+	gap: 1em;
+	margin-top: 2em;
+	background: #f6f6f6;
+	padding: 12px;
+	border-top: 1px dashed #aaa;
+}
+
+.jsonforms-page-nav-left {
+	align-items: flex-start;
+	text-align: left;
+}
+
+.jsonforms-page-nav-right {
+	align-items: flex-end;
+	text-align: right;
+}
+
+:root {
+  --oo-outline-indent: 1em; /* base indentation per level */
+  --oo-icon-extra: 2em;       /* extra padding for iconElement */
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-0 {
+  padding-left: calc(0 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-0.oo-ui-iconElement {
+  padding-left: calc(0 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-0.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(0 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-1 {
+  padding-left: calc(1 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-1.oo-ui-iconElement {
+  padding-left: calc(1 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-1.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(1 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-2 {
+  padding-left: calc(2 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-2.oo-ui-iconElement {
+  padding-left: calc(2 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-2.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(2 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-3 {
+  padding-left: calc(3 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-3.oo-ui-iconElement {
+  padding-left: calc(3 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-3.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(3 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-4 {
+  padding-left: calc(4 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-4.oo-ui-iconElement {
+  padding-left: calc(4 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-4.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(4 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-5 {
+  padding-left: calc(5 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-5.oo-ui-iconElement {
+  padding-left: calc(5 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-5.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(5 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-6 {
+  padding-left: calc(6 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-6.oo-ui-iconElement {
+  padding-left: calc(6 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-6.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(6 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-7 {
+  padding-left: calc(7 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-7.oo-ui-iconElement {
+  padding-left: calc(7 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-7.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(7 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-8 {
+  padding-left: calc(8 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-8.oo-ui-iconElement {
+  padding-left: calc(8 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-8.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(8 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-9 {
+  padding-left: calc(9 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-9.oo-ui-iconElement {
+  padding-left: calc(9 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-9.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(9 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-10 {
+  padding-left: calc(10 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-10.oo-ui-iconElement {
+  padding-left: calc(10 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-10.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(10 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-11 {
+  padding-left: calc(11 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-11.oo-ui-iconElement {
+  padding-left: calc(11 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-11.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(11 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-12 {
+  padding-left: calc(12 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-12.oo-ui-iconElement {
+  padding-left: calc(12 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-12.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(12 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-13 {
+  padding-left: calc(13 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-13.oo-ui-iconElement {
+  padding-left: calc(13 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-13.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(13 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-14 {
+  padding-left: calc(14 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-14.oo-ui-iconElement {
+  padding-left: calc(14 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-14.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(14 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-15 {
+  padding-left: calc(15 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-15.oo-ui-iconElement {
+  padding-left: calc(15 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-15.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(15 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .oo-ui-outlineOptionWidget-level-16 {
+  padding-left: calc(16 * var(--oo-outline-indent));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-16.oo-ui-iconElement {
+  padding-left: calc(16 * var(--oo-outline-indent) + var(--oo-icon-extra));
+}
+.jsonforms-form .oo-ui-outlineOptionWidget-level-16.oo-ui-iconElement .oo-ui-iconElement-icon {
+  left: calc(16 * var(--oo-outline-indent));
+}
+
+.jsonforms-form .rating {
+	display: inline-flex;
+	margin-top: 8px;
+}
+
+.jsonforms-form .rating input {
+	position: absolute;
+	left: -100vw;
+}
+
+.jsonforms-form .rating label {
+	width: 48px;
+	height: 48px;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	cursor: pointer;
+	background: url( data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='48'%3E%3Cpath fill='%23000' d='m24 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3Cpath fill='%23ddd' d='m72 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3Cpath fill='%23696' d='m120 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3C/svg%3E ) no-repeat top left;
+}
+
+.jsonforms-form .rating:not( :hover ) input:indeterminate + label,
+.jsonforms-form .rating:not( :hover ) input:checked ~ input + label,
+.jsonforms-form .rating input:hover ~ input + label {
+	background-position: -48px 0;
+}
+
+.jsonforms-form .rating:not( :hover ) input:focus-visible + label {
+	background-position: -96px 0;
+}

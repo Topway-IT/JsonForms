@@ -1,0 +1,324 @@
+<?php
+
+/**
+ * This file is part of the MediaWiki extension JsonForms.
+ *
+ * JsonForms is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JsonForms is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JsonForms.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup extensions
+ * @author thomas-topway-it <support@topway.it>
+ * @copyright Copyright ©2026, https://wikisphere.org
+ */
+
+use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
+use MediaWiki\Parser\ParserOptions;
+
+/**
+ * A special page that lists protected pages
+ *
+ * @ingroup SpecialPage
+ */
+class SpecialJsonFormsManage extends SpecialPage {
+
+	/** @var user */
+	public $user;
+
+	/** @var Request */
+	public $request;
+
+	/** @var string */
+	public $par;
+
+	/** @var int */
+	public $namespace;
+
+	/** @var string */
+	public $localTitle;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct() {
+		$listed = false;
+		parent::__construct( 'JsonFormsManage', '', $listed );
+	}
+
+	/**
+	 * @return string|Message
+	 */
+	public function getDescription() {
+		$msg = $this->msg( 'jsonformsbrowse' . strtolower( (string)$this->par ) );
+		if ( version_compare( MW_VERSION, '1.40', '>' ) ) {
+			return $msg;
+		}
+		return $msg->text();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function execute( $par ) {
+		// $this->requireLogin();
+
+		$allowedItems = [ 'Forms', 'Schemas' ];
+
+		if ( !in_array( $par, $allowedItems ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
+
+		$this->par = $par;
+
+		$this->setHeaders();
+		$this->outputHeader();
+
+		$user = $this->getUser();
+
+		// if ( !$user->isAllowed( 'jsonforms-canmanageschemas' )
+		// 	&& !$user->isAllowed( 'jsonforms-caneditschema' ) ) {
+		// 	$this->displayRestrictionError();
+		// 	return;
+		// }
+
+		$out = $this->getOutput();
+
+		$out->addModuleStyles( 'mediawiki.special' );
+
+		$this->addHelpLink( 'Extension:JsonForms' );
+
+		$request = $this->getRequest();
+
+		$this->request = $request;
+
+		$this->user = $user;
+
+		$this->addJsConfigVars( $out );
+
+		$out->enableOOUI();
+
+		$this->addNavigationLinks( $par );
+
+		$out->addWikiMsg( 'jsonforms-special-browse-' . strtolower( $this->par ) . '-description' );
+
+		$this->localTitle = SpecialPage::getTitleFor( 'JsonFormsManage', $par );
+
+		$action = $this->getRequest()->getVal( 'action' );
+
+		$item = null;
+		$formName = null;
+		switch( strtolower($this->par ) ) {
+			case 'forms':
+				$item = 'form';
+				$formName = 'EditForm';
+				break;
+			case 'schemas':
+				$item = 'schema';
+				$formName = 'EditSchema';
+				break;
+		}
+
+		switch ( $action ) {
+			case 'edit':
+				$errorMessage = null;
+				$formData = \JsonForms::prepareJsonForms( $out, $formName, $errorMessage );
+
+				$pageid = $this->getRequest()->getVal( 'pageid' );
+				$data = [];
+				if ( $pageid ) {
+					$title = TitleClass::newFromID( $pageid );
+					if ( !$title ) {
+						throw new \Exception( 'invalid title' );
+					}
+
+					$formData['formDescriptor']['edit_title'] = $title->getFullText();
+
+					$text = \JsonForms::getArticleContent( $title );
+					if ( $text ) {
+						$data = json_decode( $text, true );
+					}
+				}
+
+				// Special:JsonFormsManage/Forms
+				$formData['formDescriptor']['return_url'] = $this->localTitle->getLocalURL();
+
+				$html = \JsonForms::getJsonFormHtml( $formData, $data );
+		
+				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
+
+				if ( $html !== false ) {
+					$out->addModules( 'ext.JsonForms.editor' );
+					\JsonForms::addJsConfigVars( $out, [
+						'config' => [
+							'context' => 'manageforms',
+						]
+					] );
+					$out->addHTML( $html );
+				} else {
+					
+				}
+			
+				break;
+			default:
+				$layout = new OOUI\PanelLayout(
+					[ 'id' => 'jsonforms-panel-layout', 'expanded' => false, 'padded' => false, 'framed' => false ]
+				);
+
+				// @TODO remove condition as soon as the metaschema editor works
+				if ( $item === 'form' ) {
+					$layout->appendContent(
+						new OOUI\ButtonWidget(
+							[
+								'href' => wfAppendQuery( $this->localTitle->getLocalURL(), [ 'action' => 'edit' ] ),
+								'label' => $this->msg( 'jsonforms-manage-form-button-add-' . $item )->text(),
+								'infusable' => true,
+								'flags' => [ 'progressive', 'primary' ],
+							]
+						)
+					);
+
+					$out->addHTML( $layout );
+				}
+
+				$options = $this->showOptions( $request );
+
+				if ( $options ) {
+					$out->addHTML( '<br />' );
+					$out->addHTML( $options );
+					$out->addHTML( '<br />' );
+				}
+				
+				$class = null;
+				switch ( $item ) {
+					case 'schema':
+						$this->namespace = NS_JSONSCHEMA;
+						$class = 'ManagePager';
+						break;
+
+					case 'form':
+					default:
+						$this->namespace = NS_JSONFORM;
+						$class = 'ManagePager';
+				}
+
+				$class = "MediaWiki\\Extension\\JsonForms\\Specials\\$class";
+				$pager = new $class(
+					$this,
+					$request,
+					$this->getLinkRenderer()
+				);
+
+				if ( $pager->getNumRows() ) {
+					$out->addParserOutputContent( $pager->getFullOutput(), ParserOptions::newFromContext( $this->getContext() ) );
+			
+				} else {
+					$out->addWikiMsg( 'jsonforms-special-browse-table-empty' );
+				}
+		}
+	}
+
+	/**
+	 * @param Output $out
+	 */
+	protected function addJsConfigVars( $out ) {
+		$context = $this->getContext();
+		$out->addJsConfigVars( [] );
+	}
+
+	/**
+	 * @see AbuseFilterSpecialPage
+	 * @param string $pageType
+	 */
+	protected function addNavigationLinks( $pageType ) {
+		$linkDefs = [
+			'forms' => 'JsonFormsManage/Forms',
+			'schemas' => 'JsonFormsManage/Schemas',
+		];
+
+		$links = [];
+
+		foreach ( $linkDefs as $name => $page ) {
+			// Give grep a chance to find the usages:
+			// abusefilter-topnav-home, abusefilter-topnav-recentchanges, abusefilter-topnav-test,
+			// abusefilter-topnav-log, abusefilter-topnav-tools, abusefilter-topnav-examine
+			$msgName = "jsonformsbrowse$name";
+
+			$msg = $this->msg( $msgName )->parse();
+
+			if ( $name === $pageType ) {
+				$links[] = Xml::tags( 'strong', null, $msg );
+			} else {
+				$links[] = $this->getLinkRenderer()->makeLink(
+					new TitleValue( NS_SPECIAL, $page ),
+					new HtmlArmor( $msg )
+				);
+			}
+		}
+
+		$linkStr = $this->msg( 'parentheses' )
+			->rawParams( $this->getLanguage()->pipeList( $links ) )
+			->text();
+		$linkStr = $this->msg( 'jsonformsbrowsedata-topnav' )->parse() . " $linkStr";
+
+		$linkStr = Xml::tags( 'div', [ 'class' => 'mw-jsonforms-browsedata-navigation' ], $linkStr );
+
+		$this->getOutput()->setSubtitle( $linkStr );
+	}
+
+	/**
+	 * @param Request $request
+	 * @return string
+	 */
+	protected function showOptions( $request ) {
+		$formDescriptor = [];
+
+		switch ( $this->par ) {
+			case 'Schemas':
+			case 'Forms':
+			default:
+				$schemaname = $request->getVal( 'schemaname' );
+				$formDescriptor['schema'] = [
+					'label-message' => 'jsonforms-special-browse-form-search-schema-label',
+					'type' => 'select',
+					'name' => 'schemaname',
+					'type' => 'title',
+					'namespace' => $this->namespace,
+					'relative' => true,
+					'required' => false,
+
+					// @fixme this has no effect, create a custom widget
+					'limit' => 20,
+					'help-message' => 'jsonforms-special-browse-form-search-schema-help',
+					'default' => $schemaname ?? null,
+				];
+
+		}
+
+		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() );
+
+		$htmlForm
+			->setMethod( 'get' )
+			->setWrapperLegendMsg( 'jsonforms-special-browse-form-search-legend' )
+			->setSubmitText( $this->msg( 'jsonforms-special-browse-form-search-submit' )->text() );
+
+		return $htmlForm->prepareForm()->getHTML( false );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGroupName() {
+		return 'jsonforms';
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"name": "Add person",
+	"schema": "Person",
+	"edit_categories": true,
+	"default_data_slot": "main",
+	"overwrite_existing_article_on_create": false,
+	"view": "popup",
+	"pagename_formula": "JsonData:Person/#count",
+	"editor_options": "MediaWiki:DefaultEditorOptions"
+}
+

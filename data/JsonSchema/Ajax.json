@@ -1,0 +1,24 @@
+{
+	"type": "array",
+	"title": "People",
+	"options": {
+		"layout": {
+			"name": "booklet"
+		}
+	},
+	"items": {
+		"title": "Person",
+		"headerTemplate": "{{i}} - {{self.name}}",
+		"anyOf": [
+			{
+				"$ref": "JsonSchema:BasicPerson",
+				"title": "Basic Person"
+			},
+			{
+				"$ref": "JsonSchema:Person",
+				"title": "Complex Person"
+			}
+		]
+	}
+}
+

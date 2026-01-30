@@ -1,0 +1,45 @@
+{
+	"type": "object",
+	"title": "Autocomplete example",
+	"properties": {
+		"_header": {
+			"type": "string",
+			"format": "hidden",
+			"title": "Autocomplete example",
+			"description": "\u003Cp\u003EThis example shows various setups using the autocomplete editor, based on the \u003Ca href=\"https://autocomplete.trevoreyre.com/#/javascript-component\" target=\"_blank\"\u003Eautocomplete\u003C/a\u003E library. The setup for each lookup engine is defined in a special callback list.\u003C/p\u003E",
+			"options": {
+				"grid_columns": 12
+			}
+		},
+		"text": {
+			"type": "string",
+			"format": "autocomplete",
+			"title": "Wikipedia lookup (Page titles)",
+			"description": "Enter a text of minimum 3 characters.",
+			"options": {
+				"grid_columns": 6,
+				"autocomplete": {
+					"search": "wikipediaSearch",
+					"getResultValue": "wikipediaGetResultValue",
+					"renderResult": "wikipediaRenderResult",
+					"autoSelect": true
+				}
+			}
+		},
+		"text2": {
+			"type": "string",
+			"format": "autocomplete",
+			"title": "DAWA lookup (Danish streetnames)",
+			"description": "Enter a text of minimum 3 characters.",
+			"options": {
+				"grid_columns": 6,
+				"autocomplete": {
+					"search": "dawaSearch",
+					"getResultValue": "dawaGetResultValue",
+					"autoSelect": true
+				}
+			}
+		}
+	}
+}
+
