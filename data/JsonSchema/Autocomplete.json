@@ -13,7 +13,6 @@
 		},
 		"text": {
 			"type": "string",
-			"format": "autocomplete",
 			"title": "Wikipedia lookup (Page titles)",
 			"description": "Enter a text of minimum 3 characters.",
 			"options": {
@@ -28,7 +27,6 @@
 		},
 		"text2": {
 			"type": "string",
-			"format": "autocomplete",
 			"title": "DAWA lookup (Danish streetnames)",
 			"description": "Enter a text of minimum 3 characters.",
 			"options": {
