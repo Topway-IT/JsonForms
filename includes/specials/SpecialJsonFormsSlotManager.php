@@ -103,7 +103,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		}
 
 		$startVal = [];
-		if ( $editTitle ) {
+		if ( $editTitle && $editTitle->isKnown() ) {
 			$wikiPage = \JsonForms::getWikiPage( $editTitle );
 			$metadata = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
 			$slots = \JsonForms::getSlots( $wikiPage );

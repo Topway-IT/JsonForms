@@ -116,52 +116,179 @@
 	"JobClasses": {
 	},
 	"ResourceModules": {
-		"ext.JsonForms.slotManager": {
-			"position": "top",
+	"ext.JsonForms.slotManager": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
-			"scripts": [
-				"JsonFormsSlotManager.js"
-			],
 			"styles": [
-			],
-			"dependencies": [
-				"ext.JsonForms.editor"
-			],
-			"messages": [
-			]
-		},
-		"ext.JsonForms.demo": {
-			"position": "top",
-			"localBasePath": "resources",
-			"remoteExtPath": "JsonForms/resources",
-			"scripts": [
-				"JsonFormsDemo.js"
-			],
-			"styles": [
-			],
-			"dependencies": [
-				"ext.JsonForms.editor"
-			],
-			"messages": [
-			]
-		},
-		"ext.JsonForms.pageForms": {
-			"position": "top",
-			"localBasePath": "resources",
-			"remoteExtPath": "JsonForms/resources",
-			"scripts": [
-				"JsonFormsPageForms.js"
-			],
-			"styles": [
+				"datatables/datatables.min.css",
+				"datatables/style.css",
+				"libs/autocomplete.min.css",
 				"style.css"
 			],
+			"scripts": [
+				"datatables/object_hash.js",
+				"datatables/datatables.min.js",
+				"libs/autocomplete.min.js",
+				"libs/handlebars.min.js",
+				"libs/imask.min.js",
+				"libs/signature_pad.umd.min.js",
+				"editor/jsonforms-editor.js",
+				"EnumProviders.js",
+				"AutocompleteProviders.js",
+				"NonModalDialog.js",
+				"JsonFormsUtilities.js",
+				"JsonForms.js",
+				"JsonFormsSlotManager.js"
+			],
 			"dependencies": [
-				"ext.JsonForms.editor"
+				"mediawiki.rcfilters.filters.base.styles",
+				"mediawiki.util",
+				"mediawiki.base",
+				"mediawiki.cookie",
+				"mediawiki.api",
+				"oojs-ui-core",
+				"oojs-ui-widgets",
+				"mediawiki.storage",
+				"oojs-ui.styles.icons-alerts",
+				"oojs-ui.styles.icons-interactions",
+				"oojs-ui.styles.icons-editing-core",
+				"oojs-ui.styles.icons-layout",
+				"oojs-ui.styles.icons-movement",
+				"oojs-ui.styles.icons-moderation",
+				"oojs-ui.styles.icons-accessibility",
+				"oojs-ui-toolbars",
+				"oojs-ui-windows",
+				"mediawiki.widgets",
+				"mediawiki.widgets.datetime",
+				"mediawiki.widgets.DateInputWidget",
+				"mediawiki.widgets.TitlesMultiselectWidget",
+				"mediawiki.widgets.CategoryMultiselectWidget",
+				"mediawiki.widgets.UserInputWidget",
+				"mediawiki.widgets.UsersMultiselectWidget",
+				"mediawiki.Upload"
 			],
 			"messages": [
-			]
+				"jsonforms-jsmodule-return-errors"
+			],
+			"position": "top"
 		},
+		
+		
+			"ext.JsonForms.demo": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+				"datatables/datatables.min.css",
+				"datatables/style.css",
+				"libs/autocomplete.min.css",
+				"style.css"
+			],
+			"scripts": [
+				"datatables/object_hash.js",
+				"datatables/datatables.min.js",
+				"libs/autocomplete.min.js",
+				"libs/handlebars.min.js",
+				"libs/imask.min.js",
+				"libs/signature_pad.umd.min.js",
+				"editor/jsonforms-editor.js",
+				"EnumProviders.js",
+				"AutocompleteProviders.js",
+				"NonModalDialog.js",
+				"JsonFormsUtilities.js",
+				"JsonForms.js",
+				"JsonFormsDemo.js"
+			],
+			"dependencies": [
+				"mediawiki.rcfilters.filters.base.styles",
+				"mediawiki.util",
+				"mediawiki.base",
+				"mediawiki.cookie",
+				"mediawiki.api",
+				"oojs-ui-core",
+				"oojs-ui-widgets",
+				"mediawiki.storage",
+				"oojs-ui.styles.icons-alerts",
+				"oojs-ui.styles.icons-interactions",
+				"oojs-ui.styles.icons-editing-core",
+				"oojs-ui.styles.icons-layout",
+				"oojs-ui.styles.icons-movement",
+				"oojs-ui.styles.icons-moderation",
+				"oojs-ui.styles.icons-accessibility",
+				"oojs-ui-toolbars",
+				"oojs-ui-windows",
+				"mediawiki.widgets",
+				"mediawiki.widgets.datetime",
+				"mediawiki.widgets.DateInputWidget",
+				"mediawiki.widgets.TitlesMultiselectWidget",
+				"mediawiki.widgets.CategoryMultiselectWidget",
+				"mediawiki.widgets.UserInputWidget",
+				"mediawiki.widgets.UsersMultiselectWidget",
+				"mediawiki.Upload"
+			],
+			"messages": [
+				"jsonforms-jsmodule-return-errors"
+			],
+			"position": "top"
+		},
+		
+		
+"ext.JsonForms.pageForms": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+				"datatables/datatables.min.css",
+				"datatables/style.css",
+				"libs/autocomplete.min.css",
+				"style.css"
+			],
+			"scripts": [
+				"datatables/object_hash.js",
+				"datatables/datatables.min.js",
+				"libs/autocomplete.min.js",
+				"libs/handlebars.min.js",
+				"libs/imask.min.js",
+				"libs/signature_pad.umd.min.js",
+				"editor/jsonforms-editor.js",
+				"EnumProviders.js",
+				"AutocompleteProviders.js",
+				"NonModalDialog.js",
+				"JsonFormsUtilities.js",
+				"JsonForms.js",
+				"JsonFormsPageForms.js"
+			],
+			"dependencies": [
+				"mediawiki.rcfilters.filters.base.styles",
+				"mediawiki.util",
+				"mediawiki.base",
+				"mediawiki.cookie",
+				"mediawiki.api",
+				"oojs-ui-core",
+				"oojs-ui-widgets",
+				"mediawiki.storage",
+				"oojs-ui.styles.icons-alerts",
+				"oojs-ui.styles.icons-interactions",
+				"oojs-ui.styles.icons-editing-core",
+				"oojs-ui.styles.icons-layout",
+				"oojs-ui.styles.icons-movement",
+				"oojs-ui.styles.icons-moderation",
+				"oojs-ui.styles.icons-accessibility",
+				"oojs-ui-toolbars",
+				"oojs-ui-windows",
+				"mediawiki.widgets",
+				"mediawiki.widgets.datetime",
+				"mediawiki.widgets.DateInputWidget",
+				"mediawiki.widgets.TitlesMultiselectWidget",
+				"mediawiki.widgets.CategoryMultiselectWidget",
+				"mediawiki.widgets.UserInputWidget",
+				"mediawiki.widgets.UsersMultiselectWidget",
+				"mediawiki.Upload"
+			],
+			"messages": [
+				"jsonforms-jsmodule-return-errors"
+			],
+			"position": "top"
+		},
+		
 		"ext.JsonForms.jsoneditor": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
