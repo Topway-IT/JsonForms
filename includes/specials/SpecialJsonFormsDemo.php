@@ -19,21 +19,21 @@
  * @file
  * @ingroup extensions
  * @author thomas-topway-it <support@topway.it>
- * @copyright Copyright ©2021-2024, https://wikisphere.org
+ * @copyright Copyright ©2025-2026, https://wikisphere.org
  */
 
 use MediaWiki\Extension\JsonForms\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 
 
-class SpecialJsonForms extends SpecialPage {
+class SpecialJsonFormsDemo extends SpecialPage {
 
 	/** @inheritDoc */
 	public function __construct() {
 		$listed = true;
 
 		// https://www.mediawiki.org/wiki/Manual:Special_pages
-		parent::__construct( 'JsonForms', '', $listed );
+		parent::__construct( 'JsonFormsDemo', '', $listed );
 	}
 
 	/** @inheritDoc */
@@ -52,35 +52,33 @@ class SpecialJsonForms extends SpecialPage {
 		}
 
 		$this->addHelpLink( 'Extension:JsonForms' );
+		$out->addModules( 'ext.JsonForms.demo' );
 
-		$out->addModules( 'ext.JsonForms.editor' );
-		$context = RequestContext::getMain();
+		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
+		$jsonForm = json_decode( $jsonForm, true );
 
-		// form descriptor
-		$formName = $par ?? 'CreateArticle';
+		$formData = [
+			'schema' => [],
+			'name' => 'Demo',
+			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+			'editorScript'=> 'MediaWiki:DefaultEditorScript',
+			'startval'=> null,
+		];
 
-		$errorMessage = null;
+		$formData = \JsonForms::prepareFormData( $out, $formData );
+
 		$data = [];
-		$res_ = \JsonForms::getJsonForm( $out, $formName, $data );
+		$res_ = \JsonForms::getJsonFormHtml( $formData, $data );
 
 		if ( !$res_->ok ) {
 			return $this->printError( $out, $res_->error );
 		}
 
-		\JsonForms::addJsConfigVars( $out );
-		
-		$out->addHTML( $res_->value );
-	}
+		$html = $res_->value;
 
-	/**
-	 * @param Output $out
-	 * @param string $msg
-	 */
-	private function printError( $out, $msg ) {
-		$out->addHTML( new \OOUI\MessageWidget( [
-			'type' => 'error',
-			'label' => new \OOUI\HtmlSnippet( $this->msg( $msg )->parse() )
-		] ) );
+		\JsonForms::addJsConfigVars( $out );
+
+		$out->addHTML( $html );
 	}
 
 	/**

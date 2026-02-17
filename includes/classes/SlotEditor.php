@@ -33,7 +33,6 @@ use MediaWiki\CommentStore\CommentStoreComment;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Page\WikiPage;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
@@ -46,7 +45,7 @@ class SlotEditor
     private SlotRoleRegistry $slotRegistry;
 
     private User $user;
-    private WikiPage $wikiPage;
+    private /* WikiPage|MediaWiki\Page\WikiPage */ $wikiPage;
     private $title;
     private LoggerInterface $logger;
 
@@ -80,7 +79,7 @@ class SlotEditor
     }
 
     protected function beforeSave(
-        WikiPage $wikiPage,
+        /* WikiPage|MediaWiki\Page\WikiPage */ $wikiPage,
         PageUpdater $pageUpdater,
         array $slotUpdates,
         ?RevisionRecord $oldRevision
@@ -92,7 +91,7 @@ class SlotEditor
 
     public function editSlots(
         User $user,
-        WikiPage $wikiPage,
+        /* WikiPage|MediaWiki\Page\WikiPage */ $wikiPage,
         array $slotUpdates,
         string $summary = "",
         bool $append = false,

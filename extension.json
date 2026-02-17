@@ -1,7 +1,7 @@
 {
 	"name": "JsonForms",
 	"author": "thomas-topway-it",
-	"version": "0.6",
+	"version": "0.7",
 	"url": "https://www.mediawiki.org/wiki/Extension:JsonForms",
 	"descriptionmsg": "jsonforms-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -19,7 +19,9 @@
 	"callback": "JsonFormsHooks::initExtension",
 	"AutoloadClasses": {
 		"SpecialJsonForms": "includes/specials/SpecialJsonForms.php",
+		"SpecialJsonFormsDemo": "includes/specials/SpecialJsonFormsDemo.php",
 		"SpecialJsonFormsManage": "includes/specials/SpecialJsonFormsManage.php",
+		"SpecialJsonFormsSlotManager": "includes/specials/SpecialJsonFormsSlotManager.php",
 		"JsonForms": "includes/JsonForms.php",
 		"JsonFormsHooks": "includes/JsonFormsHooks.php",
 		"JsonFormsApiSubmitForm": "includes/api/JsonFormsApiSubmitForm.php"
@@ -29,7 +31,8 @@
 		"MediaWiki\\Extension\\JsonForms\\Aliases\\": "includes/aliases/",
 		"MediaWiki\\Extension\\JsonForms\\": "includes/classes/",
 		"MediaWiki\\Extension\\JsonForms\\Utils\\": "includes/utils/",
-		"MediaWiki\\Extension\\JsonForms\\Specials\\": "includes/specials/"
+		"MediaWiki\\Extension\\JsonForms\\Specials\\": "includes/specials/",
+		"MediaWiki\\Extension\\JsonForms\\SubmitProcessors\\": "includes/classes/SubmitProcessors/"
 	},
 	"APIModules": {
 		"jsonforms-submit-form": "JsonFormsApiSubmitForm"
@@ -41,6 +44,7 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "JsonFormsHooks::onLoadExtensionSchemaUpdates",
 		"MediaWikiServices": "JsonFormsHooks::onMediaWikiServices",
+		"ContentAlterParserOutput": "JsonFormsHooks::onContentAlterParserOutput",
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
 		"BeforePageDisplay": "JsonFormsHooks::onBeforePageDisplay",
@@ -50,7 +54,9 @@
 	},
 	"SpecialPages": {
 		"JsonForms": "SpecialJsonForms",
+		"JsonFormsDemo": "SpecialJsonFormsDemo",
 		"JsonFormsManage": "SpecialJsonFormsManage",
+		"JsonFormsSlotManager": "SpecialJsonFormsSlotManager",
 		"JsonFormsManageForms": "MediaWiki\\Extension\\JsonForms\\Specials\\ManageForms",
 		"JsonFormsManageSchemas": "MediaWiki\\Extension\\JsonForms\\Specials\\ManageSchemas"
 	},
@@ -110,19 +116,62 @@
 	"JobClasses": {
 	},
 	"ResourceModules": {
-		"ext.JsonForms": {
+		"ext.JsonForms.slotManager": {
 			"position": "top",
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"scripts": [
+				"JsonFormsSlotManager.js"
+			],
+			"styles": [
+			],
+			"dependencies": [
+				"ext.JsonForms.editor"
+			],
+			"messages": [
+			]
+		},
+		"ext.JsonForms.demo": {
+			"position": "top",
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"scripts": [
+				"JsonFormsDemo.js"
+			],
+			"styles": [
+			],
+			"dependencies": [
+				"ext.JsonForms.editor"
+			],
+			"messages": [
+			]
+		},
+		"ext.JsonForms.pageForms": {
+			"position": "top",
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"scripts": [
+				"JsonFormsPageForms.js"
 			],
 			"styles": [
 				"style.css"
 			],
 			"dependencies": [
+				"ext.JsonForms.editor"
 			],
 			"messages": [
 			]
+		},
+		"ext.JsonForms.jsoneditor": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+				"jsoneditor/jsoneditor.min.css"
+			],
+			"scripts": [
+				"jsoneditor/ace.js",
+				"jsoneditor/jsoneditor.min.js"
+			]			
 		},
 		"ext.JsonForms.editor": {
 			"localBasePath": "resources",
@@ -131,23 +180,20 @@
 				"datatables/datatables.min.css",
 				"datatables/style.css",
 				"libs/autocomplete.min.css",
-				"libs/flatpickr.min.css",
-				"libs/jsoneditor.min.css",
 				"style.css"
 			],
 			"scripts": [
 				"datatables/object_hash.js",
 				"datatables/datatables.min.js",
 				"libs/autocomplete.min.js",
-				"libs/flatpickr.min.js",
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
-				"libs/jsoneditor.min.js",
 				"libs/signature_pad.umd.min.js",
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
 				"NonModalDialog.js",
+				"JsonFormsUtilities.js",
 				"JsonForms.js"
 			],
 			"dependencies": [
@@ -178,7 +224,7 @@
 				"mediawiki.Upload"
 			],
 			"messages": [
-				"jsonforms-jsmodule-return-message"
+				"jsonforms-jsmodule-return-errors"
 			],
 			"position": "top"
 		}

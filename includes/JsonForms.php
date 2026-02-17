@@ -21,15 +21,16 @@
  * @copyright Copyright ©2025-2026, https://wikisphere.org
  */
 
+use MediaWiki\Content\JsonContent;
 use MediaWiki\Extension\JsonForms\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\JsonForms\Aliases\Linker as LinkerClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
-use MediaWiki\Content\JsonContent;
+use MediaWiki\Extension\JsonForms\FormParameters;
+use MediaWiki\Extension\JsonForms\QueryLinkParameters;
+use MediaWiki\Extension\JsonForms\ResultWrapper;
+use MediaWiki\Extension\JsonForms\SlotHelper;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Page\PageIdentityValue;
-
-use MediaWiki\Extension\JsonForms\QueryLinkParameters;
 
 if ( is_readable( __DIR__ . '/../vendor/autoload.php' ) ) {
 	include_once __DIR__ . '/../vendor/autoload.php';
@@ -37,6 +38,9 @@ if ( is_readable( __DIR__ . '/../vendor/autoload.php' ) ) {
 
 
 class JsonForms {
+
+	/** @var array */
+	private static $slotsCache = [];
 
 	/** @var int */
 	public static $queryLimit = 500;
@@ -53,27 +57,124 @@ class JsonForms {
 		$parserOutput = $parser->getOutput();
 		$parserOutput->setExtensionData( 'jsonforms', true );
 
-		if ( empty( $argv ) ) {
-			echo 'enter a form name';
-			exit;
+		$functionReturn = static function( $value ) {
+			return [
+				$value,
+				'noparse' => true,
+				'isHTML' => true
+			];
+		};
+
+		if ( empty( $argv[0] ) ) {
+			// echo 'enter a form name';
+			return $functionReturn(self::printError( $parserOutput, 'jsonforms-parserfunction-error-no-form-name'));
 		}
 
 		$function = 'form';
 		$formName = $argv[0];
 		$data = [];
 		$errorMessage = null;
-		$html = self::getJsonForm( $parserOutput, $formName, $data, $errorMessage );
 
-		if ( $html === false ) {
-			echo $errorMessage;
-			exit;
+		$formSchema = file_get_contents(  __DIR__ . '/schemas/CreatePageForm.json');
+		$formSchema = json_decode( $formSchema, true );
+
+		$parameters = new FormParameters($argv, $formSchema );
+
+		$named = $parameters->getOptions();
+		// $unnamed = $parameters->getValues();
+		// $query = $parameters->getQuery();	
+
+		$context = RequestContext::getMain();
+		$output = $context->getOutput();
+
+		// $html = self::getJsonForm( $parserOutput, $formName, $data, $errorMessage );
+
+		if ( empty( $formName ) ) {
+			return $functionReturn(self::printError( $parserOutput, 'jsonforms-parserfunction-error-no-form-name' ) );
 		}
-		
-		return [
-			$html,
-			'noparse' => true,
-			'isHTML' => true
+
+		$formDescriptor = self::getJsonSchema( 'JsonForm:' . $formName  );
+		if ( empty( $formDescriptor ) ) {
+			return $functionReturn(self::printError( $parserOutput, 'jsonforms-parserfunction-error-no-form' ) );
+		}
+
+		// formDescriptor prevails over default parameters but
+		// inline parameters prevail over formDescriptor
+		foreach ( $named as $k => $v ) {
+			if (
+				!array_key_exists( $k, $formDescriptor ) ||
+				in_array($k, $parameters->initialKnown )
+			)  {
+				$formDescriptor[$k] = $v;
+			}
+		}
+
+		$jsonForm = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
+		$jsonForm = json_decode( $jsonForm, true );
+
+		if ( !empty( $formDescriptor['schema'] ) ) {
+			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
+
+			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
+				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+			}
+		}
+
+		$startVal = [];
+		// or ParserOptions::newFromAnon()
+		if ( !empty( $formDescriptor['edit_page'] ) ) {
+			$editTitle = TitleClass::newFromText( $formDescriptor['edit_page'] );
+			
+			if ( $editTitle && $editTitle->isKnown() ) {
+				$wikiPage = self::getWikiPage( $editTitle );
+
+				if ( !empty( $formDescriptor['schema'] ) ) {
+					$metadata = self::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+
+					if ( $metadata && is_array( $metadata['slots'] ) ) {
+						// *** or use $renderedRevision->getSlotParserOutput( $role )
+						foreach ( $metadata['schemas'] as $role => $schema ) {
+							if ( $schema === $formDescriptor['schema'] ) {
+								$content = self::getSlotContent( $wikiPage, $role );
+								if ( $content ) {
+									$startVal['form']['form'] = $content;
+								}
+								break;
+							}
+						}
+					}
+				}
+
+				if ( $formDescriptor['edit_categories'] === true ) {
+					$categories = self::getNonAnnotatedCategories( $editTitle );
+					$startVal['form']['options']['categories'] = $categories;
+				}
+
+				// @TODO add page content
+				// if ( $formDescriptor['edit_main_slot_content'] === true ) {
+			}
+		}
+// print_r($startVal);
+// exit;
+		$formData = [
+			'schema' => $jsonForm,
+			'name' => 'PageForm',
+			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+			'editorScript'=> 'MediaWiki:DefaultEditorScript',
+			'startval'=> $startVal,
+			'formDescriptor' => $formDescriptor
 		];
+
+		$formData = \JsonForms::prepareFormData( $output, $formData );
+
+		$data = [];
+		$res_ = \JsonForms::getJsonFormHtml( $formData );
+
+		if ( !$res_->ok ) {
+			return $functionReturn(self::printError( $parserOutput, $res_->error ),);
+		}
+
+		return $functionReturn($res_->value );
 		
 /*
 		$parser->addTrackingCategory( "jsonforms-trackingcategory-parserfunction-$function" );
@@ -104,28 +205,269 @@ class JsonForms {
 */
 	}
 
+	/**
+	 * @param Context $context
+	 * @param string $titleStr
+	 * @return mixed
+	 */
+	public static function getArticleMetadata( $context, $titleStr ) {
+		$parserOptions = ParserOptions::newFromContext( $context );
+		$title = TitleClass::newFromText( $titleStr );
+		$wikiPage = self::getWikiPage( $title );
+		$parserOutput = $wikiPage->getParserOutput( $parserOptions );
+		return $parserOutput->getExtensionData( 'JsonForms' );
+	}
+
+	/**
+	 * @param Context $context
+	 * @param WikiPage $wikiPage
+	 * @return mixed
+	 */
+	public static function getMetadata( $context, $wikiPage ) {
+		return self::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+	}
+
+	/**
+	 * @see https://www.php.net/manual/en/function.array-merge-recursive.php
+	 * @param array $arr1
+	 * @param array $arr2
+	 * @param bool $replaceLists false
+	 * @return array
+	 */
+	public static function array_merge_recursive( $arr1, $arr2, $replaceLists = false ) {
+		$ret = $arr1;
+
+		if ( self::isList( $arr1 ) && self::isList( $arr2 ) ) {
+			if ( $replaceLists ) {
+				return $arr2;
+			}
+
+			// append values to list
+			foreach ( $arr2 as $value ) {
+				$ret[] = $value;
+			}
+
+			return $ret;
+		}
+
+		foreach ( $arr2 as $key => $value ) {
+			if ( is_array( $value ) && isset( $ret[$key] )
+				&& is_array( $ret[$key] )
+			) {
+				$ret[$key] = self::array_merge_recursive( $ret[$key], $value, $replaceLists );
+			} else {
+				$ret[$key] = $value;
+			}
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * @param array $arr
+	 * @see https://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+	 * @return bool
+	 */
+	public static function isList( $arr ) {
+		if ( function_exists( 'array_is_list' ) ) {
+			return array_is_list( $arr );
+		}
+		if ( $arr === [] ) {
+			return true;
+		}
+		return array_keys( $arr ) === range( 0, count( $arr ) - 1 );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getDefaultTrackingCategories() {
+		$services = MediaWikiServices::getInstance();
+		if ( method_exists( $services, 'getTrackingCategories' ) ) {
+			$trackingCategoriesClass = $services->getTrackingCategories();
+			$trackingCategories = $trackingCategoriesClass->getTrackingCategories();
+
+		} else {
+			$context = RequestContext::getMain();
+			$config = $context->getConfig();
+			$trackingCategories = new TrackingCategories( $config );
+		}
+
+		$ret = [];
+		foreach ( $trackingCategories as $value ) {
+			foreach ( $value['cats'] as $title_ ) {
+				$ret[] = $title_->getText();
+			}
+		}
+		return $ret;
+	}
+
+	/**
+	 * @param Title|MediaWiki\Title\Title $title
+	 * @return array
+	 */
+	public static function getTrackingCategories( $title ) {
+		$ret = self::getCategories( $title );
+
+		$trackingCategories = self::getDefaultTrackingCategories();
+		foreach ( $ret as $key => $category ) {
+			if ( !in_array( $category, $trackingCategories ) ) {
+				unset( $ret[$key] );
+			}
+		}
+
+		return array_values( $ret );
+	}
+
+	/**
+	 * @param Title|MediaWiki\Title\Title $title
+	 * @return array
+	 */
+	public static function getNonAnnotatedCategories( $title ) {
+		$ret = self::getCategories( $title );
+		
+		// remove tracking categories
+		$trackingCategories = self::getTrackingCategories( $title );
+		foreach ( $ret as $key => $category ) {
+			if ( in_array( $category, $trackingCategories ) ) {
+				unset( $ret[$key] );
+			}
+		}
+
+		// remove categories annotated on the page,
+		// since we will not tinker with wikitext
+		// necessary only if content model is wikitext
+		$wikiPage = self::getWikiPage( $title );
+		if ( $wikiPage->getContentModel() === CONTENT_MODEL_WIKITEXT ) {
+			// $jsonData = self::getJsonData( $title );
+			$context = RequestContext::getMain();
+			$data = self::getMetadata( $context, $wikiPage );
+			if ( $data && !empty( $data['categories'] ) ) {
+				foreach ( $ret as $key => $category ) {
+					if ( !in_array( $category, $data['categories'] ) ) {
+						unset( $ret[$key] );
+					}
+				}
+			}
+		}
+
+		return array_values( $ret );
+	}
+
+	/**
+	 * @param Title|MediaWiki\Title\Title $title
+	 * @param int $mode 2
+	 * @return array
+	 */
+	public static function getCategories( $title ) {
+		if ( !$title || !$title->isKnown() ) {
+			return [];
+		}
+
+		$wikiPage = self::getWikiPage( $title );
+
+		// a special page
+		if ( !$wikiPage ) {
+			return [];
+		}
+
+		$arr = $wikiPage->getCategories();
+		$ret = [];
+		foreach ( $arr as $title_ ) {
+			$ret[] = $title_->getText();
+		}
+		
+		return $ret;
+	}
+
+	/**
+	 * @param MediaWiki\Parser\ParserOutput $parserOutput
+	 * @param string $msg
+	 * @return string
+	 */
+	public static function printError( $parserOutput, $msg ) {
+		$parserOutput->setEnableOOUI();
+		\OOUI\Theme::setSingleton( new \OOUI\WikimediaUITheme() );
+
+		return new \OOUI\MessageWidget( [
+			'type' => 'error',
+			'label' => new \OOUI\HtmlSnippet( wfMessage( $msg )->parse() )
+		] );
+	}
+
 	public static function parseWikitext( $output, $value ) {
 		// return $this->parser->recursiveTagParseFully( $str );
 		return Parser::stripOuterParagraph( $output->parseAsContent( $value ) );
 	}
 
 	/**
-	 * @param string $formName
+	 * @param Output $output
+	 * @param array $formParameters
 	 * @param array $data
-	 * @param string &$errorMessage
-	 * @return string|false
+	 * @return ResultWrapper
 	 */
-	public static function getJsonForm( $output, $formName, $data, &$errorMessage ) {
-		$formData = self::prepareJsonForms( $output, $formName, $errorMessage );
-		return self::getJsonFormHtml( $formData, $data );
+	public static function getJsonForm( $output, $formParameters = [], $data = null ) {
+		$res = self::prepareJsonForms( $output, $formParameters );
+		if ( !$res->ok ) {
+			return ResultWrapper::failure( $res->error );
+		}
+
+		return self::getJsonFormHtml( $res->value, $data );
+	}
+
+	/**
+	 * @param Output $output
+	 * @param array $formParameters
+	 * @param array $schemaObj
+	 * @return ResultWrapper
+	 */
+	public static function prepareFormData( $output, $data ) {
+		$schema = &$data['schema'];
+
+		if ( !empty( $schema ) && class_exists( 'Opis\JsonSchema\Validator' ) ) {
+			// $errorMessage = 'invalid schema in form descriptor';
+			// return false;
+			$editor = new \MediaWiki\Extension\JsonForms\JsonSchemaEditor();
+			$wikitextKeys = [ 'title', 'description' ];
+			$editor->traverse($schema, function (&$s) use ($output, $wikitextKeys) {
+				foreach ( $wikitextKeys as $key ) {
+   					if ( isset( $s['options']['wikitext'][$key] ) ) {  
+						$s[$key] = self::parseWikitext(
+							$output,
+							$s['options']['wikitext'][$key]
+						);
+					}
+				}
+			} );
+		}
+
+		if ( !empty( $data['editorOptions'] ) ) {
+			$title_ = TitleClass::newFromText( $data['editorOptions'], NS_MEDIAWIKI );
+			if ( $title_ && $title_->isKnown() ) {
+				$data['editorOptions'] = self::getWikipageContent( $title_ );
+			}
+		}
+
+		if ( !empty( $data['editorScript'] ) ) {
+			$title_ = TitleClass::newFromText( $data['editorScript'], NS_MEDIAWIKI );
+			if ( $title_ && $title_->isKnown() ) {
+				$data['editorScript'] = self::getWikipageContent( $title_ );
+			}
+		}
+			
+		return $data;
 	}
 
 	/**
 	 * @param array $data
-	 * @param array $startval
-	 * @return string
+	 * @return ResultWrapper
 	 */
-	public static function getJsonFormHtml( $data, $startval = [] ) {
+	public static function getJsonFormHtml( $data ) {
+		// $requiredKeys = [ 'schema','schemaName', 'editorOptions' ];
+		// if ( count( array_intersect_key( (array)$data, array_flip( $requiredKeys ) ) ) !== 3 ) {
+		// 	return ResultWrapper::failure('jsonforms-parserfunction-error-invalid-data');
+		// }
+
 		$loadingContainer = HtmlClass::rawElement(
 			'div',
 			[ 'class' => 'rcfilters-head mw-rcfilters-head', 'id' => 'mw-rcfilters-spinner-wrapper', 'style' => 'position: relative' ],
@@ -146,74 +488,13 @@ class JsonForms {
 			wfMessage( 'jsonforms-loading-placeholder' )->text()
 		);
 
-		return HtmlClass::rawElement( 'div', [
-			'data-form-data' => json_encode( [
-				'formDescriptor' => $data['formDescriptor'],
-				'schema' => (array)$data['schema'],
-				'schemaName' =>$data['schemaName'],
-				'data' => $startval,
-				'editorOptions' => $data['editorOptions']
-			] ),
-			'class' => 'jsonforms-form jsonforms-form-wrapper'
-		], $loadingContainer . $loadingPlaceholder );		
-	}
-
-	/**
-	 * @param string $formName
-	 * @param array $data
-	 * @param string &$errorMessage
-	 * @return string|false
-	 */
-	public static function prepareJsonForms( $output, $formName, &$errorMessage ) {
-		if ( empty( $formName ) ) {
-			$errorMessage = 'enter a form name';
-			return false;
-		}
-	
-		$formDescriptor = self::getJsonSchema( 'JsonForm:' . $formName  );
-		if ( empty( $formDescriptor ) ) {
-			$errorMessage = 'enter a valid form name';
-			return false;
-		}
-
-		$schema = [];
-		$schemaName = [];
-		if ( !empty( $formDescriptor['schema'] ) ) {
-			$schemaName = $formDescriptor['schema'];
-			$schema = self::getJsonSchema( 'JsonSchema:' . $schemaName  );	
-		}
-
-		if ( !empty( $schema ) && class_exists( 'Opis\JsonSchema\Validator' ) ) {
-			// $errorMessage = 'invalid schema in form descriptor';
-			// return false;
-			$editor = new \MediaWiki\Extension\JsonForms\JsonSchemaEditor();
-
-			$editor->traverse($schema, function (&$s) use ($output) {
-   				if ( isset( $s['options']['wikitext']['description'] ) ) {  
-					$s['description'] = self::parseWikitext(
-						$output,
-						$s['options']['wikitext']['description']
-					);
-				}
-			} );
-			
-		}
-
-		$editorOptions = '';
-		if ( !empty( $formDescriptor['editor_options'] ) ) {
-
-			$title_ = TitleClass::newFromText( $formDescriptor['editor_options'], NS_MEDIAWIKI );
-			if ( $title_ && $title_->isKnown() ) {
-				$editorOptions = self::getWikipageContent( $title_ );
-			}
-		}
-
-		return [
-			'formDescriptor' => $formDescriptor,
-			'schema' => (array)$schema,
-			'schemaName' => $schemaName,
-			'editorOptions' => $editorOptions
-		];
+		$ret = HtmlClass::rawElement( 'div', [
+			'data-form-data' => json_encode( $data ),
+			'class' => 'jsonforms-form jsonforms-form-wrapper',
+			'style' => !isset( $data['schema']['width'] ) ? '' : 'width:' . $data['schema']['width']
+		], $loadingContainer . $loadingPlaceholder );
+		
+		return ResultWrapper::success($ret);
 	}
 
 	/**
@@ -265,10 +546,9 @@ class JsonForms {
 
 	/**
 	 * @param OutputPage $out
-	 * @param array $obj
 	 * @return void
 	 */
-	public static function addJsConfigVars( $out, $obj ) {
+	public static function addJsConfigVars( $out ) {
 		$title = $out->getTitle();
 		$user = $out->getUser();
 		$context = $out->getContext();
@@ -300,9 +580,12 @@ class JsonForms {
 			'canmanageschemas' => $user->isAllowed( 'jsonforms-canmanageschemas' ),
 			'canmanageforms' => $user->isAllowed( 'jsonforms-canmanageforms' ),
 			'contentModels' => array_flip( self::getContentModels() ),
+			'roleContentModelMap' => SlotHelper::getRoleContentModelMap(),
 			'contentModel' => $title->getContentModel(),
 			'VEForAll' => $VEForAll,
-			'jsonSlots' => self::getJsonSlots(),
+			'jsonSlots' => SlotHelper::getJsonSlots(),
+			'slotRoles' => SlotHelper::getSlotRoles(),
+			'jsonContentModels' => SlotHelper::getJsonContentModels(),
 			// 'maptiler-apikey' => $GLOBALS['wgJsonFormsMaptilerApiKey']
 			'jsonforms-show-notice-outdated-version' => $showOutdatedVersion,
 		];
@@ -314,51 +597,6 @@ class JsonForms {
 
 			'jsonforms' => $config,
 		] );
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getJsonSlots() {
-		$services = MediaWikiServices::getInstance();
-		$contentHandlerFactory = $services->getContentHandlerFactory();
-		$slotRegistry = $services->getSlotRoleRegistry();
-
-		$page = new PageIdentityValue( 0, NS_MAIN, 'Dummy', false );
-
-		$ret = [];
-		foreach ( $slotRegistry->getKnownRoles() as $slot ) {
-		    $roleHandler = $slotRegistry->getRoleHandler( $slot );
-		  	$model = $roleHandler->getDefaultModel( $page );
-
-			$contentHandler = $contentHandlerFactory->getContentHandler( $model );
-			$content = $contentHandler->makeEmptyContent();
-
-			if ( $content instanceof JsonContent ) {
-				// $jsonLikeSlots[$slot] = get_class($content);
-				$ret[] = $slot;
-			}
-		}
-		return $ret;
-	}
-
-	/**
-	 * @param WikiPage $wikiPage
-	 * @return string|null
-	 */
-	public static function getJsonSlot( $wikiPage ) {
-		$revision = $wikiPage->getRevisionRecord();
-		$slots = $revision->getSlots()->getSlots();
-		
-		foreach ( $slots as $role => $slot ) {
-			$content = $slots[$role]->getContent();
-
-			if ( $content instanceof JsonContent ) {
-				return $role;
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -474,6 +712,81 @@ class JsonForms {
 		ksort( $options );
 
 		return $options;
+	}
+
+   /**
+     * @param WikiPage $wikiPage
+     * @return string|null
+     */
+    public static function getFirstJsonSlot(WikiPage $wikiPage): ?string {
+    	$revisionRecord = $wikiPage->getRevisionRecord();
+    	if ( !$revisionRecord ) {
+    		return null;
+    	}
+
+        foreach ( $revisionRecord->getSlots()->getSlots() as $role => $slot) {
+			if ($slot->getContent() instanceof JsonContent) {
+				return $role;
+			}
+		}
+
+		return null;
+    }
+
+	/**
+	 * @param Title|MediaWiki\Title\Title $title
+	 * @return MediaWiki\Revision\RevisionRecord|null
+	 */
+	public static function revisionRecordFromTitle( $title ) {
+		$wikiPage = self::getWikiPage( $title );
+		if ( !$wikiPage ) {
+			return null;
+		}
+		return $wikiPage->getRevisionRecord();
+	}
+
+	/**
+     * @param WikiPage $wikiPage
+     * @param string $role
+	 * @return null|string
+	 */
+	public static function getSlotContent( $wikiPage, $role ) {
+		$slots = self::getSlots( $wikiPage );
+		foreach ( $slots as $role_ => $slot ) {
+			if ( $role_ === $role ) {
+				$content = $slot->getContent();
+				$ret = $content->getNativeData();
+				if ( $content instanceof JsonContent) {
+					$ret = json_decode( $ret, true );
+					$ret = $ret ?? [];
+				}
+				return $ret;
+			}
+		}
+		return null;
+	}
+
+	/**
+     * @param WikiPage $wikiPage
+	 * @return null|array
+	 */
+	public static function getSlots( $wikiPage ) {
+		$title = $wikiPage->getTitle();
+		$key = $title->getFullText();
+
+		if ( array_key_exists( $key, self::$slotsCache ) ) {
+			return self::$slotsCache[$key];
+		}
+
+		$revision = $wikiPage->getRevisionRecord();
+
+		if ( !$revision ) {
+			return null;
+		}
+
+		self::$slotsCache[$key] = $revision->getSlots()->getSlots();
+
+		return self::$slotsCache[$key];
 	}
 
 	/**

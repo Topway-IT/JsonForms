@@ -116,60 +116,96 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$action = $this->getRequest()->getVal( 'action' );
 
+		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/PageFormUI.json');
+		$jsonForm = json_decode( $jsonForm, true );
+		
+		// $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
+		$formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
+		$formDescriptor = json_decode( $formDescriptor, true );
+		$formDescriptor['edit_categories'] = false;
+		$formDescriptor['width'] = '800px';
+		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
+		$formDescriptor['create_only_fields'] = [
+			'name',
+			'edit_page'
+		];
+
+		$pageid = $this->getRequest()->getVal( 'pageid' );
+		$startVal = [];
+		if ( $pageid ) {
+			$title = TitleClass::newFromID( $pageid );
+			if ( !$title ) {
+				return $this->printError( $out, 'jsonforms-special-browse-error-invalid-article' );
+			}
+
+			$formDescriptor['edit_page'] = $title->getFullText();
+
+			$text = \JsonForms::getArticleContent( $title );
+			if ( $text ) {
+				$startVal = json_decode( $text, true );
+			}
+		}
+
 		$item = null;
-		$formName = null;
 		switch( strtolower($this->par ) ) {
 			case 'forms':
 				$item = 'form';
-				$formName = 'EditForm';
+				$formDescriptor['schema'] = 'CreatePageForm';
+				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
+				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
+				$innerSchema = json_decode( $innerSchema, true );
+
+				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
+				
+				if ( !empty( $formDescriptor['edit_page'] ) ) {
+					$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+				}
 				break;
+
+			// @TODO
 			case 'schemas':
 				$item = 'schema';
-				$formName = 'EditSchema';
+				$formDescriptor['schema'] = 'EditSchema';
+				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';
 				break;
 		}
 
 		switch ( $action ) {
 			case 'edit':
-				$errorMessage = null;
-				$formData = \JsonForms::prepareJsonForms( $out, $formName, $errorMessage );
-
-				$pageid = $this->getRequest()->getVal( 'pageid' );
-				$data = [];
-				if ( $pageid ) {
-					$title = TitleClass::newFromID( $pageid );
-					if ( !$title ) {
-						throw new \Exception( 'invalid title' );
-					}
-
-					$formData['formDescriptor']['edit_title'] = $title->getFullText();
-
-					$text = \JsonForms::getArticleContent( $title );
-					if ( $text ) {
-						$data = json_decode( $text, true );
-					}
-				}
-
-				// Special:JsonFormsManage/Forms
-				$formData['formDescriptor']['return_url'] = $this->localTitle->getLocalURL();
-
-				$html = \JsonForms::getJsonFormHtml( $formData, $data );
-		
-				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
-
-				if ( $html !== false ) {
-					$out->addModules( 'ext.JsonForms.editor' );
-					\JsonForms::addJsConfigVars( $out, [
-						'config' => [
-							'context' => 'manageforms',
+				
+				$formData = [
+					'schema' => $jsonForm,
+					'name' => 'PageForm',
+					'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+					'editorScript'=> 'MediaWiki:DefaultEditorScript',
+					'startval'=> [
+						'form' => [
+							'form' => $startVal
 						]
-					] );
-					$out->addHTML( $html );
-				} else {
-					
+					],
+					'formDescriptor' => $formDescriptor
+				];
+
+				$formData = \JsonForms::prepareFormData( $out, $formData );
+
+				$data = [];
+				$res_ = \JsonForms::getJsonFormHtml( $formData );
+
+				if ( !$res_->ok ) {
+					 return $this->printError( $out, $res_->error );
+					// return $this->printError( $out, 'jsonforms-special-browse-error-invalid-form' );
 				}
-			
+
+				$html = $res_->value;
+
+				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
+				$out->addModules( 'ext.JsonForms.pageForms' );
+
+				\JsonForms::addJsConfigVars( $out );
+
+				$out->addHTML( $html );
 				break;
+
 			default:
 				$layout = new OOUI\PanelLayout(
 					[ 'id' => 'jsonforms-panel-layout', 'expanded' => false, 'padded' => false, 'framed' => false ]
@@ -220,12 +256,27 @@ class SpecialJsonFormsManage extends SpecialPage {
 				);
 
 				if ( $pager->getNumRows() ) {
-					$out->addParserOutputContent( $pager->getFullOutput(), ParserOptions::newFromContext( $this->getContext() ) );
+					$parserOptions = ( version_compare( MW_VERSION, '1.44', '>=' ) ?
+						ParserOptions::newFromContext( $this->getContext() ) :
+						[]
+					);
+					$out->addParserOutputContent( $pager->getFullOutput(), $parserOptions );
 			
 				} else {
 					$out->addWikiMsg( 'jsonforms-special-browse-table-empty' );
 				}
 		}
+	}
+
+	/**
+	 * @param Output $out
+	 * @param string $msg
+	 */
+	private function printError( $out, $msg ) {
+		$out->addHTML( new \OOUI\MessageWidget( [
+			'type' => 'error',
+			'label' => new \OOUI\HtmlSnippet( $this->msg( $msg )->parse() )
+		] ) );
 	}
 
 	/**

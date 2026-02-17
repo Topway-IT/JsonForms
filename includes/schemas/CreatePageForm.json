@@ -1,18 +1,17 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$schema": "https:\/\/json-schema.org\/draft\/2020-12\/schema",
+	"@type": "JsonForms default schema",
 	"type": "object",
-	"title": "Create/edit form",
+	"title": "Create\/edit form",
 	"additionalProperties": false,
-	"required": [
-		"name",
-		"schema"
-	],
+	"required": ["name", "schema"],
 	"properties": {
 		"name": {
 			"type": "string",
 			"title": "Form name",
 			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms:[form name]}}",
-			"minLength": 1
+			"minLength": 1,
+			"options": {}
 		},
 		"schema": {
 			"type": "string",
@@ -72,7 +71,7 @@
 			"description": "Default slot for form data: if different than main the related article will be saved as a Multi-Content-Revision",
 			"options": {
 				"wikitext": {
-					"description": "Default slot for form data: if different than main the related article will be saved as a [https://www.mediawiki.org/wiki/Multi-Content_Revisions/Content_Meta-Data Multi-Content-Revision]"
+					"description": "Default slot for form data: if different than main the related article will be saved as a [https:\/\/www.mediawiki.org\/wiki\/Multi-Content_Revisions\/Content_Meta-Data Multi-Content-Revision]"
 				}
 			},
 			"default": "main",
@@ -82,17 +81,17 @@
 				}
 			]
 		},
-		"edit_data_slot": {
+		"edit_data_slot_role": {
 			"type": "boolean",
-			"title": "Edit data slot",
-			"description": "Is the user allowed to choose the target slot ?",
+			"title": "Edit data slot's role",
+			"description": "Is the user allowed to choose the role of the target slot ?",
 			"default": false
 		},
 		"edit_main_slot_content_model": {
 			"type": "boolean",
 			"title": "Edit main slot content model",
 			"description": "Is the user allowed to edit the content model of the main slot ?",
-			"default": true,
+			"default": false,
 			"options": {
 				"dependencies": {
 					"default_data_slot": {
@@ -131,11 +130,39 @@
 				}
 			}
 		},
+		"edit_page": {
+			"type": "string",
+			"title": "Edit page",
+			"description": "Page to redirect to after editing",
+			"default": "",
+			"options": {
+				"input": {
+					"name": "title"
+				}
+			}
+		},
 		"pagename_formula": {
 			"type": "string",
 			"title": "Page name formula",
 			"default": "",
 			"options": {
+				"dependencies": {
+					"edit_page": ""
+				}
+			}
+		},
+		"create_only_fields": {
+			"type": "array",
+			"title": "Create-only fields",
+			"description": "Add properties (usually used in the pagename formula) that must be shown only on data creation",
+			"default": [],
+			"items": {
+				"type": "string"
+			},
+			"options": {
+				"input": {
+					"name": "tagmultiselect"
+				},
 				"dependencies": {
 					"edit_page": ""
 				}
@@ -150,28 +177,25 @@
 		"view": {
 			"type": "string",
 			"title": "View mode",
-			"enum": [
-				"inline",
-				"popup"
-			],
+			"enum": ["inline", "popup"],
 			"default": "inline"
+		},
+		"popup_button_label": {
+			"type": "string",
+			"title": "popup button label",
+			"description": "Open popup button's label",
+			"options": {
+				"input": "tagmultiselect",
+				"dependencies": {
+					"view": "popup"
+				}
+			}
 		},
 		"callback": {
 			"type": "string",
 			"title": "Callback",
 			"description": "JavaScript callback or handler name",
 			"default": ""
-		},
-		"edit_page": {
-			"type": "string",
-			"title": "Edit page",
-			"description": "Page to redirect to after editing",
-			"default": "",
-			"options": {
-				"input": {
-					"name": "title"
-				}
-			}
 		},
 		"preload": {
 			"type": "string",
@@ -213,11 +237,7 @@
 			"title": "Popup size",
 			"description": "Popup size definition",
 			"default": "medium",
-			"enum": [
-				"medium",
-				"large",
-				"small"
-			]
+			"enum": ["medium", "large", "small"]
 		},
 		"css_class": {
 			"type": "string",
@@ -228,8 +248,19 @@
 		"editor_options": {
 			"type": "string",
 			"title": "editor options",
-			"description": "Editor options in the MediaWiki: namespace in javascript content model",
+			"description": "Editor options in the MediaWiki: namespace, javascript content model",
 			"default": "MediaWiki:DefaultEditorOptions",
+			"options": {
+				"input": {
+					"name": "title"
+				}
+			}
+		},
+		"editor_script": {
+			"type": "string",
+			"title": "editor script",
+			"description": "Editor script in the MediaWiki: namespace, javascript content model",
+			"default": "MediaWiki:DefaultEditorScript",
 			"options": {
 				"input": {
 					"name": "title"

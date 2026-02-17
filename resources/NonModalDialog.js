@@ -1,5 +1,26 @@
+/**
+ * This file is part of the MediaWiki extension JsonForms.
+ *
+ * JsonForms is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JsonForms is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JsonForms. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @author thomas-topway-it <support@topway.it>
+ * @copyright Copyright ©2026, https://wikisphere.org
+ */
+ 
 SimpleDialog = function (config) {
-	this.htmlMessage = config.htmlMessage || '';
+	this.config = config;
 	SimpleDialog.super.call(this, config);
 };
 
@@ -8,21 +29,35 @@ SimpleDialog.static.title = 'Non modal dialog';
 
 SimpleDialog.prototype.initialize = function () {
 	SimpleDialog.super.prototype.initialize.apply(this, arguments);
-	this.content = new OO.ui.PanelLayout({ padded: true, expanded: false });
+	this.content = new OO.ui.PanelLayout({ padded: false, expanded: false });
 
-	// const message = new OO.ui.HtmlSnippet(this.htmlMessage )
-	// this.content.$element.append(message.toString());
-	this.content.$element.append($('<p>').html(this.htmlMessage));
-
-	const closeButton = new OO.ui.ButtonWidget({
-		label: OO.ui.msg('ooui-dialog-process-dismiss'),
+	const messageWidget = new OO.ui.MessageWidget({
+		type: this.config.type,
+		label: new OO.ui.HtmlSnippet(this.config.htmlMessage),
+		classes: [],
+		showClose: true,
 	});
 
-	closeButton.on('click', () => {
-		this.close();
+	this.content.$element.append(messageWidget.$element);
+
+	messageWidget.on('toggle', (visible) => {
+		if (!visible) {
+			this.close();
+		}
 	});
 
-	this.content.$element.append(closeButton.$element);
+	// this.content.$element.append($('<p>').html(this.config.htmlMessage));
+
+	// const closeButton = new OO.ui.ButtonWidget({
+	// 	label: OO.ui.msg('ooui-dialog-process-dismiss'),
+	// });
+
+	// closeButton.on('click', () => {
+	// 	this.close();
+	// });
+
+	// this.content.$element.append($('<p>'));
+	// this.content.$element.append(closeButton.$element);
 	this.$body.append(this.content.$element);
 };
 

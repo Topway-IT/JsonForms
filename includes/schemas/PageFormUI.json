@@ -1,0 +1,195 @@
+{
+	"type": "object",
+	"@type": "JsonForms default schema",
+	"options": {
+		"compact": true,
+		"cssClass": "jsonforms-outerform"
+	},
+	"required": [
+	],
+	"properties": {
+		"form": {
+			"type": "object",
+			"options": {
+				"compact": true,
+				"cssClass": "jsonforms-innerform",
+				"layout": {
+					"name": "booklet",
+					"config": {
+						"outlined": false
+					}
+				}
+			},
+			"properties": {
+				"form": {
+					"type": "string",
+					"format": "json",
+					"options": {
+						"compact": true,
+						"input": {
+							"name": "jsonforms",
+							"config": {
+								"schema": ""
+							}
+						}
+					}
+				},
+				"options": {
+					"type": "object",
+					"options": {
+						"compact": true,
+						"cssClass": "jsonforms-innerform-options"
+					},
+					"properties": {
+						"title": {
+							"type": "string",
+							"minLength": 1,
+							"options": {
+								"input": {
+									"name": "title"
+								}
+							}
+						},
+						"data_slot_role": {
+							"type": "string",
+							"title": "data slot's role",
+							"description": "Target slot role for form data",
+							"default": "",
+							"enumSource": [
+								{
+									"source": "jsonSlotsSource"
+								}
+							]
+						},
+						"main_slot_content_model": {
+							"title": "content model of main slot",
+							"type": "string",
+							"default": "wikitext",
+							"enumSource": [
+								{
+									"source": "contentModelsSource"
+								}
+							],
+							"options": {
+								"dependencies": {
+									"data_slot": {
+										"op": "!=",
+										"value": "main"
+									}
+								}
+							}
+						},
+						"main_slot_content": {
+							"type": "string",
+							"format": "textarea",
+							"options": {
+								"dependencies": {
+									"data_slot": {
+										"op": "!=",
+										"value": "main"
+									}
+								}
+							}
+						},
+						"categories": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"options": {
+									"input": {
+										"name": "categorymultiselect"
+									}
+								}
+							}
+						},
+						"summary": {
+							"type": "string",
+							"options": {
+								"dependencies": {
+									"data_slot": {
+										"op": "!=",
+										"value": "main"
+									}
+								}
+							}
+						},
+						"minor": {
+							"type": "boolean",
+							"description": "This is a \u003Ca target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\"\u003Eminor edit\u003C/a\u003E",
+							"options": {
+								"input": {
+									"name": "checkbox"
+								},
+								"dependencies": {
+									"data_slot": {
+										"op": "!=",
+										"value": "main"
+									}
+								}
+							}
+						}
+					},
+					"required": []
+				}
+			}
+		},
+		"buttons": {
+			"options": {
+				"compact": true,
+				"cssClass": "jsonforms-outerform-buttons"
+			},
+			"properties": {
+				"validate": {
+					"type": "null",
+					"format": "button",
+					"options": {
+						"input": {
+							"config": {
+								"flags": [
+									"primary",
+									"progressive"
+								]
+							}
+						},
+						"button": {
+							"action": "outerFormNavButton"
+						}
+					}
+				},
+				"submit": {
+					"type": "null",
+					"format": "button",
+					"options": {
+						"input": {
+							"config": {
+								"flags": [
+									"primary",
+									"progressive"
+								]
+							}
+						},
+						"button": {
+							"action": "outerFormNavButton"
+						}
+					}
+				},
+				"goback": {
+					"type": "null",
+					"format": "button",
+					"options": {
+						"input": {
+							"config": {
+								"icon": "arrowPrevious"
+							}
+						},
+						"config": {},
+						"button": {
+							"action": "outerFormNavButton"
+						}
+					}
+				}
+			}
+		}
+	}
+}
+

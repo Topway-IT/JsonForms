@@ -29,7 +29,7 @@ class JsonSchemaEditor
 
     protected function walk(array &$node, callable $fn): void
     {
-        // 🔹 Handle $ref if present (only objects have $ref)
+        // Handle $ref if present (only objects have $ref)
         if (isset($node['$ref'])) {
             try {
                 $resolved = $this->validator->loader()->resolve($node['$ref']);

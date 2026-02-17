@@ -1,0 +1,50 @@
+{
+	"type": "object",
+	"@type": "JsonForms default schema",
+	"options": {
+		"compact": true,
+		"cssClass": "jsonforms-outerform"
+	},
+	"required": [
+	],
+	"properties": {
+		"form": {
+			"type": "string",
+			"format": "json",
+			"options": {
+				"compact": true,
+				"input": {
+					"name": "jsonforms",
+					"config": {
+						"schema": ""
+					}
+				}
+			}
+		},
+		"buttons": {
+			"options": {
+				"compact": true,
+				"cssClass": "jsonforms-outerform-buttons"
+			},
+			"properties": {
+				"submit": {
+					"type": "null",
+					"format": "button",
+					"options": {
+						"input": {
+							"config": {
+								"flags": [
+									"primary",
+									"progressive"
+								]
+							}
+						},
+						"button": {
+							"action": "submitButton"
+						}
+					}
+				}
+			}
+		}
+	}
+}

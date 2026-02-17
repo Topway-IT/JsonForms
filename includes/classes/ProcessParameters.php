@@ -13,12 +13,35 @@ class ProcessParameters
     protected array $values = [];
     protected array $options = [];
     protected array $query = [];
+    public array $initialKnown = [];
 
     public function __construct(array $argv = [])
     {
         $this->prepareDefaults();
         $this->parse($argv);
+        
+        $this->initialKnown = array_keys( $this->options );
         $this->applyDefaults();
+    }
+
+    protected function buildDefaultParametersFromSchema(array $schema): array
+    {
+        $parameters = [];
+
+        $required = $schema["required"] ?? [];
+        $properties = $schema["properties"] ?? [];
+
+        foreach ($properties as $name => $definition) {
+            $parameters[$name] = [
+                "label" => $definition["title"] ?? $name,
+                "description" => $definition["description"] ?? "",
+                "type" => $definition["type"] ?? "string",
+                "required" => in_array($name, $required, true),
+                "default" => $definition["default"] ?? null,
+            ];
+        }
+
+        return $parameters;
     }
 
     protected function prepareDefaults(): void
@@ -77,6 +100,22 @@ class ProcessParameters
 
     protected function applyDefaults(): void
     {
+		foreach ($this->flatDefaults as $key => [$defaultValue, $type]) {
+			if (array_key_exists($key, $this->options)) {
+				$val = $this->options[$key];
+
+			} else {
+				$val = $defaultValue;
+			}
+
+			$this->options[$key] = $this->castValueByType(
+				$type,
+				$val,
+				$defaultValue
+			);
+		}
+
+/*
         foreach ($this->flatDefaults as $key => [$defaultValue, $type]) {
             $val = $this->options[$key] ?? $defaultValue;
             $this->options[$key] = $this->castValueByType(
@@ -85,6 +124,7 @@ class ProcessParameters
                 $defaultValue
             );
         }
+       */
     }
 
     protected function castValueByType(?string $type, $value, $default = null)
@@ -96,15 +136,22 @@ class ProcessParameters
         switch ($type) {
             case "int":
             case "integer":
-                return (int) $value;
+               return filter_var( $value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE );
 
             case "float":
             case "number":
-                return (float) $value;
+			case 'numeric':
+               return filter_var( $value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE );
 
-            case "bool":
-            case "boolean":
-                return (bool) $value;
+			case "bool":
+			case "boolean":
+				$ret = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+				if ($ret === null) {
+					$ret = filter_var($default, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+				}
+
+				return $ret ?? false;
 
             case "string":
                 return (string) $value;
@@ -148,13 +195,16 @@ class ProcessParameters
     {
         return $this->values;
     }
+
     public function getOptions(): array
     {
         return $this->options;
     }
+
     public function getQuery(): array
     {
         return $this->query;
     }
+
 }
 

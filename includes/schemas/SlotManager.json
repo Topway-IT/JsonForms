@@ -1,0 +1,148 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"options": {
+		"layout": {
+			"name": "paged"
+		}
+	},
+	"definitions": {
+		"slotOptions": {
+			"type": "object",
+			"required": [
+				"content_model",
+				"editor",
+				"content"
+			],
+			"options": {
+				"layout": {
+					"name": "booklet"
+				}
+			},
+			"properties": {
+				"content_model": {
+					"type": "string",
+					"title": "Content model",
+					"default": "wikitext",
+					"watch": {
+						"roleProperty": "role"
+					},
+					"enumSource": [
+						{
+							"source": "contentModelByRoleSource"
+						}
+					]
+				},
+				"editor": {
+					"type": "string",
+					"title": "Editor",
+					"default": "source",
+					"enum": [
+						"source",
+						"VisualEditor",
+						"JsonForms",
+						"JSON Editor"
+					]
+				},
+				"content": {
+					"type": "string",
+					"format": "textarea",
+					"options": {
+						"compact": true
+					}
+				}
+			}
+		}
+	},
+	"allOf": [
+		{
+			"type": "object",
+			"required": [
+				"title"
+			],
+			"properties": {
+				"title": {
+					"type": "string",
+					"minLength": 1,
+					"title": "Title",
+					"options": {
+						"input": {
+							"name": "title"
+						}
+					}
+				}
+			}
+		},
+		{
+			"$ref": "#/definitions/slotOptions"
+		},
+		{
+			"type": "object",
+			"required": [],
+			"properties": {
+				"additional_slots": {
+					"type": "array",
+					"title": "additional slots",
+					"minItems": 1,
+					"options": {
+						"layout": {
+							"name": "tabs"
+						}
+					},
+					"items": {
+						"allOf": [
+							{
+								"type": "object",
+								"required": [
+									"role"
+								],
+								"properties": {
+									"role": {
+										"type": "string",
+										"title": "Slot role",
+										"default": "main",
+										"enumSource": [
+											{
+												"source": "slotRolesSource"
+											}
+										]
+									}
+								}
+							},
+							{
+								"$ref": "#/definitions/slotOptions"
+							}
+						]
+					}
+				},
+				"categories": {
+					"title": "Categories",
+					"type": "array",
+					"items": {
+						"type": "string",
+						"options": {
+							"input": {
+								"name": "categorymultiselect"
+							}
+						}
+					}
+				},
+				"minor": {
+					"type": "boolean",
+					"title": "Minor edit",
+					"description": "This is a \u003Ca target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\"\u003Eminor edit\u003C/a\u003E",
+					"options": {
+						"input": {
+							"name": "checkbox"
+						}
+					}
+				},
+				"summary": {
+					"type": "string",
+					"title": "Edit summary"
+				}
+			}
+		}
+	]
+}
+

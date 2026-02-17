@@ -7,6 +7,7 @@
 	"jsonformsdemo": "JsonFormsDemo",
 	"specialpages-group-jsonforms": "JsonForms",
 	"jsonformsmanage": "JsonForms Manage",
+	"jsonformsslotmanager": "JsonForms Slot Manager",
 	
 	"jsonformsbrowse": "JsonForms",
 	"jsonformsbrowsedata": "Manage data",
@@ -14,12 +15,29 @@
 	"jsonformsbrowseforms": "Manage forms",
 	"jsonformsbrowseschemas": "Manage schemas",
 	"jsonformsbrowsedata-topnav": "'''navigation'''",
+	
+	"visualdata-slot-label-jsonforms-metadata": "metadata (JsonForms)",
+	"visualdata-slot-label-jsonforms-data": "data (JsonForms)",
 
-	"jsonforms-jsmodule-return-message": "data edited in article <a target=\"_blank\" href=\"$2\">$1</a>",
-	"jsonforms-jsmodule-return-errors": "errors editing form data $1",
+	"jsonforms-jsmodule-return-message-edit": "data edited in article <a target=\"_blank\" href=\"$2\">$1</a>",
+	"jsonforms-jsmodule-return-message-create": "data created in article <a target=\"_blank\" href=\"$2\">$1</a>",
+	"jsonforms-jsmodule-return-errors": "error editing form data: $1",
 
 	"jsonformsmanageforms": "Manage Forms",
 	"jsonformsmanageschemas": "Manage Schemas",
+	
+	"jsonforms-special-submit-title-counter-error": "computed title error",
+	"jsonforms-special-submit-notitle": "article no title",
+	"jsonforms-special-submit-permission-error": "permission error",
+	"jsonforms-special-submit-article-exists": "article exists",
+	"jsonforms-special-submit-cannot-create-wikipage": "create wikipage error",
+	"jsonforms-special-submit-return-url-error": "url error",
+
+	"jsonforms-parserfunction-error-no-form-name": "no form name",
+	"jsonforms-parserfunction-error-no-form": "no form",
+	"jsonforms-parserfunction-error-invalid-data": "invalid data",
+	"jsonforms-special-submit-processor-not-found": "cannot process form's data",
+
 	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and form schema. Each schema must be wrapped in a form descriptor to determine its use.",
 	"jsonforms-manage-form-button-add-form": "New form",
 	"jsonforms-manage-form-button-add-schema": "New schema",
@@ -28,5 +46,11 @@
 	"jsonforms-special-browse-form-search-submit": "submit",
 	"jsonforms-special-browse-pager-header-pagetitle": "page",
 	"jsonforms-special-browse-pager-header-actions": "actions",
+	"jsonforms-special-browse-table-empty": "no items",
+	"jsonforms-special-browse-error-invalid-form": "invalid form",
+	"jsonforms-special-browse-error-invalid-form-descriptor": "invalid form descriptor, ensure to run <pre>php extensions/JsonForms/maintenance/ImportData.php</pre> to import default forms and schemas",
+	"jsonforms-special-browse-error-invalid-schema-in-form-descriptor": "invalid schema in form descriptor",
+	"jsonforms-special-browse-error-invalid-article": "invalid article",
+
 	"jsonforms-special-browse-schemas-description": "Here you can create/edit json-schema for the use inside form descriptors <b>Attention!! This feature is to be completed: create the schema manually in the JsonSchema namespace.</b>"
 }

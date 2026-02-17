@@ -23,9 +23,13 @@
 
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 
-define( 'SLOT_ROLE_JSONDATA', 'jsondata' );
+define( 'SLOT_ROLE_JSONFORMS_DATA', 'jsonforms-data' );
+define( 'SLOT_ROLE_JSONFORMS_METADATA', 'jsonforms-metadata' );
 
 class JsonFormsHooks {
+
+	/** @var array */
+	public static $PageUpdate = [];
 
 	/**
 	 * @param array $credits
@@ -54,14 +58,58 @@ class JsonFormsHooks {
 	 */
 	public static function onMediaWikiServices( $services ) {
 		$services->addServiceManipulator( 'SlotRoleRegistry', static function ( \MediaWiki\Revision\SlotRoleRegistry $registry ) {
-			if ( !$registry->isDefinedRole( SLOT_ROLE_JSONDATA ) ) {
-				$registry->defineRoleWithModel( SLOT_ROLE_JSONDATA, 'json', [
+			if ( !$registry->isDefinedRole( SLOT_ROLE_JSONFORMS_DATA ) ) {
+				$registry->defineRoleWithModel( SLOT_ROLE_JSONFORMS_DATA, 'json', [
+					'display' => 'none',
+					'region' => 'center',
+					'placement' => 'append'
+				] );
+			}
+			if ( !$registry->isDefinedRole( SLOT_ROLE_JSONFORMS_METADATA ) ) {
+				$registry->defineRoleWithModel( SLOT_ROLE_JSONFORMS_METADATA, 'json', [
 					'display' => 'none',
 					'region' => 'center',
 					'placement' => 'append'
 				] );
 			}
 		} );
+	}
+
+	/**
+	 * @param Content $content
+	 * @param Title|Mediawiki\Title\Title $title
+	 * @param ParserOutput &$parserOutput
+	 * @return void
+	 */
+	public static function onContentAlterParserOutput( Content $content, $title, ParserOutput &$parserOutput ) {
+		// $key = $title->getFullText();
+		// if ( self::$PageUpdate[$key] ) {
+		//	$parserOutput->setExtensionData( 'JsonForms', self::$PageUpdate[$key] );
+		//}
+
+		$wikiPage = \JsonForms::getWikiPage( $title );
+		$data = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+
+		// $data = $parserOutput->getExtensionData( 'JsonForms' );
+		if ( !$data ) {
+			return;
+		}
+
+		// this includes annotated categories and tracking categories
+		$getCategoriesMethod = ( version_compare( MW_VERSION, '1.38', '>=' ) ?
+			'getCategoryNames' : 'getCategoryLinks' );
+
+		$categoryNames = $parserOutput->$getCategoriesMethod();
+
+		foreach ( $categoryNames as $category ) {
+			$parserOutput->addCategory( $category );
+		}
+
+		if ( $data && !empty( $data['categories'] ) ) {
+			foreach ( $data['categories'] as $category ) {
+				$parserOutput->addCategory( $category );
+			}
+		}
 	}
 
 	/**
@@ -108,7 +156,7 @@ class JsonFormsHooks {
 				]
 			] );
 
-			$out->addModules( 'ext.JsonForms.editor' );
+			$out->addModules( 'ext.JsonForms.pageForms' );
 		}
 	}
 

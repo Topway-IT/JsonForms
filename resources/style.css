@@ -123,6 +123,10 @@
 	width: 600px;
 }
 
+.jsonforms-jsoneditor {
+	/* height: 400px; */
+}
+
 .jsonforms-form .expander-button {
     width: 100%;
     display: block;

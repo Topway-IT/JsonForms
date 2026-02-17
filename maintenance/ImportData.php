@@ -235,6 +235,9 @@ class ImportData extends Maintenance {
 
 		if ( empty( $contentModel ) ) {
 			$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+			if ( $ext === 'js' ) {
+				$ext = 'javascript';
+			}
 			if ( in_array( $ext, $this->contentModels ) ) {
 				$contentModel = $ext;
 			}
