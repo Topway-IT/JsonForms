@@ -17,8 +17,12 @@
 		]
 	},
 	"callback": "JsonFormsHooks::initExtension",
+	"Actions": {
+		"slotedit": "JsonFormsActionSlotManager"
+	},
 	"AutoloadClasses": {
 		"SpecialJsonForms": "includes/specials/SpecialJsonForms.php",
+		"JsonFormsActionSlotManager": "includes/JsonFormsActionSlotManager.php",
 		"SpecialJsonFormsDemo": "includes/specials/SpecialJsonFormsDemo.php",
 		"SpecialJsonFormsManage": "includes/specials/SpecialJsonFormsManage.php",
 		"SpecialJsonFormsSlotManager": "includes/specials/SpecialJsonFormsSlotManager.php",
@@ -48,6 +52,7 @@
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
 		"BeforePageDisplay": "JsonFormsHooks::onBeforePageDisplay",
+		"SkinTemplateNavigation::Universal": "JsonFormsHooks::onSkinTemplateNavigation",
 		"SkinBuildSidebar": "JsonFormsHooks::onSkinBuildSidebar",
 		"ResourceLoaderGetConfigVars": "JsonFormsHooks::onResourceLoaderGetConfigVars",
 		"OutputPageParserOutput": "JsonFormsHooks::onOutputPageParserOutput"
@@ -135,7 +140,8 @@
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
-				"NonModalDialog.js",
+				"JsonFormsNonModalDialog.js",
+				"JsonFormsDialog.js",
 				"JsonFormsUtilities.js",
 				"JsonForms.js",
 				"JsonFormsSlotManager.js"
@@ -193,7 +199,8 @@
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
-				"NonModalDialog.js",
+				"JsonFormsNonModalDialog.js",
+				"JsonFormsDialog.js",
 				"JsonFormsUtilities.js",
 				"JsonForms.js",
 				"JsonFormsDemo.js"
@@ -251,7 +258,8 @@
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
-				"NonModalDialog.js",
+				"JsonFormsNonModalDialog.js",
+				"JsonFormsDialog.js",
 				"JsonFormsUtilities.js",
 				"JsonForms.js",
 				"JsonFormsPageForms.js"
@@ -319,7 +327,8 @@
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
-				"NonModalDialog.js",
+				"JsonFormsNonModalDialog.js",
+				"JsonFormsDialog.js",
 				"JsonFormsUtilities.js",
 				"JsonForms.js"
 			],

@@ -95,13 +95,11 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$out = $this->getOutput();
 
 		$out->addModuleStyles( 'mediawiki.special' );
-
 		$this->addHelpLink( 'Extension:JsonForms' );
 
 		$request = $this->getRequest();
 
 		$this->request = $request;
-
 		$this->user = $user;
 
 		$this->addJsConfigVars( $out );
@@ -123,12 +121,16 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
 		$formDescriptor = json_decode( $formDescriptor, true );
 		$formDescriptor['edit_categories'] = false;
-		$formDescriptor['width'] = '800px';
+		// $formDescriptor['width'] = '800px';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
 		$formDescriptor['create_only_fields'] = [
 			'name',
-			'edit_page'
+			// 'edit_page'
 		];
+
+		if ( !empty( $formDescriptor['edit_page'] ) ) {
+			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+		}
 
 		$pageid = $this->getRequest()->getVal( 'pageid' );
 		$startVal = [];
@@ -150,29 +152,30 @@ class SpecialJsonFormsManage extends SpecialPage {
 		switch( strtolower($this->par ) ) {
 			case 'forms':
 				$item = 'form';
-				$formDescriptor['schema'] = 'CreatePageForm';
 				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
 				$innerSchema = json_decode( $innerSchema, true );
-
 				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
-				
-				if ( !empty( $formDescriptor['edit_page'] ) ) {
-					$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
-				}
 				break;
 
-			// @TODO
 			case 'schemas':
+				$message = new \OOUI\MessageWidget( [
+					'type' => 'error',
+					'label' =>  new \OOUI\HtmlSnippet( 'This feature is under development! Create/edit <b><a target="_blank" href="https://json-schema.org/draft-07">draft-07 (2018)</a></b> schemas manually or via an IA assistant until it\'s completed!' )
+				] );
+				$out->addHTML( $message );
+				$out->addHTML( '<br />' );
+		
 				$item = 'schema';
-				$formDescriptor['schema'] = 'EditSchema';
-				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';
+				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';				
+				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
+				$innerSchema = json_decode( $innerSchema, true );
+				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
 				break;
 		}
-
+		
 		switch ( $action ) {
-			case 'edit':
-				
+			case 'edit':				
 				$formData = [
 					'schema' => $jsonForm,
 					'name' => 'PageForm',
@@ -189,7 +192,9 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$formData = \JsonForms::prepareFormData( $out, $formData );
 
 				$data = [];
-				$res_ = \JsonForms::getJsonFormHtml( $formData );
+				$res_ = \JsonForms::getJsonFormHtml( $formData, [
+					'width' => '100%'
+				] );
 
 				if ( !$res_->ok ) {
 					 return $this->printError( $out, $res_->error );
@@ -212,7 +217,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				);
 
 				// @TODO remove condition as soon as the metaschema editor works
-				if ( $item === 'form' ) {
+				// if ( $item === 'form' ) {
 					$layout->appendContent(
 						new OOUI\ButtonWidget(
 							[
@@ -225,7 +230,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 					);
 
 					$out->addHTML( $layout );
-				}
+				// }
 
 				$options = $this->showOptions( $request );
 

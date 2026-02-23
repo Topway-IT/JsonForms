@@ -349,9 +349,13 @@ metadata can be stored:
 		// set metadata
 		// JsonFormsHooks::$PageUpdate[$targetTitle->getFullText()] = $metadata;
 		$metadata = [
-			'schemas' => [
-				$targetSlot => $data['formDescriptor']['schema']
-			],
+			'slots' => [
+				$targetSlot => [
+					'editor' => 'JsonForms',
+					'model' => $targetSlot === 'main' ? $contentModel : 'json',
+					'schema' => $data['formDescriptor']['schema']
+				]
+			]
 		];
 
 		if ( !empty( $data['options']['categories'] ) &&
@@ -360,15 +364,30 @@ metadata can be stored:
 			$metadata['categories'] = $data['options']['categories'];			
 		}
 
-		$previousData = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
-		if ( $previousData ) {
-			$metadata = \JsonForms::array_merge_recursive( $previousData, $metadata, true );
-		}
+		// $previousMetadata = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+		
+		// $previousData = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+		// if ( $previousData ) {
+		// 	$metadata = \JsonForms::array_merge_recursive( $previousData, $metadata, true );
+		// }
 
 		$slots[SLOT_ROLE_JSONFORMS_METADATA] = [
 			'model' => 'json',
 			'content' =>  json_encode( $metadata )
 		];
+
+		// keep existing slots
+		$previousMetadata = \JsonForms::getMetadata( $wikiPage );
+		if ( $previousMetadata && isset( $previousMetadata['slots'] ) ) {
+			// $previousMetadata = json_decode( $previousMetadata, true );
+			$slots = $slots + $previousMetadata['slots'];
+
+			// foreach ( $previousMetadata as $key => $value ) {
+			// 	if ( !isset( $slots[$key] ) ) {
+			// 		$slots[$key] = $value;
+			// 	}
+			// }
+		}
 
 		$slotEditor = new SlotEditor();
 
@@ -381,6 +400,7 @@ metadata can be stored:
 		$createonly = false;
 		$nocreate = false;
 		$suppress = false;
+		$updateStrategy = 'replace';
 
 		$ret = $slotEditor->editSlots(
 			$this->user,
@@ -394,7 +414,8 @@ metadata can be stored:
 			$minor,
 			$createonly,
 			$nocreate,
-			$suppress
+			$suppress,
+			$updateStrategy
 		);
 
 		if ( $ret !== true ) {

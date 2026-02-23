@@ -90,6 +90,12 @@
 	z-index: 100;
 }
 
+
+.jsonforms-form .jsonforms-schema-selector {
+	border: none;
+	padding: 0;
+}
+
 .oo-ui-menuSelectWidget {
 }
 
@@ -124,7 +130,6 @@
 }
 
 .jsonforms-jsoneditor {
-	/* height: 400px; */
 }
 
 .jsonforms-form .expander-button {
@@ -221,6 +226,10 @@
 .jsonforms-page-nav-right {
 	align-items: flex-end;
 	text-align: right;
+}
+
+.jsonforms-form .oo-ui-selectWidget {
+	z-index: 10;
 }
 
 :root {

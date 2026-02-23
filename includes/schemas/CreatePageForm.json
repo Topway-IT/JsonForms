@@ -144,6 +144,7 @@
 		"pagename_formula": {
 			"type": "string",
 			"title": "Page name formula",
+			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
 			"default": "",
 			"options": {
 				"dependencies": {

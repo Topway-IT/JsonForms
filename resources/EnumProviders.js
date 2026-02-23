@@ -60,11 +60,11 @@ EnumProviders.prototype.jsonSchemas = function () {
 EnumProviders.prototype.contentModelByRole = function () {
 	const contentModels = mw.config.get('jsonforms')['contentModels'];
 	const roleContentModelMap = mw.config.get('jsonforms')['roleContentModelMap'];
+	// const roles = mw.config.get('jsonforms')['slotRoles'];
 
 	// key/value object, this is also supported
 	return {
-		source: (jseditor, { item, watched }) => {
-			const roles = mw.config.get('jsonforms')['slotRoles'];
+		source: (jseditor, { item, watched }) => {			
 			const role = watched?.roleProperty || 'main';
 
 			switch (role) {

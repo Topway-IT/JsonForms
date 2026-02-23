@@ -8,7 +8,8 @@
 	"specialpages-group-jsonforms": "JsonForms",
 	"jsonformsmanage": "JsonForms Manage",
 	"jsonformsslotmanager": "JsonForms Slot Manager",
-	
+	"jsonforms-slotedit-label": "Edit slots",
+
 	"jsonformsbrowse": "JsonForms",
 	"jsonformsbrowsedata": "Manage data",
 	"jsonformsbrowsequeries": "Manage queries",
@@ -38,7 +39,7 @@
 	"jsonforms-parserfunction-error-invalid-data": "invalid data",
 	"jsonforms-special-submit-processor-not-found": "cannot process form's data",
 
-	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and form schema. Each schema must be wrapped in a form descriptor to determine its use.",
+	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and form schemas. Each schema must be wrapped in a form descriptor to determine its use.",
 	"jsonforms-manage-form-button-add-form": "New form",
 	"jsonforms-manage-form-button-add-schema": "New schema",
 	"jsonforms-special-browse-form-search-legend": "search",
@@ -52,5 +53,5 @@
 	"jsonforms-special-browse-error-invalid-schema-in-form-descriptor": "invalid schema in form descriptor",
 	"jsonforms-special-browse-error-invalid-article": "invalid article",
 
-	"jsonforms-special-browse-schemas-description": "Here you can create/edit json-schema for the use inside form descriptors <b>Attention!! This feature is to be completed: create the schema manually in the JsonSchema namespace.</b>"
+	"jsonforms-special-browse-schemas-description": "Here you can create/edit json-schemas to be used inside form descriptors."
 }

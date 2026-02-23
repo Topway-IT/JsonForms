@@ -88,12 +88,18 @@ class JsonFormsHooks {
 		//}
 
 		$wikiPage = \JsonForms::getWikiPage( $title );
+		if ( !$wikiPage ) {
+			return;
+		}
+
 		$data = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
 
 		// $data = $parserOutput->getExtensionData( 'JsonForms' );
 		if ( !$data ) {
 			return;
 		}
+
+		$data = json_decode( $data, true );
 
 		// this includes annotated categories and tracking categories
 		$getCategoriesMethod = ( version_compare( MW_VERSION, '1.38', '>=' ) ?
@@ -118,6 +124,39 @@ class JsonFormsHooks {
 	 * @return void
 	 */
 	public static function onBeforePageDisplay( OutputPage $outputPage, Skin $skin ) {
+	}
+
+	/**
+	 * @param SkinTemplate $skinTemplate
+	 * @param array &$links
+	 * @return void
+	 */
+	public static function onSkinTemplateNavigation( SkinTemplate $skinTemplate, array &$links ) {
+		$user = $skinTemplate->getUser();
+		$title = $skinTemplate->getTitle();
+
+		if ( !$title->canExist() ) {
+			return;
+		}
+
+		$errors = [];
+		if ( \JsonForms::checkWritePermissions( $user, $title, $errors )
+			// && $user->isAllowed( 'jsonforms-caneditdata' )
+			&& !$title->isSpecialPage()
+			// && in_array( $title->getNamespace(), $GLOBALS['wgVisualDataEditDataNamespaces'] )
+		 ) {
+			$link = [
+				'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'slotedit' ? 'selected' : '' ),
+				'text' => wfMessage( 'jsonforms-slotedit-label' )->text(),
+				'href' => $title->getLocalURL( 'action=slotedit' )
+			];
+
+			$keys = array_keys( $links['views'] );
+			$pos = array_search( 'edit', $keys );
+
+			$links['views'] = array_intersect_key( $links['views'], array_flip( array_slice( $keys, 0, $pos + 1 ) ) )
+				+ [ 'slotedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
+		}
 	}
 
 	/**
@@ -151,9 +190,7 @@ class JsonFormsHooks {
 
 		if ( $parserOutput->getExtensionData( 'jsonforms' ) !== null ) {
 			\JsonForms::addJsConfigVars( $out, [
-				'config' => [
-					'context' => 'parserfunction',
-				]
+				'context' => 'parserfunction'
 			] );
 
 			$out->addModules( 'ext.JsonForms.pageForms' );

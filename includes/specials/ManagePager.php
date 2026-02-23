@@ -107,9 +107,9 @@ class ManagePager extends TablePager {
 		];
 		
 		// @TODO show actions for schemas as soon as the metaschema editor works
-		if ( $this->parentClass->par === 'Forms' ) {
+		// if ( $this->parentClass->par === 'Forms' ) {
 			$headers['actions'] = 'jsonforms-special-browse-pager-header-actions';
-		}
+		// }
 
 		foreach ( $headers as $key => $val ) {
 			$headers[$key] = $this->msg( $val )->text();
@@ -143,11 +143,11 @@ class ManagePager extends TablePager {
 				break;
 
 			case 'actions':
-				if ( $this->parentClass->par === 'Forms' ) {
+				// if ( $this->parentClass->par === 'Forms' ) {
 					$link = '<span class="mw-ui-button mw-ui-progressive">edit</span>';
 					$query = [ 'action' => 'edit', 'pageid' => $row->page_id ];
 					$formatted = LinkerClass::link( $this->parentClass->localTitle, $link, [], $query );
-				}
+				// }
 				break;
 
 			default:

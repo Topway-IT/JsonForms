@@ -3,23 +3,27 @@
 	"type": "object",
 	"options": {
 		"layout": {
-			"name": "paged"
+			"name": "tabs",
+			"options": {
+				"mainLabel": "main"
+			}
 		}
 	},
 	"definitions": {
 		"slotOptions": {
 			"type": "object",
-			"required": [
-				"content_model",
-				"editor",
-				"content"
-			],
+			"required": ["content_model", "editor"],
+			"defaultProperties": ["content_model", "editor", "content"],
 			"options": {
 				"layout": {
 					"name": "booklet"
 				}
 			},
 			"properties": {
+				"role": {
+					"type": "string",
+					"format": "hidden"
+				},
 				"content_model": {
 					"type": "string",
 					"title": "Content model",
@@ -37,12 +41,7 @@
 					"type": "string",
 					"title": "Editor",
 					"default": "source",
-					"enum": [
-						"source",
-						"VisualEditor",
-						"JsonForms",
-						"JSON Editor"
-					]
+					"enum": ["source", "VisualEditor", "JSON Editor", "JsonForms"]
 				},
 				"content": {
 					"type": "string",
@@ -57,9 +56,6 @@
 	"allOf": [
 		{
 			"type": "object",
-			"required": [
-				"title"
-			],
 			"properties": {
 				"title": {
 					"type": "string",
@@ -71,50 +67,15 @@
 						}
 					}
 				}
-			}
+			},
+			"required": ["title"]
 		},
 		{
 			"$ref": "#/definitions/slotOptions"
 		},
 		{
 			"type": "object",
-			"required": [],
 			"properties": {
-				"additional_slots": {
-					"type": "array",
-					"title": "additional slots",
-					"minItems": 1,
-					"options": {
-						"layout": {
-							"name": "tabs"
-						}
-					},
-					"items": {
-						"allOf": [
-							{
-								"type": "object",
-								"required": [
-									"role"
-								],
-								"properties": {
-									"role": {
-										"type": "string",
-										"title": "Slot role",
-										"default": "main",
-										"enumSource": [
-											{
-												"source": "slotRolesSource"
-											}
-										]
-									}
-								}
-							},
-							{
-								"$ref": "#/definitions/slotOptions"
-							}
-						]
-					}
-				},
 				"categories": {
 					"title": "Categories",
 					"type": "array",
@@ -130,7 +91,7 @@
 				"minor": {
 					"type": "boolean",
 					"title": "Minor edit",
-					"description": "This is a \u003Ca target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\"\u003Eminor edit\u003C/a\u003E",
+					"description": "This is a <a target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\">minor edit</a>",
 					"options": {
 						"input": {
 							"name": "checkbox"
@@ -143,6 +104,34 @@
 				}
 			}
 		}
-	]
+	],
+	"patternProperties": {
+		"^[a-zA-Z0-9_-]+$": {
+			"title": "Additional slot",
+			"options": {
+				"UISchema": {
+					"title": "New slot",
+					"type": "object",
+					"required": ["name"],
+					"properties": {
+						"name": {
+							"title": "slot name",
+							"type": "string",
+							"enumSource": [
+								{
+									"source": "slotRolesSource"
+								}
+							]
+						}
+					}
+				}
+			},
+			"allOf": [
+				{
+					"$ref": "#/definitions/slotOptions"
+				}
+			]
+		}
+	}
 }
 

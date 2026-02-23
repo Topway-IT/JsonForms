@@ -81,9 +81,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$this->addHelpLink( 'Extension:JsonForms' );
 
 		$request = $this->getRequest();
-
 		$this->request = $request;
-
 		$this->user = $user;
 
 		$out->enableOOUI();
@@ -103,31 +101,48 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		}
 
 		$startVal = [];
-		if ( $editTitle && $editTitle->isKnown() ) {
+		$editPage = null;
+		if ( $editTitle && $editTitle->isKnown() ) {	
+			$jsonForm['properties']['form']['options']['input']['config']['disableFields'] = [ 'title' ];
+
+			$editPage = $editTitle->getFullText();
 			$wikiPage = \JsonForms::getWikiPage( $editTitle );
-			$metadata = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+			$metadata = \JsonForms::getMetadata( $wikiPage );
+
+			// $startVal['categories'] = \JsonForms::getCategories($editTitle);
+			if ( isset( $metadata['categories'] ) ) {
+				$startVal['form']['categories'] = (array)$metadata['categories'];
+			}
+
 			$slots = \JsonForms::getSlots( $wikiPage );
-			
-			
-			$setStartVal = static function( &$val, $role, $slot ) use ( $wikiPage, $editTitle ) {
+
+			$setStartVal = static function( &$val, $role, $slot ) use ( $metadata, $wikiPage, $editTitle ) {
 				$val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
-				if ( isset(  $metadata['editor'][$role] ) ) {
-					$startVal['form']['editor'] = $metadata['editor'][$role];
+				if ( isset( $metadata['slots'][$role]['editor'] ) ) {
+					$val['editor'] = $metadata['slots'][$role]['editor'];
+					
+					// if ( $val['editor'] === 'JsonForms' && isset( $metadata['slots'][$role]['schema'] ) ) {
+					// 	$val['schema'] = $metadata['slots'][$role]['schema'];
+					// }
 				}
-				$content = \JsonForms::getSlotContent( $wikiPage, $role );
-				$val['content'] = $content;
+				$val['content'] = \JsonForms::getSlotContent( $wikiPage, $role );
 			};
 
+			$startVal['form']['title'] = $par;
+			
 			if ( array_key_exists( SlotRecord::MAIN, $slots ) ) {
-				$startVal['form']['title'] = $par;
 				$setStartVal( $startVal['form'], SlotRecord::MAIN, $slots[SlotRecord::MAIN] );
-				
+				unset( $slots[SlotRecord::MAIN] );
 			}
-			unset( $slots[SlotRecord::MAIN] );
+
 			foreach ( $slots as $role => $slot ) {
-				$val = [ 'role' => $role ];
+				if ( $role === SLOT_ROLE_JSONFORMS_METADATA ) {
+					continue;
+				}
+				$val = [];
 				$setStartVal( $val, $role, $slot );
-				$startVal['form']['additional_slots'][] = $val;
+
+				$startVal['form'][$role] = $val;
 			}
 		}
 
@@ -137,12 +152,15 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',
 			'startval'=> $startVal,
+			'metadata'=> $metadata,
+			'editPage' => $editPage,
 		];
 
 		$formData = \JsonForms::prepareFormData( $out, $formData );
 
-		$data = [];
-		$res_ = \JsonForms::getJsonFormHtml( $formData, $data );
+		$res_ = \JsonForms::getJsonFormHtml( $formData, [
+			'width' => '100%'
+		] );
 
 		if ( !$res_->ok ) {
 			return $this->printError( $out, $res_->error );

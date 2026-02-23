@@ -72,8 +72,8 @@ class SlotEditor
             }
         }
 
-        $existingSlots = array_keys($oldRevision->getSlots()->getSlots());
-        $updatedSlots = array_keys($slotUpdates);
+		$existingSlots = array_keys($oldRevision->getSlots()->getSlots());
+		$updatedSlots = array_keys($slotUpdates);
 
         return count(array_diff($existingSlots, $updatedSlots)) === 0;
     }
@@ -101,7 +101,8 @@ class SlotEditor
         bool $minor = false,
         bool $createonly = false,
         bool $nocreate = false,
-        bool $suppress = false
+        bool $suppress = false,
+        string $updateStrategy = 'merge'
     ) {
         $title = $wikiPage->getTitle();
 
@@ -121,6 +122,15 @@ class SlotEditor
 
         $pageUpdater = $wikiPage->newPageUpdater($user);
         $oldRevision = $wikiPage->getRevisionRecord();
+
+        if ( $oldRevision && $updateStrategy === 'replace' ) {
+        	$existingSlots = array_keys($oldRevision->getSlots()->getSlots());
+        	foreach ( $existingSlots as $slotName ) {
+        		if ( !array_key_exists( $slotName, $slotUpdates ) ) {
+        			$pageUpdater->removeSlot($slotName);
+        		}
+        	}
+        }
 
         if ($this->shouldDeletePage($oldRevision, $slotUpdates)) {
             $reason = "cleared content";

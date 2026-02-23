@@ -42,6 +42,8 @@ class SpecialJsonFormsDemo extends SpecialPage {
 		$out->setArticleRelated( false );
 		$out->setRobotPolicy( $this->getRobotPolicy() );
 
+		$this->setHeaders();
+		$this->outputHeader();
 		$user = $this->getUser();
 
 		$securityLevel = $this->getLoginSecurityLevel();
@@ -54,9 +56,6 @@ class SpecialJsonFormsDemo extends SpecialPage {
 		$this->addHelpLink( 'Extension:JsonForms' );
 		$out->addModules( 'ext.JsonForms.demo' );
 
-		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
-		$jsonForm = json_decode( $jsonForm, true );
-
 		$formData = [
 			'schema' => [],
 			'name' => 'Demo',
@@ -67,8 +66,7 @@ class SpecialJsonFormsDemo extends SpecialPage {
 
 		$formData = \JsonForms::prepareFormData( $out, $formData );
 
-		$data = [];
-		$res_ = \JsonForms::getJsonFormHtml( $formData, $data );
+		$res_ = \JsonForms::getJsonFormHtml( $formData );
 
 		if ( !$res_->ok ) {
 			return $this->printError( $out, $res_->error );

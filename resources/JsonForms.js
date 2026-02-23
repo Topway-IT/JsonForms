@@ -25,7 +25,8 @@ function JsonForms(el, data) {
 	this.schema = data.schema;
 	this.schemaName = data.name;
 	this.startval = data.startval;
-	
+	this.editor = null;
+
 	this.data = data;
 
 	// @TODO add upload providers
@@ -62,9 +63,9 @@ JsonForms.prototype.createDefaultEditor = function () {
 		schemaName: this.schemaName,
 		startval: this.startval,
 	});
-	
+
 	return this.editor;
-}
+};
 
 JsonForms.prototype.getProviders = function (providerClass) {
 	const ret = {};
@@ -102,28 +103,32 @@ JsonForms.prototype.getEditor = function () {
 	return this.editor;
 };
 
-JsonForms.prototype.createEditor = async function (el, config) {
+JsonForms.prototype.createEditor = function (el, config) {
 	JFEditor.defaults.options = this.defaultOptions;
 
 	this.editor = new JFEditor(el, {
-		schema: config.schema,
-		schemaName: config.schemaName,
-		startval: config.startval,
 		ajax: true,
 		ajaxUrl: function (ref, fileBase) {
 			const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
-			if (fileBase.indexOf(mwBaseUrl) === -1) {
+			if (
+				fileBase.indexOf(mwBaseUrl) === -1 &&
+				mwBaseUrl.indexOf(fileBase) === -1
+			) {
 				return ref;
 			}
-			return `${mwBaseUrl}?title=${ref}&action=raw&uid=${JFUtilities.uniqueID}`;
+			return `${mwBaseUrl}?title=${ref}&action=raw&uid=${JFUtilities.uniqueID()}`;
 		},
+		schemaSelector: null,
+		...config,
 	});
 
 	if (typeof this.editorScript === 'function') {
 		const updateEditorCallBack = (thisConfig) => {
 			this.createEditor(this.el, { ...config, ...thisConfig });
 		};
-		this.editorScript(this.editor, updateEditorCallBack);
+		this.editorScript(this.editor, this.config, updateEditorCallBack);
 	}
+
+	return this.editor;
 };
 

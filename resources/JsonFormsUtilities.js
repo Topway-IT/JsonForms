@@ -40,6 +40,7 @@ JsonFormsUtilities.prototype.getNestedProp = function (path, obj) {
 };
 
 JsonFormsUtilities.prototype.removeArrayItem = function (arr, value) {
+	if ( !arr) arr = []
 	const index = arr.indexOf(value);
 	if (index !== -1) {
 		arr.splice(index, 1);
