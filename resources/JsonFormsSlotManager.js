@@ -153,7 +153,7 @@ $(function () {
 
 		const editor = jsonForms.createDefaultEditor();
 
-/*
+
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -166,7 +166,7 @@ $(function () {
 		editor.on('change', () => {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 		});
-*/
+
 
 		const watchContentModel = (editor, editorEditor) => {
 			// console.log('editorEditor', editorEditor);

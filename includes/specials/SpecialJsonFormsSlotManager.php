@@ -100,7 +100,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 			$editTitle = TitleClass::newFromText( $par );
 		}
 
-		$startVal = [];
+		$startValInnerForm = [];
 		$editPage = null;
 		if ( $editTitle && $editTitle->isKnown() ) {	
 			$jsonForm['properties']['form']['options']['input']['config']['disableFields'] = [ 'title' ];
@@ -111,7 +111,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 			// $startVal['categories'] = \JsonForms::getCategories($editTitle);
 			if ( isset( $metadata['categories'] ) ) {
-				$startVal['form']['categories'] = (array)$metadata['categories'];
+				$startValInnerForm['categories'] = (array)$metadata['categories'];
 			}
 
 			$slots = \JsonForms::getSlots( $wikiPage );
@@ -120,18 +120,14 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 				$val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
 				if ( isset( $metadata['slots'][$role]['editor'] ) ) {
 					$val['editor'] = $metadata['slots'][$role]['editor'];
-					
-					// if ( $val['editor'] === 'JsonForms' && isset( $metadata['slots'][$role]['schema'] ) ) {
-					// 	$val['schema'] = $metadata['slots'][$role]['schema'];
-					// }
 				}
 				$val['content'] = \JsonForms::getSlotContent( $wikiPage, $role );
 			};
 
-			$startVal['form']['title'] = $par;
+			$startValInnerForm['title'] = $par;
 			
 			if ( array_key_exists( SlotRecord::MAIN, $slots ) ) {
-				$setStartVal( $startVal['form'], SlotRecord::MAIN, $slots[SlotRecord::MAIN] );
+				$setStartVal( $startValInnerForm, SlotRecord::MAIN, $slots[SlotRecord::MAIN] );
 				unset( $slots[SlotRecord::MAIN] );
 			}
 
@@ -141,10 +137,13 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 				}
 				$val = [];
 				$setStartVal( $val, $role, $slot );
-
-				$startVal['form'][$role] = $val;
+				$startValInnerForm[$role] = $val;
 			}
 		}
+		
+		$startVal = [
+			'form' => json_encode( $startValInnerForm )
+		];
 
 		$formData = [
 			'schema' => $jsonForm,

@@ -390,11 +390,12 @@ $(function () {
 				const submitButton = editor.getEditor('root.buttons.submit');
 				const gobackButton = editor.getEditor('root.buttons.goback');
 
+/*
 				console.log(
 					'optionsEditor.schema.properties',
 					optionsEditor.schema.properties,
 				);
-
+*/
 				if (Object.keys(optionsEditor.schema.properties).length) {
 					if (submitButton) {
 						submitButton.theme.toggle(submitButton.container, false);
