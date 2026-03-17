@@ -1,8 +1,11 @@
 {
-	"title": "JSON Schema",
+	"title": "Schema editor",
 	"options": {
 		"layout": {
-			"name": "paged"
+			"name": "paged",
+			"config": {
+				"toggle": true
+			}
 		}
 	},
 	"$ref": "#/definitions/schema",
@@ -404,7 +407,8 @@
 					"type": "string"
 				},
 				"name": {
-					"type": "string"
+					"type": "string",
+					"readOnly": true
 				},
 				"id": {
 					"type": "string",
@@ -439,7 +443,8 @@
 					"type": "string"
 				},
 				"name": {
-					"type": "string"
+					"type": "string",
+					"readOnly": true
 				},
 				"id": {
 					"type": "string",
@@ -521,7 +526,7 @@
 					]
 				},
 				{
-					"title": "Subitem",
+					"title": "Object",
 					"allOf": [
 						{
 							"$ref": "#/definitions/schemaBase"

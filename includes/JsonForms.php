@@ -155,8 +155,11 @@ class JsonForms {
 		$schema = [];
 		if ( !empty( $formDescriptor['schema'] ) ) {
 			$schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
+
+			// *** necessary, since $schemaEditor->traverse
+			// will traverse only regular properties
+			$schema = self::processSchema( $output, $schema );
 			$schemaName = $formDescriptor['schema'];
-			// $schema = self::processSchema( $schema );
 
 			// $jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
 			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $schema;
@@ -184,6 +187,9 @@ class JsonForms {
 		if ( isset( $formDescriptor['width'] ) ) {
 			$attr['width'] = $formDescriptor['width'];
 		}
+		
+		//print_r($formData);
+		// exit;
 		$res_ = \JsonForms::getJsonFormHtml( $formData, $attr );
 
 		if ( !$res_->ok ) {
@@ -435,10 +441,11 @@ class JsonForms {
 	}
 
 	/**
+	 * @param Output $output
 	 * @param array $schema
 	 * @return array
 	 */
-	public static function processSchema( $schema ) {
+	public static function processSchema( $output, $schema ) {
 		if ( !class_exists( 'Opis\JsonSchema\Validator' ) ) {
 			return $schema;
 		}
@@ -466,7 +473,7 @@ class JsonForms {
 	 */
 	public static function prepareFormData( $output, $data ) {
 		if ( !empty( $data['schema'] ) ) {
-			$data['schema'] = self::processSchema( $data['schema'] );
+			$data['schema'] = self::processSchema( $output, $data['schema'] );
 		}
 
 		if ( !empty( $data['editorOptions'] ) ) {
@@ -574,14 +581,14 @@ class JsonForms {
 	}
 
 	/**
-	 * @param OutputPage $out
+	 * @param OutputPage $output
 	 * @param array $out
 	 * @return void
 	 */
-	public static function addJsConfigVars( $out, $config = [] ) {
-		$title = $out->getTitle();
-		$user = $out->getUser();
-		$context = $out->getContext();
+	public static function addJsConfigVars( $output, $config = [] ) {
+		$title = $output->getTitle();
+		$user = $output->getUser();
+		$context = $output->getContext();
 
 		$schemaUrl = self::getFullUrlOfNamespace( NS_JSONSCHEMA );
 		$VEForAll = false;
@@ -591,7 +598,7 @@ class JsonForms {
 			$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
 			$userOptionsManager->setOption( $user, 'visualeditor-enable', true );
 			$VEForAll = true;
-			$out->addModules( 'ext.veforall.main' );
+			$output->addModules( 'ext.veforall.main' );
 		}
 
 		$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
@@ -613,6 +620,7 @@ class JsonForms {
 			'roleContentModelMap' => SlotHelper::getRoleContentModelMap(),
 			'contentModel' => $title->getContentModel(),
 			'VEForAll' => $VEForAll,
+			'captchaSiteKey' => $GLOBALS['wgJsonFormsReCaptchaSiteKey'],
 			'jsonSlots' => SlotHelper::getJsonSlots(),
 			'slotRoles' => SlotHelper::getSlotRoles(),
 			'jsonContentModels' => SlotHelper::getJsonContentModels(),
@@ -623,10 +631,10 @@ class JsonForms {
 		if ( isset( $config['context'] ) && $config['context'] === 'parserfunction' ) {
 			$pageFormUI = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
 			$config['pageFormUI'] = json_decode( $pageFormUI, true );
-			$config['pageFormUI'] = self::processSchema( $config['pageFormUI'] );
+			$config['pageFormUI'] = self::processSchema( $output, $config['pageFormUI'] );
 		}
 
-		$out->addJsConfigVars( [
+		$output->addJsConfigVars( [
 			// @see VEForAll ext.veforall.target.js -> getPageName
 			'wgPageFormsTargetName' => ( $title && $title->canExist() ? $title
 				: TitleClass::newMainPage() )->getFullText(),

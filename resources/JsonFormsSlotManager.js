@@ -22,6 +22,8 @@
 function JsonFormsSlotManager(el, data) {
 	JsonFormsSlotManager.super.call(this, el, data);
 
+	this.metadata = data.metadata;
+	this.jsonformsConfig = mw.config.get('jsonforms');
 	this.editPage = data.editPage;
 }
 
@@ -40,10 +42,137 @@ JsonFormsSlotManager.prototype.onFormButton = function (editor) {
 			if (innerEditor.validation_results.length) {
 				alert('there are errors');
 			} else {
-				this.submitForm();
+				this.submitForm().catch((err) => console.error('API error:', err));
 			}
+			this.submitForm().catch((err) => console.error('API error:', err));
 			break;
 	}
+};
+
+JsonFormsSlotManager.prototype.watchEditor = function (
+	role,
+	editor,
+	contentEditor,
+) {
+	// console.log('watchEditor editor', editor.path);
+	if (!contentEditor) {
+		console.warn('contentEditor not set');
+		return;
+	}
+
+	let previousSchemaName = this.metadata?.slots?.[role]?.schema ?? null;
+
+	if (typeof contentEditor.input?.editor?.getSchemaName === 'function') {
+		previousSchemaName = contentEditor.input.editor.getSchemaName();
+	}
+
+	// without perefix
+	if (typeof previousSchemaName === 'string') {
+		previousSchemaName = previousSchemaName.includes(':')
+			? previousSchemaName.split(':').slice(1).join(':')
+			: previousSchemaName;
+	}
+
+	const editorName = editor.getValue();
+	// console.log('previousSchemaName', previousSchemaName);
+	// console.log('editor', editor);
+
+	const options = { compact: true };
+	switch (editorName) {
+		case 'WikiEditor':
+			options.format = 'textarea';
+			options.input = {
+				name: 'WikiEditor',
+			};
+			break;
+
+		case 'VisualEditor':
+			options.format = 'textarea';
+			options.input = {
+				name: 'visualeditor',
+			};
+			break;
+
+		case 'JSON Editor':
+			options.format = 'json';
+			options.input = {
+				name: 'JsonEditor',
+			};
+			break;
+
+		case 'JsonForms':
+			options.format = 'json';
+			options.input = {
+				name: 'JsonForms',
+				config: {
+					showSchemaSelector: true,
+					schemaSelectorDefault: previousSchemaName,
+				},
+			};
+			break;
+
+		case 'source':
+		default:
+			options.format = 'textarea';
+			options.input = {
+				config: {
+					autosize: true,
+					rows: 6,
+				},
+			};
+	}
+
+	// console.log('options', options);
+	contentEditor.rebuildWithOptions(options);
+};
+
+JsonFormsSlotManager.prototype.editorByContentModelSource = function (
+	editor,
+	{ item, watched },
+) {
+	// console.log('==watched',watched)
+	// console.log('==editor.path',editor.path)
+	if (!('contentModelProperty' in watched)) {
+		console.warn('contentModelProperty not set in watch', watched);
+		return;
+	}
+
+	const jsonformsConfig = mw.config.get('jsonforms');
+
+	const contentModel = watched?.contentModelProperty || 'wikitext';
+
+	// @ATTENTION, before that that content model is updated
+	// with the default or initial value, it will be CSS
+	// therefore these options will be 'source'
+	// and this will set the value to source instead
+	// of VisualEditor (since the options don't contain
+	// it anymore
+
+	// console.log('editor', editor);
+
+	if (editor.jsoneditor.pendingPostBuild > 0) {
+		// return;
+	}
+	// console.log('contentModel', contentModel);
+
+	let options = ['source'];
+	switch (contentModel) {
+		case 'wikitext':
+			options = ['WikiEditor', 'VisualEditor'];
+			break;
+
+		case 'json':
+			options = ['JSON Editor', 'JsonForms'];
+			break;
+
+		default:
+			if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
+				options = ['JSON Editor', 'JsonForms'];
+			}
+	}
+
+	// console.log('options', options);
+	return options;
 };
 
 // ***redefine enum provider and callbacks
@@ -56,6 +185,9 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 
 	this.enumProviders['slotRolesSource'] = () => roles;
 
+	this.enumProviders['editorByContentModelSource'] =
+		this.editorByContentModelSource;
+
 	this.defaultOptions.callbacks.button = {
 		...(this.defaultOptions?.callbacks?.button ?? {}),
 
@@ -64,6 +196,11 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 				this.onFormButton(editor);
 			},
 		},
+	};
+
+	this.defaultOptions.callbacks.template = {
+		...this.defaultOptions.callbacks.template,
+		...this.enumProviders,
 	};
 };
 
@@ -88,6 +225,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 		value: innerEditor.getValue(),
 		structuredValue,
 		options: {
+			...this.editor.getEditor('root.footer').getValue(),
 			editPage: this.editPage,
 		},
 		config: mw.config.get('jsonforms'),
@@ -109,7 +247,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 				console.log('thisRes', thisRes);
 				let result = thisRes[payload.action].result;
 				result = JSON.parse(result);
-				if (result.errors.length) {
+				if (result.errors && result.errors.length) {
 					const config = {
 						htmlMessage: mw.msg(
 							'jsonforms-jsmodule-return-errors',
@@ -117,6 +255,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 						),
 						type: 'error',
 					};
+					resolve(result);
 					const nonModalDialog = new NonModalDialog();
 					nonModalDialog.open(config);
 				} else {
@@ -137,7 +276,6 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 
 $(function () {
 	// console.log(' mw.config', mw.config);
-	const jsonformsConfig = mw.config.get('jsonforms');
 
 	$('.jsonforms-form-wrapper').each(async function (index, el) {
 		this.el = el;
@@ -145,15 +283,13 @@ $(function () {
 
 		console.log('data', data);
 
-		const metadata = data.metadata;
-
 		const jsonForms = new JsonFormsSlotManager(el, data);
 
 		await jsonForms.initialize();
 
 		const editor = jsonForms.createDefaultEditor();
 
-
+/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -166,108 +302,37 @@ $(function () {
 		editor.on('change', () => {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 		});
-
-
-		const watchContentModel = (editor, editorEditor) => {
-			// console.log('editorEditor', editorEditor);
-
-			const contentModel = editor.getValue();
-			// console.log('contentModel', contentModel);
-			let options = ['source'];
-			switch (contentModel) {
-				case 'wikitext':
-					options = ['source', 'VisualEditor'];
-					break;
-
-				case 'json':
-					options = ['JSON Editor', 'JsonForms'];
-					break;
-
-				default:
-					if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
-						options = ['JSON Editor', 'JsonForms'];
-					}
-			}
-
-			// console.log('options', options);
-			editorEditor.setOptions(options);
-		};
-
-		const watchEditor = (role, editor, contentEditor) => {
-			if (!contentEditor) {
-				return;
-			}
-
-			let previousSchemaName = metadata?.slots?.[role]?.schema ?? null;
-
-			if (typeof contentEditor.input?.editor?.getSchemaName === 'function') {
-				previousSchemaName = contentEditor.input.editor.getSchemaName();
-			}
-
-			// without perefix
-			if (typeof previousSchemaName === 'string') {
-				previousSchemaName = previousSchemaName.includes(':')
-					? previousSchemaName.split(':').slice(1).join(':')
-					: previousSchemaName;
-			}
-
-			// console.log('previousSchemaName', previousSchemaName);
-
-			const options = { compact: true };
-			switch (editor.getValue()) {
-				case 'VisualEditor':
-					options.format = 'textarea';
-					options.input = {
-						name: 'visualeditor',
-					};
-					break;
-
-				case 'JSON Editor':
-					options.format = 'json';
-					options.input = {
-						name: 'JsonEditor',
-					};
-					break;
-
-				case 'JsonForms':
-					options.format = 'json';
-					options.input = {
-						name: 'JsonForms',
-						config: {
-							showSchemaSelector: true,
-							schemaSelectorDefault: previousSchemaName,
-						},
-					};
-					break;
-
-				case 'source':
-				default:
-					options.format = 'textarea';
-					options.input = {
-						config: {
-							autosize: true,
-							rows: 6,
-						},
-					};
-			}
-
-			// console.log('options', options);
-			contentEditor.rebuildWithOptions(options);
-		};
-
-		const watching = [];
-		editor.on('ready', async () => {
+*/
+		const editorOnChange = async (editor) => {
+			// console.log('editorOnChange');
+		
+			const watching = [];
 			const formEditor = editor.getEditor('root.form');
 			// console.log('formEditor', formEditor);
 
+			if (!formEditor) {
+				console.warn('formEditor not set');
+				return;
+			}
+
 			// *** do something with the child editor if needed
+			// await is necessary since the input is the JsonForms
+			// widget that needs to be loaded
 			const innerEditor = await formEditor.input.getEditor();
+
 			// console.log('innerEditor', innerEditor);
 
 			const slotRoles = mw.config.get('jsonforms')['slotRoles'];
 
-			innerEditor.on('change', async () => {
-				const editors = innerEditor.getEditors();
+			const innerEditorOnChange = async (editor) => {
+				// console.log('innerEditorOnChange');
+				
+				editor.watch('root.editor', (thisEditor) => {
+					const contentEditor = editor.getEditor('root.content');
+					jsonForms.watchEditor('main', thisEditor, contentEditor);
+				});
+			
+				const editors = editor.getEditors();
 
 				// assign watchers to new slots
 				for (const path in editors) {
@@ -275,47 +340,41 @@ $(function () {
 					const role = path.replace(/^root\./, '');
 
 					// on slot creation
-					if (slotRoles.includes(role) && !watching.includes(path)) {
-						// set role to hidden property
+					if (slotRoles.includes(role)) {
+						if (!watching.includes(path)) {
+							// set role to hidden property
 
-						const roleEditor = innerEditor.getEditor(`${path}.role`);
-						roleEditor.setValue(role);
+							const roleEditor = editor.getEditor(`${path}.role`);
+							roleEditor.setValue(role);
 
-						innerEditor.watch(`${path}.content_model`, (editor) => {
-							const editorEditor = innerEditor.getEditor(`${path}.editor`);
-							watchContentModel(editor, editorEditor);
-						});
+							editor.watch(`${path}.editor`, (thisEditor) => {
+								const contentEditor = editor.getEditor(`${path}.content`);
+								jsonForms.watchEditor(role, thisEditor, contentEditor);
+							});
 
-						innerEditor.watch(`${path}.editor`, (editor) => {
-							const contentEditor = innerEditor.getEditor(`${path}.content`);
-							watchEditor(role, editor, contentEditor);
-						});
-
-						watching.push(path);
+							watching.push(path);
+						}
 					}
 				}
-			});
+			};
 
-			innerEditor.watch('root.content_model', (editor) => {
-				const editorEditor = innerEditor.getEditor('root.editor');
-				watchContentModel(editor, editorEditor);
-			});
+			// inner editor is ready/changed before outer editor
+			// is ready, therefore this is necessary
+			// innerEditorOnChange(true);
 
-			// pathNoIndex
-			// innerEditor.watch('root.additional_slots.content_model', (editor) => {
-			// 	watchContentModel(editor);
-			// });
+			// this is attached on ready, therefore is not fired
+			// immediately
 
-			innerEditor.watch('root.editor', (editor) => {
-				const contentEditor = innerEditor.getEditor('root.content');
-				watchEditor('main', editor, contentEditor);
-			});
+			innerEditor.on('ready', innerEditorOnChange);
+			innerEditor.on('addObjectProperty', innerEditorOnChange);
 
-			// pathNoIndex
-			// innerEditor.watch('root.additional_slots.editor', (editor) => {
-			// 	watchEditor(editor);
-			// });
-		});
+		};
+
+		// editor.on('ready', async () => {
+			//	editor.on('change', editorOnChange);
+		// });
+		editor.on('ready', editorOnChange);
+		// editor.on('change', editorOnChange);
 	});
 });
 

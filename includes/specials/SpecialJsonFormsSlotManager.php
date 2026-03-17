@@ -91,6 +91,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$innerSchema = file_get_contents(  __DIR__ . '/../schemas/SlotManager.json');
 		$innerSchema = json_decode( $innerSchema, true );
+		$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 		// $jsonForm['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:ArticleForm d';
 		$jsonForm['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
@@ -102,42 +103,44 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$startValInnerForm = [];
 		$editPage = null;
-		if ( $editTitle && $editTitle->isKnown() ) {	
+		$metadata = null;
+		if ( $editTitle ) {
+			$startValInnerForm['title'] = $par;
 			$jsonForm['properties']['form']['options']['input']['config']['disableFields'] = [ 'title' ];
 
-			$editPage = $editTitle->getFullText();
-			$wikiPage = \JsonForms::getWikiPage( $editTitle );
-			$metadata = \JsonForms::getMetadata( $wikiPage );
+			if ( $editTitle->isKnown() ) {
+				$editPage = $editTitle->getFullText();
+				$wikiPage = \JsonForms::getWikiPage( $editTitle );
+				$metadata = \JsonForms::getMetadata( $wikiPage );
 
-			// $startVal['categories'] = \JsonForms::getCategories($editTitle);
-			if ( isset( $metadata['categories'] ) ) {
-				$startValInnerForm['categories'] = (array)$metadata['categories'];
-			}
-
-			$slots = \JsonForms::getSlots( $wikiPage );
-
-			$setStartVal = static function( &$val, $role, $slot ) use ( $metadata, $wikiPage, $editTitle ) {
-				$val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
-				if ( isset( $metadata['slots'][$role]['editor'] ) ) {
-					$val['editor'] = $metadata['slots'][$role]['editor'];
+				// $startVal['categories'] = \JsonForms::getCategories($editTitle);
+				if ( isset( $metadata['categories'] ) ) {
+					$startValInnerForm['categories'] = (array)$metadata['categories'];
 				}
-				$val['content'] = \JsonForms::getSlotContent( $wikiPage, $role );
-			};
 
-			$startValInnerForm['title'] = $par;
-			
-			if ( array_key_exists( SlotRecord::MAIN, $slots ) ) {
-				$setStartVal( $startValInnerForm, SlotRecord::MAIN, $slots[SlotRecord::MAIN] );
-				unset( $slots[SlotRecord::MAIN] );
-			}
+				$slots = \JsonForms::getSlots( $wikiPage );
 
-			foreach ( $slots as $role => $slot ) {
-				if ( $role === SLOT_ROLE_JSONFORMS_METADATA ) {
-					continue;
+				$setStartVal = static function( &$val, $role, $slot ) use ( $metadata, $wikiPage, $editTitle ) {
+					$val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
+					if ( isset( $metadata['slots'][$role]['editor'] ) ) {
+						$val['editor'] = $metadata['slots'][$role]['editor'];
+					}
+					$val['content'] = \JsonForms::getSlotContent( $wikiPage, $role );
+				};
+
+				if ( array_key_exists( SlotRecord::MAIN, $slots ) ) {
+					$setStartVal( $startValInnerForm, SlotRecord::MAIN, $slots[SlotRecord::MAIN] );
+					unset( $slots[SlotRecord::MAIN] );
 				}
-				$val = [];
-				$setStartVal( $val, $role, $slot );
-				$startValInnerForm[$role] = $val;
+
+				foreach ( $slots as $role => $slot ) {
+					if ( $role === SLOT_ROLE_JSONFORMS_METADATA ) {
+						continue;
+					}
+					$val = [];
+					$setStartVal( $val, $role, $slot );
+					$startValInnerForm[$role] = $val;
+				}
 			}
 		}
 		

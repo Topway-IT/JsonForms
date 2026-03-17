@@ -5,8 +5,7 @@
 		"compact": true,
 		"cssClass": "jsonforms-outerform"
 	},
-	"required": [
-	],
+	"required": [],
 	"properties": {
 		"form": {
 			"type": "string",
@@ -21,26 +20,68 @@
 				}
 			}
 		},
-		"buttons": {
+		"footer": {
 			"options": {
 				"compact": true,
-				"cssClass": "jsonforms-outerform-buttons"
+				"cssClass": "jsonforms-outerform-footer"
 			},
 			"properties": {
-				"submit": {
-					"type": "null",
-					"format": "button",
+				"summary": {
+					"type": "string"
+				},
+				"minor": {
+					"type": "boolean",
+					"title": "",
+					"description": "This is a \u003Ca target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\"\u003Eminor edit\u003C/a\u003E",
 					"options": {
+						"control": {
+							"align": "inline"
+						},
 						"input": {
-							"config": {
-								"flags": [
-									"primary",
-									"progressive"
-								]
+							"name": "checkbox"
+						},
+						"compact": false
+					}
+				},
+				"buttons": {
+					"options": {
+						"compact": true,
+						"cssClass": "jsonforms-outerform-footer-buttons",
+						"layout": {
+							"name": "horizontal"
+						}
+					},
+					"properties": {
+						"submit": {
+							"type": "null",
+							"title": "Save changes",
+							"format": "button",
+							"options": {
+								"input": {
+									"config": {
+										"flags": ["primary", "progressive"]
+									}
+								},
+								"button": {
+									"action": "submitButton"
+								}
 							}
 						},
-						"button": {
-							"action": "submitButton"
+						"cancel": {
+							"type": "null",
+							"title": "Cancel",
+							"format": "button",
+							"options": {
+								"input": {
+									"config": {
+										"flags": ["destructive"],
+										"framed": false
+									}
+								},
+								"button": {
+									"action": "submitButton"
+								}
+							}
 						}
 					}
 				}
@@ -48,3 +89,4 @@
 		}
 	}
 }
+

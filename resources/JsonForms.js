@@ -57,11 +57,12 @@ JsonForms.prototype.initialize = async function () {
 	this.defaultOptions = defaultOptions;
 };
 
-JsonForms.prototype.createDefaultEditor = function () {
+JsonForms.prototype.createDefaultEditor = function (config = {}) {
 	this.createEditor(this.el, {
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
+		...config
 	});
 
 	return this.editor;

@@ -12,5 +12,7 @@ $specialPageAliases = [];
  */
 $specialPageAliases['en'] = [
 	'JsonFormsDemo' => [ 'JsonFormsDemo' ],
-	'JsonFormsManage' => [ 'JsonFormsManage' ]
+	'JsonFormsManage' => [ 'JsonFormsManage' ],
+	'JsonFormsSlotManager' => [ 'JsonFormsSlotManager' ],
 ];
+

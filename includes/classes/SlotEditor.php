@@ -31,6 +31,7 @@ use MediaWiki\Content\TextContent;
 use MediaWiki\Content\ContentHandler;
 use MediaWiki\CommentStore\CommentStoreComment;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
+use MediaWiki\Extension\JsonForms\SlotHelper;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
@@ -49,10 +50,14 @@ class SlotEditor
     private $title;
     private LoggerInterface $logger;
 
+	/** @var array */
+    private $jsonContentModels = [];
+
     public function __construct()
     {
         $this->slotRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
         $this->logger = LoggerFactory::getInstance("JsonForms");
+        $this->jsonContentModels = SlotHelper::getJsonContentModels();
     }
 
     private function shouldDeletePage(
@@ -174,6 +179,27 @@ class SlotEditor
         return true;
     }
 
+	/**
+	 * @param mixed $value
+	 * @return string
+	 */
+	private function stringifyMaybeJSON($value) {
+		if (!is_string($value)) {
+			$json = json_encode($value);
+			if (json_last_error() === JSON_ERROR_NONE) {
+				return $json;
+			}
+			return json_encode(strval($value));
+		}
+
+		json_decode($value);
+		if (json_last_error() === JSON_ERROR_NONE) {
+			return $value;
+		}
+
+		return json_encode($value);
+	}
+
     private function applySlotUpdate(
         PageUpdater $pageUpdater,
         ?RevisionRecord $oldRevision,
@@ -213,6 +239,10 @@ class SlotEditor
         $modelId =
             $model ??
             $this->resolveModelId($oldRevision, $slotName, $this->title);
+
+        if ( in_array( $modelId, $this->jsonContentModels ) ) {
+        	$text = $this->stringifyMaybeJSON( $text );
+        }
 
         $content = ContentHandler::makeContent($text, $this->title, $modelId);
         $pageUpdater->setContent($slotName, $content);

@@ -26,7 +26,7 @@ namespace MediaWiki\Extension\JsonForms\SubmitProcessors;
 
 use MediaWiki\Extension\JsonForms\SubmitForm;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
-use MediaWiki\Extension\JsonForms\SlotEditor;
+use MediaWiki\Extension\JsonForms\ResultWrapper;
 use MediaWiki\Extension\JsonForms\SlotHelper;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -288,81 +288,40 @@ class SlotManager extends SubmitForm {
 		}
 	
 		if ( empty( $targetTitle ) ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-notitle' )->text();
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-notitle' )->text() );
 		}
 
 		if ( !\JsonForms::checkWritePermissions( $this->user, $targetTitle, $errors ) ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-permission-error' )->text();
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-permission-error' )->text() );
 		}
 
-		$contentModel = 'wikitext';
-		if ( !empty( $data['value']['content_model'] ) ) {
-			$contentModel = $data['value']['content_model'];
-
-		// $contentModel = $data['config']['contentModel'];
-		} else if ( $targetTitle->isKnown() ) {
-			$contentModel = $targetTitle->getContentModel();
-		}
+		// this should be always set
+		$contentModel = $data['value']['content_model'];
 
 		$main_slot_content = $data['value']['content'] ?? null;
 		if ( $targetTitle->isKnown() ) {
-			if ( empty( $data['options']['editPage'] ) ) {				
-				$errors[] = $this->context->msg( 'jsonforms-special-submit-article-exists',
-					$targetTitle->getDBKey() )->parse();
-
-				return [
-					'errors' => $errors
-				];
+			if ( empty( $data['options']['editPage'] ) ) {			
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
+					$targetTitle->getDBKey() )->parse() );
 			}
 		} else {
 			$isNewPage = true;
-
 			// *** create new revision if necessary
 			// if ( !$this->createInitialRevision( $targetTitle, $main_slot_content, $contentModel, $errors ) ) {
-			// 	$errors[] = $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
-			// 		$targetTitle->getDBKey(), $contentModel )->parse();
-
-			// 	return [
-			// 		'errors' => $errors
-			// 	];
-			// }
+			//	return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
+			// 		$targetTitle->getDBKey(), $contentModel )->parse() );
 			// }
 		}
 
 		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
 		
 		if ( !$wikiPage ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' );
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' )->text() );
 		}
 
 		// @set title for further use of parseWikitext
 		$this->context->setTitle( $targetTitle );
 		$this->setOutput( $this->context->getOutput() );
-
-		// update content model if necessary
-		if (
-			$targetTitle &&
-			!$isNewPage &&
-			$contentModel &&
-			$contentModel !== $targetTitle->getContentModel()
-		) {
-			$this->updateContentModel( $targetTitle, $wikiPage, $contentModel, $errors );
-		}
-
-		if ( count( $errors ) ) {
-			return [
-				'errors' => $errors
-			];	
-		}
 
 		$slots = [
 			SlotRecord::MAIN => [
@@ -421,50 +380,6 @@ class SlotManager extends SubmitForm {
 			'content' => json_encode( $metadata )
 		];
 
-		$slotEditor = new SlotEditor();
-
-		$summary = $data['options']['summary'] ?? '';
-		$minor = $data['options']['minor'] ?? false;
-		$append = false;
-		$watchlist = "";
-		$prepend = false;
-		$bot = false;
-		$createonly = false;
-		$nocreate = false;
-		$suppress = false;
-		$updateStrategy = 'replace';
-
-		$ret = $slotEditor->editSlots(
-			$this->user,
-			$wikiPage,
-			$slots,
-			$summary,
-			$append,
-			$watchlist,
-			$prepend,
-			$bot,
-			$minor,
-			$createonly,
-			$nocreate,
-			$suppress,
-			$updateStrategy
-		);
-
-		if ( $ret !== true ) {
-			$errors = $ret;
-			return [
-				'errors' => $errors
-			];	
-		}
-
-		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
-
-		// \JsonForms::setMetadata( $this->context, $wikiPage, $metadata );
-
-		if ( !$isNewPage ) {
-			$wikiPage->doPurge();
-		}
-
 		$processedData = [
 			'slots' => $slots,
 			'targetTitle' => $targetTitle,
@@ -472,20 +387,12 @@ class SlotManager extends SubmitForm {
 			'metadata' => $metadata,
 		];
 
-		$services->getHookContainer()->run( 'JsonForms::OnFormSubmitSuccess', [
-			$this->user,
-			$data,
-			$processedData,
-		] );
-
-		$returnUrl = $targetTitle->getLocalURL();
-
-		return [
+		$returnData = [
 			'targetTitle' => $targetTitle->getFullText(),
-			'returnUrl' => $returnUrl,
-			'message' => $message,
-			'errors' => [],
+			'returnUrl' => $targetTitle->getLocalURL()
 		];
+
+		return ResultWrapper::success( [ $processedData, $returnData ] );
 	}
 
 }

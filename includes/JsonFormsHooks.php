@@ -76,6 +76,91 @@ class JsonFormsHooks {
 	}
 
 	/**
+	 * @param array $scriptSrc
+	 * @param array $policyConfig
+	 * @param int &$mode
+	 * @return void
+	 */
+	public static function onContentSecurityPolicyScriptSource( array &$scriptSrc, array $policyConfig, int $mode ) {
+        // $scriptSrc[] = 'https://js.stripe.com';    
+
+		// Allow data: URLs (needed for dynamically imported modules)
+		// $scriptSrc[] = 'data:';
+
+        return true;
+	}
+
+	/**
+	 * @param User $user
+	 * @param array &$submittedData
+	 * @param array &$errors
+	 * @return void
+	 */
+	public static function onFormSubmitBeforeProcess( User $user, array &$submittedData, &$errors = [] ) {
+	}
+
+	/**
+	 * @param User $user
+	 * @param array $submittedData
+	 * @param array &$processedData
+	 * @param array &$errors
+	 * @return void
+	 */
+	public static function onFormSubmitBeforeSave( User $user, array $submittedData, array &$processedData, &$errors = [] ) {
+	   	if ( isset( $submittedData['value']['paymentMethodId'] ) ) {
+			$stripe = new MediaWiki\Extension\JsonForms\StripePayment( $GLOBALS['wgJsonFormsStripeSecretKey'] );
+			// $stripe->createPaymentIntent( $submitteData['paymentMethodId'] );
+
+			$paymentMethodId = $submittedData['value']['paymentMethodId'];
+
+   			$content = $processedData['slots'][$processedData['targetSlot']]['content'];
+   			$content = json_decode( $content, true );
+
+			// create customer with payment method
+			try {
+				$customerData = [
+					'name' => $content['name'],
+					'email' => $content['email'],
+					'payment_method' => $paymentMethodId,
+				];
+
+				$customer = $stripe->createCustomer( $customerData );
+
+			} catch (\Exception $e) {
+				$errors[] = $e->getMessage();
+				return;
+			}
+
+			$customerId = $customer->id;
+			$product_id = 'prod_U75pdGkYlfKVLm';
+			try {
+				$ret = $stripe->createPaymentIntentForProduct($product_id, $customerId, $paymentMethodId);
+				$paymentIntentData = $ret->toArray();
+
+    			if ($ret->status !== 'succeeded' && !empty($ret->next_action)) {
+     			   $paymentIntentData['next_action'] = $ret->next_action;
+    			}
+
+   				$content['paymentIntentData'] = $paymentIntentData;
+   				$processedData['slots'][$processedData['targetSlot']]['content'] = json_encode( $content );
+
+			} catch (\Exception $e) {
+				$errors[] = $e->getMessage();
+			}
+	   	}
+	}
+
+	/**
+	 * @param User $user
+	 * @param array $submittedData
+	 * @param array $processedData
+	 * @param array &$errors
+	 * @return void
+	 */
+	public static function onJsonFormsFormSubmitSuccess( User $user, array $submittedData, array $processedData, &$errors = [] ) {
+	}
+
+	/**
 	 * @param Content $content
 	 * @param Title|Mediawiki\Title\Title $title
 	 * @param ParserOutput &$parserOutput

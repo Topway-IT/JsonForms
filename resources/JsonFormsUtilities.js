@@ -45,6 +45,7 @@ JsonFormsUtilities.prototype.removeArrayItem = function (arr, value) {
 	if (index !== -1) {
 		arr.splice(index, 1);
 	}
+	return arr;
 };
 
 JsonFormsUtilities.prototype.uniqueID = function () {

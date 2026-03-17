@@ -32,20 +32,6 @@
 				}
 			]
 		},
-		"uischema": {
-			"type": "string",
-			"title": "UI Schema",
-			"description": "UI schema for customizing form rendering",
-			"default": "",
-			"enumSource": [
-				{
-					"source": "jsonSchemasSource",
-					"filter": "jsonSchemasFilter",
-					"title": "jsonSchemasTitle",
-					"value": "jsonSchemasValue"
-				}
-			]
-		},
 		"edit_categories": {
 			"type": "boolean",
 			"title": "Edit categories",
@@ -273,6 +259,11 @@
 			"title": "width",
 			"description": "",
 			"default": "600px"
+		},
+		"captcha": {
+			"type": "boolean",
+			"description": "Add captcha to form",
+			"default": false
 		}
 	}
 }

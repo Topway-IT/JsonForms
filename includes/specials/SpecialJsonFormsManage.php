@@ -116,7 +116,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/PageFormUI.json');
 		$jsonForm = json_decode( $jsonForm, true );
-		
+
 		// $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
 		$formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
 		$formDescriptor = json_decode( $formDescriptor, true );
@@ -133,7 +133,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 		}
 
 		$pageid = $this->getRequest()->getVal( 'pageid' );
-		$startVal = [];
+
 		if ( $pageid ) {
 			$title = TitleClass::newFromID( $pageid );
 			if ( !$title ) {
@@ -142,19 +142,21 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 			$formDescriptor['edit_page'] = $title->getFullText();
 
-			$text = \JsonForms::getArticleContent( $title );
-			if ( $text ) {
-				$startVal = json_decode( $text, true );
-			}
+			$articleContent = \JsonForms::getArticleContent( $title );
+			// if ( $text ) {
+			//	$startVal = json_decode( $articleContent, true );
+			// }
 		}
 
 		$item = null;
+		$startVal = [];
 		switch( strtolower($this->par ) ) {
 			case 'forms':
 				$item = 'form';
 				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
 				$innerSchema = json_decode( $innerSchema, true );
+				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
 				break;
 
@@ -170,24 +172,27 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';				
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				$innerSchema = json_decode( $innerSchema, true );
+				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
+				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['isMetaSchema'] = true;
 				break;
 		}
 		
 		switch ( $action ) {
-			case 'edit':				
+			case 'edit':
 				$formData = [
 					'schema' => $jsonForm,
 					'name' => 'PageForm',
 					'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 					'editorScript'=> 'MediaWiki:DefaultEditorScript',
-					'startval'=> [
-						'form' => [
-							'form' => $startVal
-						]
-					],
-					'formDescriptor' => $formDescriptor
+					'formDescriptor' => $formDescriptor,
+					// 'editorConfig' => [
+					// ]
 				];
+				
+				if ( isset( $articleContent ) ) {
+					$formData['startval']['form']['form'] = $articleContent;
+				}
 
 				$formData = \JsonForms::prepareFormData( $out, $formData );
 

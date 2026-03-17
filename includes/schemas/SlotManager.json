@@ -41,7 +41,14 @@
 					"type": "string",
 					"title": "Editor",
 					"default": "source",
-					"enum": ["source", "VisualEditor", "JSON Editor", "JsonForms"]
+					"watch": {
+						"contentModelProperty": "content_model"
+					},
+					"enumSource": [
+						{
+							"source": "editorByContentModelSource"
+						}
+					]
 				},
 				"content": {
 					"type": "string",
@@ -87,20 +94,6 @@
 							}
 						}
 					}
-				},
-				"minor": {
-					"type": "boolean",
-					"title": "Minor edit",
-					"description": "This is a <a target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\">minor edit</a>",
-					"options": {
-						"input": {
-							"name": "checkbox"
-						}
-					}
-				},
-				"summary": {
-					"type": "string",
-					"title": "Edit summary"
 				}
 			}
 		}

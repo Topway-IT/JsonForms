@@ -26,6 +26,7 @@ namespace MediaWiki\Extension\JsonForms\SubmitProcessors;
 
 use MediaWiki\Extension\JsonForms\SubmitForm;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
+use MediaWiki\Extension\JsonForms\ResultWrapper;
 use MediaWiki\Extension\JsonForms\SlotEditor;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
@@ -56,7 +57,8 @@ class PageForms extends SubmitForm {
   "options": {
     "categories": [
       "Ab"
-    ]
+    ],
+    "captcha": "...."
   },
   "structuredValue": {
     "name": {
@@ -98,7 +100,8 @@ class PageForms extends SubmitForm {
     "css_class": "",
     "editor_options": "MediaWiki:DefaultEditorOptions",
     "editor_script": "MediaWiki:DefaultEditorScript",
-    "width": "800px"
+    "width": "800px",
+    "captcha": false
   },
   "config": {
     "schemaUrl": "http://127.0.0.1/mediawiki-1.43.0/index.php/JsonSchema:",
@@ -169,6 +172,20 @@ metadata can be stored:
 					
 		// }
 
+		if ( !empty( $data['options']['captcha'] ) ) {
+			$recaptchaSecret = $GLOBALS['wgJsonFormsReCaptchaSecretKey'];
+			$recaptchaResponse = $data['options']['captcha'];
+
+			$response = file_get_contents(
+				"https://www.google.com/recaptcha/api/siteverify?secret={$recaptchaSecret}&response={$recaptchaResponse}"
+			);
+			$responseKeys = json_decode($response, true);
+
+			if (!$responseKeys['success']) {
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-captcha-error' )->text() );
+			}
+		}
+
 		// determine targetTitle
 		$isNewPage = false;
 		$titleStr = null;
@@ -185,10 +202,7 @@ metadata can be stored:
 			$targetTitle = \JsonForms::parseTitleCounter( $targetTitle );
 
 			if ( empty( $targetTitle ) ) {
-				$errors[] = $this->context->msg( 'jsonforms-special-submit-title-counter-error' )->text();
-				return [
-					'errors' => $errors
-				];
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-title-counter-error' )->text() );
 			}
 		}
 
@@ -197,17 +211,11 @@ metadata can be stored:
 		}
 		
 		if ( empty( $targetTitle ) ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-notitle' )->text();
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-notitle' )->text() );
 		}
 
 		if ( !\JsonForms::checkWritePermissions( $this->user, $targetTitle, $errors ) ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-permission-error' )->text();
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-permission-error' )->text() );
 		}
 
 		$contentModel = 'wikitext';
@@ -227,38 +235,25 @@ metadata can be stored:
 		if ( $targetTitle->isKnown() ) {
 			if ( empty( $data['formDescriptor']['edit_page'] ) ) {
 				if ( $data['formDescriptor']['overwrite_existing_article_on_create'] !== true ) {
-					$errors[] = $this->context->msg( 'jsonforms-special-submit-article-exists',
-						$targetTitle->getDBKey() )->parse();
-
-					return [
-						'errors' => $errors
-					];
+					return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
+						$targetTitle->getDBKey() )->parse() );
 				}
 			// page edit through $data['formDescriptor']['edit_page']
 			} else {
 			}
 		} else {
 			$isNewPage = true;
-
 			// *** create new revision if necessary
 			// if ( !$this->createInitialRevision( $targetTitle, $main_slot_content, $contentModel, $errors ) ) {
-			// 	$errors[] = $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
-			// 		$targetTitle->getDBKey(), $contentModel )->parse();
-
-			// 	return [
-			// 		'errors' => $errors
-			// 	];
-			// }
+			//	return ResultWrapper::failure(  $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
+			// 		$targetTitle->getDBKey(), $contentModel )->parse() );
 			// }
 		}
 
 		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
 		
 		if ( !$wikiPage ) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' );
-			return [
-				'errors' => $errors
-			];
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' )->text() );
 		}
 
 		// @set title for further use of parseWikitext
@@ -281,23 +276,22 @@ metadata can be stored:
 			$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
 			
 			if ( filter_var( $returnUrl, FILTER_VALIDATE_URL ) === false ) {
-				$errors[] = $this->context->msg( 'jsonforms-special-submit-return-url-error', $targetUrl )->text();
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-url-error', $targetUrl )->text() );
 			}
 		}
 
 		// update content model if necessary
-		if ( $targetTitle
-			&& !$isNewPage
-			&& $contentModel
-			&& $contentModel !== $targetTitle->getContentModel()
+		if (
+			$targetTitle &&
+			!$isNewPage &&
+			$contentModel &&
+			$contentModel !== $targetTitle->getContentModel()
 		) {
 			$this->updateContentModel( $targetTitle, $wikiPage, $contentModel, $errors );
 		}
 
 		if ( count( $errors ) ) {
-			return [
-				'errors' => $errors
-			];	
+			return ResultWrapper::failure( $errors[0] );
 		}
 		
 		if ( !empty( $data['options']['data_slot'] ) ) {
@@ -352,7 +346,7 @@ metadata can be stored:
 			'slots' => [
 				$targetSlot => [
 					'editor' => 'JsonForms',
-					'model' => $targetSlot === 'main' ? $contentModel : 'json',
+					'model' => 'json',
 					'schema' => $data['formDescriptor']['schema']
 				]
 			]
@@ -389,70 +383,9 @@ metadata can be stored:
 			// }
 		}
 
-		$slotEditor = new SlotEditor();
-
-		$summary = $data['options']['summary'] ?? '';
-		$minor = $data['options']['minor'] ?? false;
-		$append = false;
-		$watchlist = "";
-		$prepend = false;
-		$bot = false;
-		$createonly = false;
-		$nocreate = false;
-		$suppress = false;
-		$updateStrategy = 'replace';
-
-		$ret = $slotEditor->editSlots(
-			$this->user,
-			$wikiPage,
-			$slots,
-			$summary,
-			$append,
-			$watchlist,
-			$prepend,
-			$bot,
-			$minor,
-			$createonly,
-			$nocreate,
-			$suppress,
-			$updateStrategy
-		);
-
-		if ( $ret !== true ) {
-			$errors = $ret;
-			return [
-				'errors' => $errors
-			];	
-		}
-
-		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
-
-		// \JsonForms::setMetadata( $this->context, $wikiPage, $metadata );
-
-		if ( !$isNewPage ) {
-			$wikiPage->doPurge();
-		}
-
-		$processedData = [
-			'slots' => $slots,
-			'targetTitle' => $targetTitle,
-			'isNewPage' => $isNewPage,
-			'contentModel' => $contentModel,
-			'main_slot_content' => $main_slot_content,
-			'metadata' => $metadata,
-			'returnUrl' => $returnUrl,
-			'targetUrl' => $targetUrl,
-		];
-
-		$services->getHookContainer()->run( 'JsonForms::OnFormSubmitSuccess', [
-			$this->user,
-			$data,
-			$processedData,
-		] );
-
 		$localUrl = $targetTitle->getLocalURL();
 		$targetUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
-			
+
 		$message = null;
 		if ( !$returnUrl ) {
 			$messageKey = 'jsonforms-jsmodule-return-message-' . ( $isNewPage ? 'create' : 'edit' );
@@ -462,16 +395,24 @@ metadata can be stored:
 				)->text();
 		}
 
-		return [
-			// return url (location refresh)
-			'returnUrl' => $returnUrl,
-
-			// non-return target url
-			'targetUrl' => $targetUrl,
-			'targetTitle' => $targetTitle->getFullText(),
-			'message' => $message,
-			'errors' => [],
+		$processedData = [
+			'slots' => $slots,
+			'targetTitle' => $targetTitle,
+			'targetSlot' => $targetSlot,
+			'isNewPage' => $isNewPage,
+			'contentModel' => $contentModel,
+			'main_slot_content' => $main_slot_content,
+			'metadata' => $metadata,
 		];
+
+		$returnData = [
+			'returnUrl' => $returnUrl,
+			'targetUrl' => $targetUrl,
+			'message' => $message,
+			'targetTitle' => $targetTitle->getFullText()
+		];
+		
+		return ResultWrapper::success( [ $processedData, $returnData ] );
 	}
 
 }

@@ -27,6 +27,7 @@ namespace MediaWiki\Extension\JsonForms;
 use CommentStoreComment;
 use ContentHandler;
 use ContentModelChange;
+use MediaWiki\Extension\JsonForms\SlotEditor;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use Parser;
@@ -207,12 +208,101 @@ class SubmitForm {
 			];
 		}
 
-		$this->services->getHookContainer()->run( 'JsonForms::OnFormSubmit', [
+		$services = $this->services;
+
+		$errors = [];
+		$services->getHookContainer()->run( 'JsonForms::FormSubmitBeforeProcess', [
 			$this->user,
-			$data
+			&$data,
+			&$errors
 		] );
 
+		if ( count( $errors ) ) {
+			return [
+				'errors' => $errors
+			];
+		}
+
 		$submitProcessor = new $class( $this->user );
-		return $submitProcessor->processData( $data );
+		$res_ = $submitProcessor->processData( $data );
+
+		if ( !$res_->ok ) {
+			return [
+				'errors' => [ $res_->error ]
+			];
+		}
+
+		[ $processedData, $returnData ] = $res_->value;
+
+		$services->getHookContainer()->run( 'JsonForms::FormSubmitBeforeSave', [
+			$this->user,
+			&$data,
+			&$processedData,
+			&$errors
+		] );
+
+		if ( count( $errors ) ) {
+			return [
+				'errors' => $errors
+			];
+		}
+
+		$slotEditor = new SlotEditor();
+
+		$summary = $data['options']['summary'] ?? '';
+		$minor = $data['options']['minor'] ?? false;
+		$append = false;
+		$watchlist = "";
+		$prepend = false;
+		$bot = false;
+		$createonly = false;
+		$nocreate = false;
+		$suppress = false;
+		$updateStrategy = 'replace';
+
+		$wikiPage = \JsonForms::getWikiPage( $processedData['targetTitle'] );
+
+		$ret = $slotEditor->editSlots(
+			$this->user,
+			$wikiPage,
+			$processedData['slots'],
+			$summary,
+			$append,
+			$watchlist,
+			$prepend,
+			$bot,
+			$minor,
+			$createonly,
+			$nocreate,
+			$suppress,
+			$updateStrategy
+		);
+
+		if ( $ret !== true ) {
+			$errors = $ret;
+			return [
+				'errors' => $errors
+			];	
+		}
+
+		// \JsonForms::setMetadata( $this->context, $wikiPage, $metadata );
+		if ( !$processedData['isNewPage'] ) {
+			$wikiPage->doPurge();
+		}
+
+		$services->getHookContainer()->run( 'JsonForms::FormSubmitSuccess', [
+			$this->user,
+			$data,
+			$processedData,
+			&$errors
+		] );
+
+		if ( count( $errors ) ) {
+			return [
+				'errors' => $errors
+			];
+		}
+
+		return $returnData;
 	}
 }

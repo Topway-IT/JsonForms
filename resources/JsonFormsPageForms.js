@@ -90,7 +90,8 @@ default form descriptor
 	"css_class": "",
 	"editor_options": "MediaWiki:DefaultEditorOptions",
 	"editor_script": "MediaWiki:DefaultEditorScript",
-	"width": "800px"
+	"width": "800px",
+	"captcha": true
 }
 */
 	// console.log('targetSchema', targetSchema);
@@ -103,6 +104,13 @@ default form descriptor
 		JFUtilities.removeArrayItem(required, 'title');
 	} else {
 		required.push('title');
+	}
+
+	if (!formDescriptor.captcha) {
+		delete ret.properties.captcha;
+	} else {
+		ret.properties.captcha.options.siteKey =
+			mw.config.get('jsonforms').captchaSiteKey;
 	}
 
 	// the key is the form descriptor field
@@ -136,16 +144,17 @@ default form descriptor
 		delete ret.properties.buttons.properties.goback;
 	}
 
-	// console.log('ret', ret);
+	console.log('ret', ret);
 	return ret;
 };
 
-JsonForms.prototype.createDefaultEditor = async function () {
-	const config = {
+JsonForms.prototype.createDefaultEditor = async function (config = {}) {
+	config = {
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
 		start_path: this.isPopup ? 'form.form' : '',
+		...config,
 	};
 	if (!this.isPopup) {
 		// this is returned as resolved promise
@@ -239,7 +248,7 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				// console.log('innerEditor.validation_results',innerEditor.validation_results)
 				alert('there are errors');
 			} else {
-				this.submitForm();
+				this.submitForm().catch((err) => console.error('API error:', err));
 			}
 			break;
 		case 'goback':
@@ -293,7 +302,10 @@ JsonFormsPageForm.prototype.submitForm = function () {
 	// SubmitProcessor
 	const data = {
 		value: innerEditor.getValue(),
-		options: optionsEditor.getValue(),
+		options: {
+			...optionsEditor.getValue(),
+			captcha: this.editor.getEditor('root.form.captcha'),
+		},
 		structuredValue,
 		formDescriptor: this.formDescriptor,
 		config: mw.config.get('jsonforms'),
@@ -315,7 +327,7 @@ JsonFormsPageForm.prototype.submitForm = function () {
 				console.log('thisRes', thisRes);
 				let result = thisRes[payload.action].result;
 				result = JSON.parse(result);
-				if (result.errors.length) {
+				if (result.errors && result.errors.length) {
 					const config = {
 						htmlMessage: mw.msg(
 							'jsonforms-jsmodule-return-errors',
@@ -338,9 +350,9 @@ JsonFormsPageForm.prototype.submitForm = function () {
 					};
 					const nonModalDialog = new NonModalDialog();
 					nonModalDialog.open(config);
+					resolve(result);
 					this.editor.destroy();
-					this.createDefaultEditor().then((editor) => {
-					});
+					this.createDefaultEditor().then((editor) => {});
 				}
 			})
 			.fail(function (thisRes) {
@@ -357,7 +369,7 @@ $(function () {
 	$('.jsonforms-form-wrapper').each(async function (index, el) {
 		this.el = el;
 		const data = $(el).data().formData;
-
+		const editorConfig = data.editorConfig || {};
 		console.log('data', data);
 
 		const formDescriptor = data.formDescriptor;
@@ -368,7 +380,7 @@ $(function () {
 		const jsonForms = new JsonFormsPageForm(el, data);
 		await jsonForms.initialize();
 
-		const editor = await jsonForms.createDefaultEditor();
+		const editor = await jsonForms.createDefaultEditor(editorConfig);
 
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
@@ -390,7 +402,7 @@ $(function () {
 				const submitButton = editor.getEditor('root.buttons.submit');
 				const gobackButton = editor.getEditor('root.buttons.goback');
 
-/*
+				/*
 				console.log(
 					'optionsEditor.schema.properties',
 					optionsEditor.schema.properties,
@@ -419,3 +431,4 @@ $(function () {
 		}
 	});
 });
+

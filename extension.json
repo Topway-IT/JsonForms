@@ -1,20 +1,17 @@
 {
 	"name": "JsonForms",
 	"author": "thomas-topway-it",
-	"version": "0.8",
+	"version": "0.9",
 	"url": "https://www.mediawiki.org/wiki/Extension:JsonForms",
 	"descriptionmsg": "jsonforms-extension-desc",
 	"license-name": "GPL-2.0-or-later",
 	"type": "parserhook",
 	"requires": {
 		"MediaWiki": ">= 1.39.13",
-		"extensions": {
-		}
+		"extensions": {}
 	},
 	"MessagesDirs": {
-		"JsonForms": [
-			"i18n"
-		]
+		"JsonForms": ["i18n"]
 	},
 	"callback": "JsonFormsHooks::initExtension",
 	"Actions": {
@@ -48,6 +45,7 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "JsonFormsHooks::onLoadExtensionSchemaUpdates",
 		"MediaWikiServices": "JsonFormsHooks::onMediaWikiServices",
+		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",		
 		"ContentAlterParserOutput": "JsonFormsHooks::onContentAlterParserOutput",
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
@@ -55,7 +53,10 @@
 		"SkinTemplateNavigation::Universal": "JsonFormsHooks::onSkinTemplateNavigation",
 		"SkinBuildSidebar": "JsonFormsHooks::onSkinBuildSidebar",
 		"ResourceLoaderGetConfigVars": "JsonFormsHooks::onResourceLoaderGetConfigVars",
-		"OutputPageParserOutput": "JsonFormsHooks::onOutputPageParserOutput"
+		"OutputPageParserOutput": "JsonFormsHooks::onOutputPageParserOutput",
+		"JsonForms::FormSubmitBeforeProcess": "JsonFormsHooks::onFormSubmitBeforeProcess",
+		"JsonForms::FormSubmitBeforeSave": "JsonFormsHooks::onFormSubmitBeforeSave",
+		"JsonForms::FormSubmitSuccess": "JsonFormsHooks::onJsonFormsFormSubmitSuccess"
 	},
 	"SpecialPages": {
 		"JsonForms": "SpecialJsonForms",
@@ -66,23 +67,17 @@
 		"JsonFormsManageSchemas": "MediaWiki\\Extension\\JsonForms\\Specials\\ManageSchemas"
 	},
 	"GroupPermissions": {
-		"sysop": {
-		},
-		"bureaucrat": {
-		},
-		"jsonforms-admin": {
-		}
+		"sysop": {},
+		"bureaucrat": {},
+		"jsonforms-admin": {}
 	},
 	"AddGroups": {
-		"jsonforms-admin": [
-		]
+		"jsonforms-admin": []
 	},
 	"RemoveGroups": {
-		"jsonforms-admin": [
-		]
+		"jsonforms-admin": []
 	},
-	"AvailableRights": [
-	],
+	"AvailableRights": [],
 	"namespaces": [
 		{
 			"id": 2100,
@@ -118,10 +113,9 @@
 			"name": "JsonFormTalk"
 		}
 	],
-	"JobClasses": {
-	},
+	"JobClasses": {},
 	"ResourceModules": {
-	"ext.JsonForms.slotManager": {
+		"ext.JsonForms.slotManager": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"styles": [
@@ -173,14 +167,18 @@
 				"mediawiki.widgets.UsersMultiselectWidget",
 				"mediawiki.Upload"
 			],
-			"messages": [
-				"jsonforms-jsmodule-return-errors"
-			],
+			"messages": ["jsonforms-jsmodule-return-errors"],
 			"position": "top"
 		},
-		
-		
-			"ext.JsonForms.demo": {
+		"ext.JsonForms.stripe": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [],
+			"scripts": [
+				"stripe/js.stripe.com.js"
+			]
+		},
+		"ext.JsonForms.demo": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"styles": [
@@ -232,14 +230,11 @@
 				"mediawiki.widgets.UsersMultiselectWidget",
 				"mediawiki.Upload"
 			],
-			"messages": [
-				"jsonforms-jsmodule-return-errors"
-			],
+			"messages": ["jsonforms-jsmodule-return-errors"],
 			"position": "top"
 		},
-		
-		
-"ext.JsonForms.pageForms": {
+
+		"ext.JsonForms.pageForms": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"styles": [
@@ -291,22 +286,15 @@
 				"mediawiki.widgets.UsersMultiselectWidget",
 				"mediawiki.Upload"
 			],
-			"messages": [
-				"jsonforms-jsmodule-return-errors"
-			],
+			"messages": ["jsonforms-jsmodule-return-errors"],
 			"position": "top"
 		},
-		
+
 		"ext.JsonForms.jsoneditor": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
-			"styles": [
-				"jsoneditor/jsoneditor.min.css"
-			],
-			"scripts": [
-				"jsoneditor/ace.js",
-				"jsoneditor/jsoneditor.min.js"
-			]			
+			"styles": ["jsoneditor/jsoneditor.min.css"],
+			"scripts": ["jsoneditor/ace.js", "jsoneditor/jsoneditor.min.js"]
 		},
 		"ext.JsonForms.editor": {
 			"localBasePath": "resources",
@@ -359,16 +347,24 @@
 				"mediawiki.widgets.UsersMultiselectWidget",
 				"mediawiki.Upload"
 			],
-			"messages": [
-				"jsonforms-jsmodule-return-errors"
-			],
+			"messages": ["jsonforms-jsmodule-return-errors"],
 			"position": "top"
 		}
 	},
 	"config": {
 		"JsonFormsDoPurge": {
 			"value": false
+		},
+		"JsonFormsReCaptchaSiteKey": {
+			"value": ""
+		},
+		"JsonFormsReCaptchaSecretKey": {
+			"value": ""
+		},
+		"JsonFormsStripeSecretKey": {
+			"value": ""
 		}
 	},
 	"manifest_version": 2
 }
+

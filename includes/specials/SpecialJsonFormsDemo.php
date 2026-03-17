@@ -61,7 +61,7 @@ class SpecialJsonFormsDemo extends SpecialPage {
 			'name' => 'Demo',
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',
-			'startval'=> null,
+			// 'startval'=> [],
 		];
 
 		$formData = \JsonForms::prepareFormData( $out, $formData );

@@ -26,7 +26,8 @@
 
 	"jsonformsmanageforms": "Manage Forms",
 	"jsonformsmanageschemas": "Manage Schemas",
-	
+
+	"jsonforms-special-submit-captcha-error": "cannot verify captcha",
 	"jsonforms-special-submit-title-counter-error": "computed title error",
 	"jsonforms-special-submit-notitle": "article no title",
 	"jsonforms-special-submit-permission-error": "permission error",

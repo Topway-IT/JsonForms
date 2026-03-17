@@ -133,6 +133,15 @@
 				}
 			}
 		},
+		"captcha": {
+			"options": {
+				"cssClass": "jsonforms-outerform-captcha",
+				"compact": true,
+				"siteKey": ""
+			},
+			"type": "string",
+			"format": "captcha"
+		},
 		"buttons": {
 			"options": {
 				"compact": true,
