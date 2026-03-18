@@ -86,6 +86,7 @@ default form descriptor
 	"preload_data_separator": "",
 	"return_page": "",
 	"return_url": "",
+	"start_path": "",
 	"popup_size": "medium",
 	"css_class": "",
 	"editor_options": "MediaWiki:DefaultEditorOptions",
@@ -144,17 +145,20 @@ default form descriptor
 		delete ret.properties.buttons.properties.goback;
 	}
 
-	console.log('ret', ret);
+	this.hasOptions = Object.keys(options).length;
 	return ret;
 };
 
 JsonForms.prototype.createDefaultEditor = async function (config = {}) {
 	config = {
+		...config,
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
-		start_path: this.isPopup ? 'form.form' : '',
-		...config,
+
+		// the user-defined start_path is declared inside
+		// the config object in the jsonform widget from php
+		start_path: !this.isPopup ? '' : 'form.form',
 	};
 	if (!this.isPopup) {
 		// this is returned as resolved promise
@@ -170,30 +174,114 @@ JsonForms.prototype.createDialog = async function (config) {
 
 	const callbacks = {
 		initialize: async (dialog) => {
-			// expanded false is necessary to make getBodyHeight work
-			dialog.content = new OO.ui.PanelLayout({
-				padded: false,
+			const panelA = new OO.ui.PanelLayout({
 				expanded: false,
+				padded: false,
+				framed: false,
+				data: { name: 'editor' },
 			});
 
 			const el = document.createElement('div');
-			// const editor = await this.createDefaultEditor(false);
 			const editor = this.createEditor(el, config);
+			panelA.$element.append(el);
+
+			const panelB = new OO.ui.PanelLayout({
+				expanded: false,
+				padded: false,
+				framed: false,
+				data: { name: 'options' },
+			});
+
+			// do not use this.createEditor to not mess with the editor
+			const elOptions = document.createElement('div');
+			const jsonForms = new JsonForms(elOptions, {
+				schema: config.schema,
+				startval: null,
+				name: null,
+			});
+			dialog.optionsEditor = jsonForms.createEditor(elOptions, {
+				start_path: 'form.options',
+				schema: config.schema,
+			});
+			panelB.$element.append(elOptions);
+
+			// expanded false is necessary to make getBodyHeight work
+			const layout = new OO.ui.StackLayout({
+				items: [panelA, panelB],
+				expanded: false,
+				continuous: false,
+				padded: false,
+				// The following classes are used here:
+				// * PanelPropertiesStack
+				// * PanelPropertiesStack-empty
+				// classes: classes
+			});
+
+			dialog.content = dialog.layout = layout;
+
+			dialog.$body.append(layout.$element);
 
 			_resolveEditorReady(editor);
-
-			// append the editor element to the dialog element
-			dialog.content.$element.append(el);
-
-			dialog.$body.append(dialog.content.$element);
 		},
-		setupProcess: (dialog) => dialog.actions.setMode('done'),
+		setupProcess: (dialog) => {
+			const hasData = JFUtilities.getNestedProp(
+				['form', 'form'],
+				this.startval,
+			);
+
+			const mode =
+				(this.hasOptions ? 'validate' : 'submit-single') +
+				(!this.hasData ? '' : '-delete');
+
+			dialog.actions.setMode(mode);
+		},
 		onOpen: () => {},
 		actionProcess: (dialog, getActionProcess, action) => {
+			const panels = dialog.layout.getItems();
+
 			switch (action) {
-				case 'done':
+				case 'back':
+					dialog.layout.setItem(panels[0]);
+					dialog.actions.setMode('validate' + (!this.hasData ? '' : '-delete'));
+					return;
+
+				case 'validate':
+					{
+						const innerformEditor = this.editor.getEditor('root');
+						const innerEditor = innerformEditor.input.editor;
+
+						if (innerEditor.validation_results.length) {
+							alert('there are errors');
+						} else {
+							dialog.layout.setItem(panels[1]);
+							dialog.setSize('medium');
+							dialog.actions.setMode(
+								'submit' + (!this.hasData ? '' : '-delete'),
+							);
+						}
+					}
+					return;
+
+				case 'validate&submit':
+				case 'submit':
+				case 'delete': {
+					const innerformEditor = this.editor.getEditor('root');
+					const innerEditor = innerformEditor.input.editor;
+
+					if (innerEditor.validation_results.length) {
+						alert('there are errors');
+					} else {
+						return getActionProcess.call(this, action).next(() => {
+							// return promise
+							return this.submitForm(innerEditor, dialog.optionsEditor).then(
+								(res) => {
+									dialog.close({ action });
+								},
+							);
+						});
+					}
+				}
 			}
-			dialog.close({ action });
 		},
 	};
 
@@ -236,6 +324,7 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	const gobackButton = jsonEditor.getEditor('root.buttons.goback');
 
 	const innerformEditor = this.editor.getEditor('root.form.form');
+	
 	const innerEditor = innerformEditor.input.editor;
 
 	switch (editor.key) {
@@ -248,7 +337,10 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				// console.log('innerEditor.validation_results',innerEditor.validation_results)
 				alert('there are errors');
 			} else {
-				this.submitForm().catch((err) => console.error('API error:', err));
+				const optionsEditor = this.editor.getEditor('root.form.options');
+				this.submitForm(innerEditor, optionsEditor).catch((err) =>
+					console.error('API error:', err),
+				);
 			}
 			break;
 		case 'goback':
@@ -272,9 +364,7 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	}
 };
 
-JsonFormsPageForm.prototype.submitForm = function () {
-	const formEditor = this.editor.getEditor('root.form.form');
-	const innerEditor = formEditor.input.editor;
+JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 	// console.log('innerEditor', innerEditor);
 
 	const vars = {};
@@ -295,8 +385,6 @@ JsonFormsPageForm.prototype.submitForm = function () {
 			vars,
 		);
 	}
-
-	const optionsEditor = this.editor.getEditor('root.form.options');
 
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
@@ -373,7 +461,7 @@ $(function () {
 		console.log('data', data);
 
 		const formDescriptor = data.formDescriptor;
-		console.log('formDescriptor', formDescriptor);
+		// console.log('formDescriptor', formDescriptor);
 
 		// console.log('data.schema', data.schema);
 
@@ -428,6 +516,7 @@ $(function () {
 
 				// booklet.setPage('options');
 			});
+		} else {
 		}
 	});
 });

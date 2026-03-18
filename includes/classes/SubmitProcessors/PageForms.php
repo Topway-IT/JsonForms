@@ -36,6 +36,39 @@ class PageForms extends SubmitForm {
 
 	/**
 	 * @param array $data
+	 * @param string $path
+	 * @param array $value
+	 */
+	function setDataAtPath( ?array &$data, string $path, $value ): void {
+		if ( !is_array( $data ) ) {
+			$data = [];
+		}
+
+		$keys = explode( '.', $path );
+		$current = &$data;
+
+		foreach ( $keys as $index => $key ) {
+			if ( $index === count( $keys ) - 1 ) {
+				if ( is_array( $current ) && isset( $current[$key] ) && is_array( $current[$key] ) && is_array( $value ) ) {
+					$current[$key] = array_replace_recursive( $current[$key], $value );
+
+				} else {
+					$current[$key] = $value;
+				}
+				return;
+			}
+
+			// Create path if it doesn't exist or isn't an array
+			if ( !isset( $current[$key] ) || !is_array( $current[$key] ) ) {
+				$current[$key] = [];
+			}
+
+			$current = &$current[$key];
+		}
+	}
+
+	/**
+	 * @param array $data
 	 * @return array
 	 */
 	public function processData( $data ) {
@@ -96,6 +129,7 @@ class PageForms extends SubmitForm {
     "preload_data_separator": "",
     "return_page": "",
     "return_url": "",
+    "start_path": "",
     "popup_size": "medium",
     "css_class": "",
     "editor_options": "MediaWiki:DefaultEditorOptions",
@@ -168,10 +202,6 @@ metadata can be stored:
 
 		$output = $this->output;
 
-		// if ( $data['options']['action'] === 'delete' ) {
-					
-		// }
-
 		if ( !empty( $data['options']['captcha'] ) ) {
 			$recaptchaSecret = $GLOBALS['wgJsonFormsReCaptchaSecretKey'];
 			$recaptchaResponse = $data['options']['captcha'];
@@ -217,6 +247,10 @@ metadata can be stored:
 		if ( !\JsonForms::checkWritePermissions( $this->user, $targetTitle, $errors ) ) {
 			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-permission-error' )->text() );
 		}
+
+		// if ( $data['options']['action'] === 'delete' ) {
+			
+		// }
 
 		$contentModel = 'wikitext';
 		if ( !empty( $data['options']['main_slot_content_model'] ) ) {
@@ -311,10 +345,17 @@ metadata can be stored:
 			$targetSlot = SLOT_ROLE_JSONFORMS_DATA;
 		}
 
+		$dataToSave = $data['value'];
+		if ( !empty( $data['formDescriptor']['start_path'] ) ) {
+			$dataToSave = \JsonForms::getSlotContent( $wikiPage, $targetSlot );
+			$dataToSave = SlotEditor::parseMaybeJSON( $dataToSave );
+			$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
+		}
+
 		$slots = [
 			$targetSlot => [
 				'model' => 'json',
-				'content' => json_encode( $data['value'] )
+				'content' => json_encode( $dataToSave )
 			]
 		];
 

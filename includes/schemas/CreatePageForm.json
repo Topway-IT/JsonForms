@@ -219,6 +219,13 @@
 			"format": "uri",
 			"default": ""
 		},
+		"start_path": {
+			"type": "string",
+			"format": "text",
+			"title": "Start path",
+			"description": "Json path to the subschema used to display a partial form (dot separated)",
+			"default": ""
+		},
 		"popup_size": {
 			"type": "string",
 			"title": "Popup size",

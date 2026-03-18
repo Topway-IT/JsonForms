@@ -22,6 +22,7 @@
  */
 
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
+use MediaWiki\Extension\JsonForms\SlotEditor;
 
 define( 'SLOT_ROLE_JSONFORMS_DATA', 'jsonforms-data' );
 define( 'SLOT_ROLE_JSONFORMS_METADATA', 'jsonforms-metadata' );
@@ -114,7 +115,7 @@ class JsonFormsHooks {
 			$paymentMethodId = $submittedData['value']['paymentMethodId'];
 
    			$content = $processedData['slots'][$processedData['targetSlot']]['content'];
-   			$content = json_decode( $content, true );
+   			$content = SlotEditor::parseMaybeJSON( $content );
 
 			// create customer with payment method
 			try {

@@ -34,7 +34,7 @@ function JsonFormsDialog(config, callbacks, editor) {
 
 OO.inheritClass(JsonFormsDialog, OO.ui.ProcessDialog);
 JsonFormsDialog.static.name = 'myDialog';
-JsonFormsDialog.static.actions = [
+JsonFormsDialog.static.actions_ = [
 	{
 		action: 'done',
 		flags: ['primary', 'progressive'],
@@ -56,6 +56,52 @@ JsonFormsDialog.static.actions = [
 		modes: ['done', 'save'],
 	},
 ];
+
+	JsonFormsDialog.static.actions = [
+		{
+			action: 'delete',
+			label: 'delete',
+			flags: 'destructive',
+			modes: [ 'validate-delete', 'submit-single-delete' ]
+		},
+		{
+			action: 'validate',
+			modes: [ 'validate', 'validate-delete' ],
+			label: 'validate',
+			flags: [ 'primary', 'progressive' ]
+		},
+		{
+			action: 'back',
+			label: 'back',
+			flags: [ 'safe', 'back' ],
+			modes: [ 'submit', 'submit-delete' ]
+		},
+		{
+			action: 'submit',
+			label: 'submit',
+			flags: [ 'primary', 'progressive' ],
+			modes: [ 'submit', 'submit-delete' ]
+		},
+		{
+			action: 'validate&submit',
+			label: 'submit',
+			flags: [ 'primary', 'progressive' ],
+			modes: [ 'submit-single', 'submit-single-delete' ]
+		},
+
+		// https://gerrit.wikimedia.org/r/plugins/gitiles/oojs/ui/+/refs/heads/master/demos/classes/BookletDialog.js
+
+		{
+			label:'close',
+			flags: [ 'safe', 'close' ],
+			modes: [
+				'validate',
+				'submit-single',
+				'validate-delete',
+				'submit-single-delete'
+			]
+		}
+	];
 
 // Customize the initialize() function to add content and layouts:
 JsonFormsDialog.prototype.initialize = function () {

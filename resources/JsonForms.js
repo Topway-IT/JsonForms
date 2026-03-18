@@ -123,13 +123,14 @@ JsonForms.prototype.createEditor = function (el, config) {
 		...config,
 	});
 
+/*
 	if (typeof this.editorScript === 'function') {
 		const updateEditorCallBack = (thisConfig) => {
 			this.createEditor(this.el, { ...config, ...thisConfig });
 		};
 		this.editorScript(this.editor, this.config, updateEditorCallBack);
 	}
-
+*/
 	return this.editor;
 };
 

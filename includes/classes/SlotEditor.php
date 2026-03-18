@@ -179,11 +179,25 @@ class SlotEditor
         return true;
     }
 
+	public static function parseMaybeJSON( $value ) {
+		if ( !is_string( $value ) ) {
+			return $value;
+		}
+
+		$decoded = json_decode( $value, true );
+
+		if ( json_last_error() === JSON_ERROR_NONE ) {
+			return $decoded;
+		}
+
+		return $value;
+	}
+
 	/**
 	 * @param mixed $value
 	 * @return string
 	 */
-	private function stringifyMaybeJSON($value) {
+	public static function stringifyMaybeJSON($value) {
 		if (!is_string($value)) {
 			$json = json_encode($value);
 			if (json_last_error() === JSON_ERROR_NONE) {
@@ -241,7 +255,7 @@ class SlotEditor
             $this->resolveModelId($oldRevision, $slotName, $this->title);
 
         if ( in_array( $modelId, $this->jsonContentModels ) ) {
-        	$text = $this->stringifyMaybeJSON( $text );
+        	$text = self::stringifyMaybeJSON( $text );
         }
 
         $content = ContentHandler::makeContent($text, $this->title, $modelId);

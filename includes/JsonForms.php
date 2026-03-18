@@ -123,7 +123,7 @@ class JsonForms {
 				$wikiPage = self::getWikiPage( $editTitle );
 
 				if ( !empty( $formDescriptor['schema'] ) ) {
-					$metadata = self::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+					$metadata = self::getMetadata( $wikiPage );
 
 					if ( $metadata && is_array( $metadata['slots'] ) ) {
 						// *** or use $renderedRevision->getSlotParserOutput( $role )
@@ -163,6 +163,10 @@ class JsonForms {
 
 			// $jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
 			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $schema;
+			
+			if ( !empty( $formDescriptor['start_path'] ) ) {
+				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['start_path'] = $formDescriptor['start_path'];
+			}
 
 			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
 				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
