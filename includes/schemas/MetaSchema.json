@@ -477,6 +477,11 @@
 			}
 		},
 		"schema": {
+			"options": {
+				"input": {
+					"name": "button-select"
+				}
+			},
 			"default": {
 				"type": "object"
 			},
