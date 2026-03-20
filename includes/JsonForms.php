@@ -131,7 +131,7 @@ class JsonForms {
 							if ( $schema === $formDescriptor['schema'] ) {
 								$content = self::getSlotContent( $wikiPage, $role );
 								if ( $content ) {
-									$startVal['form']['form'] = $content;
+									$startVal['form']['editor'] = $content;
 									// $startVal = $content;
 								}
 								break;
@@ -161,15 +161,15 @@ class JsonForms {
 			$schema = self::processSchema( $output, $schema );
 			$schemaName = $formDescriptor['schema'];
 
-			// $jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
-			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $schema;
+			// $jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
+			$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $schema;
 			
 			if ( !empty( $formDescriptor['start_path'] ) ) {
-				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['start_path'] = $formDescriptor['start_path'];
+				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['start_path'] = $formDescriptor['start_path'];
 			}
 
 			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
-				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
 			}
 		}
 

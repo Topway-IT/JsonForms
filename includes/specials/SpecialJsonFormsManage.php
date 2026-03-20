@@ -129,7 +129,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 		];
 
 		if ( !empty( $formDescriptor['edit_page'] ) ) {
-			$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+			$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
 		}
 
 		$pageid = $this->getRequest()->getVal( 'pageid' );
@@ -157,7 +157,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
-				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
+				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $innerSchema;
 				break;
 
 			case 'schemas':
@@ -173,8 +173,8 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
-				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
-				$jsonForm['properties']['form']['properties']['form']['options']['input']['config']['isMetaSchema'] = true;
+				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $innerSchema;
+				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['isMetaSchema'] = true;
 				break;
 		}
 		
@@ -189,9 +189,9 @@ class SpecialJsonFormsManage extends SpecialPage {
 					// 'editorConfig' => [
 					// ]
 				];
-				
+
 				if ( isset( $articleContent ) ) {
-					$formData['startval']['form']['form'] = $articleContent;
+					$formData['startval']['form']['editor'] = $articleContent;
 				}
 
 				$formData = \JsonForms::prepareFormData( $out, $formData );

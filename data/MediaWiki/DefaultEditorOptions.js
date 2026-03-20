@@ -5,6 +5,7 @@ export default {
 	remove_empty_properties: true,
 	remove_false_properties: false,
 	template: 'default',	// template engine name
+	lazyPropertiesThreshold: 6,
 	callbacks: {
 		autocomplete: {
 		},

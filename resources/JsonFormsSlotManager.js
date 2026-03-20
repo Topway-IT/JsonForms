@@ -49,6 +49,7 @@ JsonFormsSlotManager.prototype.onFormButton = function (editor) {
 	}
 };
 
+// @TODO use describedBy instead
 JsonFormsSlotManager.prototype.watchEditor = function (
 	role,
 	editor,
@@ -324,6 +325,7 @@ $(function () {
 
 			const slotRoles = mw.config.get('jsonforms')['slotRoles'];
 
+			// @TODO use describedBy instead
 			const innerEditorOnChange = async (editor) => {
 				// console.log('innerEditorOnChange');
 				

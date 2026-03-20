@@ -44,6 +44,8 @@ JsonForms.prototype.initialize = async function () {
 
 	const defaultOptions = this.editorOptions;
 
+	// console.log('defaultOptions',defaultOptions)
+
 	defaultOptions.callbacks ??= {};
 	defaultOptions.callbacks.template = {
 		...this.enumProviders,
@@ -62,7 +64,7 @@ JsonForms.prototype.createDefaultEditor = function (config = {}) {
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
-		...config
+		...config,
 	});
 
 	return this.editor;
@@ -123,7 +125,7 @@ JsonForms.prototype.createEditor = function (el, config) {
 		...config,
 	});
 
-/*
+	/*
 	if (typeof this.editorScript === 'function') {
 		const updateEditorCallBack = (thisConfig) => {
 			this.createEditor(this.el, { ...config, ...thisConfig });
@@ -133,4 +135,3 @@ JsonForms.prototype.createEditor = function (el, config) {
 */
 	return this.editor;
 };
-

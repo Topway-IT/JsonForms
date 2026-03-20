@@ -139,14 +139,40 @@ default form descriptor
 		delete options['summary'];
 		delete options['minor'];
 	}
+	
+	this.hasOptions = Object.keys(options).length;
 
-	if (!Object.keys(options).length) {
+	if (!this.hasOptions) {
 		delete ret.properties.buttons.properties.validate;
 		delete ret.properties.buttons.properties.goback;
 	}
-
-	this.hasOptions = Object.keys(options).length;
+	
 	return ret;
+};
+
+JsonForms.prototype.initButtons = function (jsonEditor) {
+	const optionsEditor = jsonEditor.getEditor('root.form.options');
+	const validateButton = jsonEditor.getEditor('root.buttons.validate');
+	const submitButton = jsonEditor.getEditor('root.buttons.submit');
+	const gobackButton = jsonEditor.getEditor('root.buttons.goback');
+
+	if (Object.keys(optionsEditor.editors).length) {
+		if (submitButton) {
+			submitButton.theme.toggle(submitButton.container, false);
+		}
+
+		if (gobackButton) {
+			gobackButton.theme.toggle(gobackButton.container, false);
+		}
+	} else {
+		if (validateButton) {
+			validateButton.theme.toggle(validateButton.container, false);
+		}
+	}
+
+	if (gobackButton) {
+		gobackButton.theme.toggle(gobackButton.container, false);
+	}
 };
 
 JsonForms.prototype.createDefaultEditor = async function (config = {}) {
@@ -158,18 +184,22 @@ JsonForms.prototype.createDefaultEditor = async function (config = {}) {
 
 		// the user-defined start_path is declared inside
 		// the config object in the jsonform widget from php
-		start_path: !this.isPopup ? '' : 'form.form',
+		// so we don't need to handle it here
+		start_path: !this.isPopup ? '' : 'form.editor',
 	};
 	if (!this.isPopup) {
 		// this is returned as resolved promise
 		// return JsonFormsPageForm.super.prototype.createDefaultEditor.call(this);
-		return this.createEditor(this.el, config);
+		const editor = this.createEditor(this.el, config);
+
+		editor.on('buildComplete', this.initButtons);
+		return editor;
 	}
 
-	return await this.createDialog(config);
+	return await this.createPopup(config);
 };
 
-JsonForms.prototype.createDialog = async function (config) {
+JsonForms.prototype.createPopup = async function (config) {
 	let _resolveEditorReady = null;
 
 	const callbacks = {
@@ -309,22 +339,19 @@ JsonForms.prototype.createDialog = async function (config) {
 	});
 };
 
+// inline form only
 JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	const jsonEditor = editor.jsoneditor;
-
-	// console.log('this',this)
-	// console.log('editor',editor)
-	// console.log('jsonEditor',jsonEditor)
-
 	const formEditor = jsonEditor.getEditor('root.form');
+
+	// defined in the PageFormUI.json schema
 	const booklet = formEditor.editor_holder.layout;
 
 	const validateButton = jsonEditor.getEditor('root.buttons.validate');
 	const submitButton = jsonEditor.getEditor('root.buttons.submit');
 	const gobackButton = jsonEditor.getEditor('root.buttons.goback');
 
-	const innerformEditor = this.editor.getEditor('root.form.form');
-	
+	const innerformEditor = this.editor.getEditor('root.form.editor');
 	const innerEditor = innerformEditor.input.editor;
 
 	switch (editor.key) {
@@ -344,7 +371,7 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 			}
 			break;
 		case 'goback':
-			booklet.setPage('main');
+			booklet.setPage('editor');
 			validateButton.theme.toggle(validateButton.container, true);
 			submitButton.theme.toggle(submitButton.container, false);
 			gobackButton.theme.toggle(gobackButton.container, false);
@@ -473,51 +500,12 @@ $(function () {
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
 
-		editor.on('ready', async () => {
-			const formEditor = editor.getEditor('root.form.form');
-			// console.log('formEditor', formEditor);
+		// editor.on('ready', async () => {
+		// 	const formEditor = editor.getEditor('root.form.editor');
 
-			// *** do something with the child editor if needed
-			// const innerEditor = await formEditor.input.getEditor();
-		});
-
-		const isPopup = formDescriptor.view === 'popup';
-
-		if (!isPopup) {
-			editor.on('buildComplete', () => {
-				const optionsEditor = editor.getEditor('root.form.options');
-				const validateButton = editor.getEditor('root.buttons.validate');
-				const submitButton = editor.getEditor('root.buttons.submit');
-				const gobackButton = editor.getEditor('root.buttons.goback');
-
-				/*
-				console.log(
-					'optionsEditor.schema.properties',
-					optionsEditor.schema.properties,
-				);
-*/
-				if (Object.keys(optionsEditor.schema.properties).length) {
-					if (submitButton) {
-						submitButton.theme.toggle(submitButton.container, false);
-					}
-
-					if (gobackButton) {
-						gobackButton.theme.toggle(gobackButton.container, false);
-					}
-				} else {
-					if (validateButton) {
-						validateButton.theme.toggle(validateButton.container, false);
-					}
-				}
-
-				if (gobackButton) {
-					gobackButton.theme.toggle(gobackButton.container, false);
-				}
-
-				// booklet.setPage('options');
-			});
-		} else {
-		}
+		// 	// *** do something with the child editor if needed
+		// 	// const innerEditor = await formEditor.input.getEditor();
+		// });
 	});
 });
 

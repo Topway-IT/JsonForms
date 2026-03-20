@@ -21,7 +21,7 @@
 				}
 			},
 			"properties": {
-				"form": {
+				"editor": {
 					"type": "string",
 					"format": "json",
 					"options": {
