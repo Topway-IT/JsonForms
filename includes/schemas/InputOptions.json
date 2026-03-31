@@ -1,0 +1,1010 @@
+{
+  "definitions": {
+    "commonProperties": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        }
+      }
+    },
+    "textInput": {
+      "type": "object",
+      "properties": {
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "autocomplete": {
+          "type": "boolean",
+          "description": "Should the browser support autocomplete for this field?"
+        },
+        "autofocus": {
+          "type": "boolean",
+          "description": "Use an HTML autofocus attribute to instruct the browser to focus this widget."
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "flags": {
+          "type": "string",
+          "description": "The name or names of the flags (e.g., 'progressive' or 'primary') to apply."
+        },
+        "icon": {
+          "type": "string",
+          "description": "The symbolic name of the icon (e.g., 'remove' or 'menu'), or a map of symbolic names."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "indicator": {
+          "type": "string",
+          "description": "Symbolic name of the indicator (e.g. 'required' or 'down')."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "invisibleLabel": {
+          "type": "boolean",
+          "description": "Whether the label should be visually hidden (but still accessible to screen-readers)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label text"
+        },
+        "labelPosition": {
+          "type": "string",
+          "description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
+          "enum": ["before", "after"]
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of characters allowed in the input."
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum number of characters allowed in the input."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "description": "Prevent changes to the value of the text input."
+        },
+        "spellcheck": {
+          "type": "boolean",
+          "description": "Should the browser support spellcheck for this field (undefined means leaving it up to the browser)."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        },
+        "type": {
+          "type": "string",
+          "description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
+          "enum": ["text", "password", "email", "url", "number"]
+        },
+        "validate": {
+          "type": "string",
+          "description": "A regular expression that must match the value for it to be considered valid. See <a target=\"_blank\" href=\"https://json-schema.org/understanding-json-schema/reference/regular_expressions\">Regular Expressions</a>"
+        }
+      }
+    },
+    "dateInputWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/textInput" },
+        {
+          "properties": {
+            "precision": {
+              "type": "string",
+              "description": "Date precision to use, 'day' or 'month'",
+              "enum": ["day", "month"]
+            },
+            "inputFormat": {
+              "type": "string",
+              "description": "Date format string to use for the textual input field"
+            },
+            "displayFormat": {
+              "type": "string",
+              "description": "Date format string to use for the clickable label"
+            },
+            "longDisplayFormat": {
+              "type": "boolean",
+              "description": "If a custom displayFormat is not specified, use unabbreviated day of the week and month names in the default language-specific displayFormat"
+            },
+            "placeholderLabel": {
+              "type": "string",
+              "description": "Placeholder text shown when the widget is not"
+            },
+            "placeholderDateFormat": {
+              "type": "string",
+              "description": "User-visible date format string displayed in the textual input field when it's empty"
+            },
+            "mustBeAfter": {
+              "type": "string",
+              "format": "date",
+              "description": "Validates the date to be after this"
+            },
+            "mustBeBefore": {
+              "type": "string",
+              "format": "date",
+              "description": "Validates the date to be before this"
+            }
+          }
+        }
+      ]
+    },
+    "title": {
+      "allOf": [
+        { "$ref": "#/definitions/textInput" },
+        {
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of results to show"
+            },
+            "namespace": {
+              "type": "integer",
+              "description": "Namespace to prepend to queries"
+            },
+            "relative": {
+              "type": "boolean",
+              "description": "If a namespace is set, display titles relative to it"
+            },
+            "suggestions": {
+              "type": "boolean",
+              "description": "Display search suggestions"
+            },
+            "showRedirectTargets": {
+              "type": "boolean",
+              "description": "Show the targets of redirects"
+            },
+            "showImages": {
+              "type": "boolean",
+              "description": "Show page images"
+            },
+            "showDescriptions": {
+              "type": "boolean",
+              "description": "Show page descriptions"
+            },
+            "showDisambigsLast": {
+              "type": "boolean",
+              "description": "Show disambiguation pages as the last results"
+            },
+            "showMissing": {
+              "type": "boolean",
+              "description": "Show missing pages"
+            },
+            "showInterwikis": {
+              "type": "boolean",
+              "description": "Show pages with a valid interwiki prefix"
+            },
+            "addQueryInput": {
+              "type": "boolean",
+              "description": "Add exact user's input query to results"
+            },
+            "excludeCurrentPage": {
+              "type": "boolean",
+              "description": "Exclude the current page from suggestions"
+            },
+            "creatable": {
+              "type": "boolean",
+              "description": "Exclude pages whose namespace is negative"
+            },
+            "validateTitle": {
+              "type": "boolean",
+              "description": "Whether the input must be a valid title"
+            },
+            "required": {
+              "type": "boolean",
+              "description": "Whether the input must not be empty"
+            },
+            "highlightSearchQuery": {
+              "type": "boolean",
+              "description": "Highlight the partial query the user used for this title"
+            }
+          }
+        }
+      ]
+    },
+    "user": {
+      "allOf": [
+        { "$ref": "#/definitions/textInput" },
+        {
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of results to show"
+            }
+          }
+        }
+      ]
+    },
+    "toggle": {
+      "allOf": [
+        { "$ref": "#/definitions/commonProperties" }
+      ]
+    },
+    "radioSelectInputWidget": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text"
+        }
+      }
+    },
+    "numberInputWidget": {
+      "type": "object",
+      "properties": {
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "autocomplete": {
+          "type": "boolean",
+          "description": "Should the browser support autocomplete for this field?"
+        },
+        "autofocus": {
+          "type": "boolean",
+          "description": "Use an HTML autofocus attribute to instruct the browser to focus this widget."
+        },
+        "buttonStep": {
+          "type": "integer",
+          "description": "Delta when using the buttons or Up/Down arrow keys"
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "flags": {
+          "type": "string",
+          "description": "The name or names of the flags (e.g., 'progressive' or 'primary') to apply."
+        },
+        "icon": {
+          "type": "string",
+          "description": "The symbolic name of the icon (e.g., 'remove' or 'menu'), or a map of symbolic names."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "indicator": {
+          "type": "string",
+          "description": "Symbolic name of the indicator (e.g. 'required' or 'down')."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "invisibleLabel": {
+          "type": "boolean",
+          "description": "Whether the label should be visually hidden (but still accessible to screen-readers)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label text"
+        },
+        "labelPosition": {
+          "type": "string",
+          "description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
+          "enum": ["before", "after"]
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum allowed value"
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of characters allowed in the input."
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum allowed value"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum number of characters allowed in the input."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "pageStep": {
+          "type": "integer",
+          "description": "Delta when using the Page-up/Page-down keys. Defaults to 10 times buttonStep"
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text"
+        },
+        "readOnly": {
+          "type": "boolean",
+          "description": "Prevent changes to the value of the text input."
+        },
+        "showButtons": {
+          "type": "boolean",
+          "description": "Whether to show the plus and minus buttons."
+        },
+        "spellcheck": {
+          "type": "boolean",
+          "description": "Should the browser support spellcheck for this field (undefined means leaving it up to the browser)."
+        },
+        "step": {
+          "type": "integer",
+          "description": "If specified, the field only accepts values that are multiples of this."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        },
+        "type": {
+          "type": "string",
+          "description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
+          "enum": ["text", "password", "email", "url", "number"]
+        },
+        "validate": {
+          "type": "string",
+          "description": "A regular expression that must match the value for it to be considered valid"
+        }
+      }
+    },
+    "multiselectWidget": {
+      "type": "object",
+      "properties": {
+        "allowArbitrary": {
+          "type": "boolean",
+          "description": "Allow data items to be added even if not present in the menu."
+        },
+        "allowDisplayInvalidTags": {
+          "type": "boolean",
+          "description": "Allow the display of invalid tags."
+        },
+        "allowDuplicates": {
+          "type": "boolean",
+          "description": "Allow duplicate items to be added"
+        },
+        "allowEditTags": {
+          "type": "boolean",
+          "description": "Allow editing of the tags by clicking them"
+        },
+        "allowReordering": {
+          "type": "boolean",
+          "description": "Allow reordering of the items"
+        },
+        "allowedValues": {
+          "type": "array",
+          "description": "An array representing the allowed items by their datas"
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "draggable": {
+          "type": "boolean",
+          "description": "The items are draggable."
+        },
+        "flags": {
+          "type": "string",
+          "description": "The name or names of the flags (e.g., 'progressive' or 'primary') to apply."
+        },
+        "icon": {
+          "type": "string",
+          "description": "The symbolic name of the icon (e.g., 'remove' or 'menu'), or a map of symbolic names."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "indicator": {
+          "type": "string",
+          "description": "Symbolic name of the indicator (e.g. 'required' or 'down')."
+        },
+        "inputPosition": {
+          "type": "string",
+          "description": "Position of the input. Options are: - inline: The input is invisible, but exists inside the tag list, so the user types into the tag groups to add tags. - outline: The input is underneath the tag area. - none: No input supplied",
+          "enum": ["inline", "outline", "none"]
+        },
+        "orientation": {
+          "type": "string",
+          "description": "Item orientation: 'horizontal' or 'vertical'.",
+          "enum": ["horizontal", "vertical"]
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text"
+        },
+        "tagLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "An optional limit on the number of selected options"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text"
+        }
+      }
+    },
+    "menuTagMultiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/multiselectWidget" },
+        {
+          "properties": {
+            "clearInputOnChoose": {
+              "type": "boolean",
+              "description": "Clear the text input value when a menu option is chosen"
+            }
+          }
+        }
+      ]
+    },
+    "categoryMultiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/multiselectWidgetProperties" },
+        {
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum number of results to load"
+            }
+          }
+        }
+      ]
+    },
+    "titlesMultiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/multiselectWidgetProperties" },
+        {
+          "properties": {
+            "clearInputOnChoose": {
+              "type": "boolean",
+              "description": "clear input on choose"
+            },
+            "allowEditTags": {
+              "type": "boolean",
+              "description": "clear input on choose"
+            }
+          }
+        }
+      ]
+    },
+    "usersMultiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/multiselectWidgetProperties" },
+        {
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of results to show"
+            },
+            "ipAllowed": {
+              "type": "boolean",
+              "description": "Show IP addresses in autocomplete menu"
+            },
+            "ipRangeLimits": {
+              "type": "object",
+              "properties": {
+                "IPv4": {
+                  "type": "integer",
+                  "description": "Maximum allowed IPv4 range"
+                },
+                "IPv6": {
+                  "type": "integer",
+                  "description": "Maximum allowed IPv6 range"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "comboBoxInputWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/textInputProperties" }
+      ]
+    },
+    "multilineTextInputWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/textInputProperties" },
+        {
+          "properties": {
+            "autosize": {
+              "type": "boolean",
+              "description": "Automatically resize the text input to fit its content"
+            },
+            "maxRows": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum number of rows to display when autosize is set to true"
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of visible lines in textarea. If used with autosize, specifies minimum number of rows to display."
+            }
+          }
+        }
+      ]
+    },
+    "multiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/commonInputProperties" }
+      ]
+    },
+    "buttonSelectWidget": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "items": {
+          "type": "array",
+          "description": "An array of options to add to the multiselect"
+        },
+        "multiselect": {
+          "type": "boolean",
+          "description": "Allow for multiple selections"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        }
+      }
+    },
+    "checkboxMultiselectInputWidget": {
+      "type": "object",
+      "properties": {
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        }
+      }
+    },
+    "dropdownInputWidget": {
+      "type": "object",
+      "properties": {
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        }
+      }
+    },
+    "inputWidget": {
+      "type": "object",
+      "properties": {
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        }
+      }
+    },
+    "dateTimeInputWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/inputWidget" },
+        {
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Whether to act like a 'date'"
+            },
+            "required": {
+              "type": "boolean",
+              "description": "Whether a value is required"
+            },
+            "clearable": {
+              "type": "boolean",
+              "description": "Whether to provide for blanking the value."
+            },
+            "min": {
+              "type": "string",
+              "description": "Minimum allowed date"
+            },
+            "max": {
+              "type": "string",
+              "description": "Maximum allowed date"
+            }
+          }
+        }
+      ]
+    },
+    "buttonMultiselectWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/commonInputProperties" }
+      ]
+    },
+    "intlTelInput": {
+      "type": "object",
+      "properties": {
+        "allowDropdown": {
+          "type": "boolean",
+          "description": "Whether or not to allow the dropdown"
+        },
+        "autoInsertDialCode": {
+          "type": "boolean",
+          "description": "When enabled (requires nationalMode to be disabled), the international dial code will be automatically inserted into the input"
+        },
+        "autoPlaceholder": {
+          "type": "string",
+          "description": "Set the input's placeholder to an example number for the selected country, and update it if the country changes"
+        },
+        "customContainer": {
+          "type": "string",
+          "description": "Additional classes to add to the parent div."
+        },
+        "customPlaceholder": {
+          "type": "string",
+          "description": "Change the placeholder generated by autoPlaceholder. Must return a string"
+        },
+        "excludeCountries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "In the dropdown, display all countries except the ones you specify here."
+        },
+        "formatOnDisplay": {
+          "type": "boolean",
+          "description": "Format the input value (according to the nationalMode option) during initialisation, and on setNumber. Requires the utilsScript option"
+        },
+        "geoIpLookup": {
+          "type": "boolean",
+          "description": "When setting initialCountry to 'auto', you must use this option to specify a custom function that looks up the user's location, and then calls the success callback with the relevant country code"
+        },
+        "hiddenInput": {
+          "type": "string",
+          "description": "Add a hidden input with the given name."
+        },
+        "initialCountry": {
+          "type": "string",
+          "description": "Set the initial country selection by specifying its country code"
+        },
+        "nationalMode": {
+          "type": "boolean",
+          "description": "Format numbers in the national format, rather than the international format."
+        },
+        "onlyCountries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "In the dropdown, display only the countries you specify"
+        },
+        "placeholderNumberType": {
+          "type": "string",
+          "description": "Specify one of the keys from the global enum intlTelInputUtils.numberType"
+        },
+        "preferredCountries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specify the countries to appear at the top of the list"
+        },
+        "separateDialCode": {
+          "type": "boolean",
+          "description": "Display the country dial code next to the selected flag"
+        },
+        "showFlags": {
+          "type": "boolean",
+          "description": "Set this to false to hide the flags e.g. for political reasons"
+        },
+        "utilsScript": {
+          "type": "string",
+          "description": "Enable formatting/validation etc. by specifying the URL of the included utils.js script (or alternatively just point it to the file on cdnjs.com)"
+        }
+      }
+    },
+    "ratingWidget": {
+      "allOf": [
+        { "$ref": "#/definitions/commonInputProperties" }
+      ]
+    },
+    "visualEditor": {
+      "type": "object",
+      "properties": {
+        "classes": {
+          "type": "string",
+          "description": "The names of the CSS classes to apply to the element."
+        }
+      }
+    },
+    "selectFileWidget": {
+      "type": "object",
+      "properties": {
+        "accept": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "MIME types to accept."
+        },
+        "accessKey": {
+          "type": "string",
+          "description": "The access key"
+        },
+        "dir": {
+          "type": "string",
+          "description": "The directionality of the input (ltr/rtl).",
+          "enum": ["ltr", "rtl"]
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Disable the widget."
+        },
+        "droppable": {
+          "type": "boolean",
+          "description": "Whether to accept files by drag and drop"
+        },
+        "icon": {
+          "type": "string",
+          "description": "The symbolic name of the icon (e.g., 'remove' or 'menu'), or a map of symbolic names."
+        },
+        "id": {
+          "type": "string",
+          "description": "The HTML id attribute used in the rendered tag."
+        },
+        "inputFilter": {
+          "type": "string",
+          "description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+        },
+        "inputId": {
+          "type": "string",
+          "description": "The value of the input's HTML id attribute."
+        },
+        "invisibleLabel": {
+          "type": "boolean",
+          "description": "Whether the label should be visually hidden (but still accessible to screen-readers)."
+        },
+        "name": {
+          "type": "string",
+          "description": "The value of the input's HTML name attribute."
+        },
+        "notsupported": {
+          "type": "string",
+          "description": "Text to display when file support is missing in the browser."
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text"
+        },
+        "showDropTarget": {
+          "type": "boolean",
+          "description": "Whether to show a drop target. Requires droppable to be true."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to insert"
+        },
+        "thumbnailSizeLimit": {
+          "type": "number",
+          "description": "File size limit in MiB above which to not try and show a preview (for performance)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title text."
+        }
+      }
+    }
+  }
+}

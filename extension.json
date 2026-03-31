@@ -1,7 +1,7 @@
 {
 	"name": "JsonForms",
 	"author": "thomas-topway-it",
-	"version": "0.9",
+	"version": "0.9.2",
 	"url": "https://www.mediawiki.org/wiki/Extension:JsonForms",
 	"descriptionmsg": "jsonforms-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -25,6 +25,7 @@
 		"SpecialJsonFormsSlotManager": "includes/specials/SpecialJsonFormsSlotManager.php",
 		"JsonForms": "includes/JsonForms.php",
 		"JsonFormsHooks": "includes/JsonFormsHooks.php",
+		"JsonFormsApiFetchSchema": "includes/api/JsonFormsApiFetchSchema.php",
 		"JsonFormsApiSubmitForm": "includes/api/JsonFormsApiSubmitForm.php"
 	},
 	"AutoloadNamespaces": {
@@ -36,6 +37,7 @@
 		"MediaWiki\\Extension\\JsonForms\\SubmitProcessors\\": "includes/classes/SubmitProcessors/"
 	},
 	"APIModules": {
+		"jsonforms-fetch-schema": "JsonFormsApiFetchSchema",
 		"jsonforms-submit-form": "JsonFormsApiSubmitForm"
 	},
 	"ExtensionMessagesFiles": {
@@ -367,5 +369,4 @@
 	},
 	"manifest_version": 2
 }
-
 

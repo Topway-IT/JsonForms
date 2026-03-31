@@ -93,8 +93,9 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$innerSchema = json_decode( $innerSchema, true );
 		$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
-		// $jsonForm['properties']['form']['options']['input']['config']['schema'] = 'JsonSchema:ArticleForm d';
-		$jsonForm['properties']['form']['options']['input']['config']['schema'] = $innerSchema;
+		// ***important, encode schema otherwise $refs can mess with
+		// those of the host schema
+		$jsonForm['properties']['form']['x-input-config']['schema'] = json_encode( $innerSchema );
 
 		$editTitle = null;
 		if ( !empty( $par ) ) {
@@ -106,7 +107,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$metadata = null;
 		if ( $editTitle ) {
 			$startValInnerForm['title'] = $par;
-			$jsonForm['properties']['form']['options']['input']['config']['disableFields'] = [ 'title' ];
+			$jsonForm['properties']['form']['x-input-config']['disableFields'] = [ 'title' ];
 
 			if ( $editTitle->isKnown() ) {
 				$editPage = $editTitle->getFullText();

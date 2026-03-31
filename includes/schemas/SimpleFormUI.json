@@ -1,30 +1,22 @@
 {
 	"type": "object",
 	"@type": "JsonForms default schema",
-	"options": {
-		"compact": true,
-		"cssClass": "jsonforms-outerform"
-	},
+	"x-compact": true,
+	"x-css-class": "jsonforms-outerform",
 	"required": [],
 	"properties": {
 		"form": {
 			"type": "string",
 			"format": "json",
-			"options": {
-				"compact": true,
-				"input": {
-					"name": "jsonforms",
-					"config": {
-						"schema": ""
-					}
-				}
+			"x-compact": true,
+			"x-input": "jsonforms",
+			"x-input-config": {
+				"schema": ""
 			}
 		},
 		"footer": {
-			"options": {
-				"compact": true,
-				"cssClass": "jsonforms-outerform-footer"
-			},
+			"x-compact": true,
+			"x-css-class": "jsonforms-outerform-footer",
 			"properties": {
 				"summary": {
 					"type": "string"
@@ -32,55 +24,35 @@
 				"minor": {
 					"type": "boolean",
 					"title": "",
-					"description": "This is a \u003Ca target=\"_blank\" href=\"https://www.mediawiki.org/wiki/Help:Minor_edit\"\u003Eminor edit\u003C/a\u003E",
-					"options": {
-						"control": {
-							"align": "inline"
-						},
-						"input": {
-							"name": "checkbox"
-						},
-						"compact": false
+					"description": "",
+					"x-description-wikitext": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"x-input": "checkbox",
+					"x-control-config":  {
+						"align": "inline"
 					}
 				},
 				"buttons": {
-					"options": {
-						"compact": true,
-						"cssClass": "jsonforms-outerform-footer-buttons",
-						"layout": {
-							"name": "horizontal"
-						}
-					},
+					"type": "object",
+					"x-layout": "horizontal",
+					"x-compact": true,
+					"x-css-class": "jsonforms-outerform-footer-buttons",
 					"properties": {
 						"submit": {
 							"type": "null",
 							"title": "Save changes",
-							"format": "button",
-							"options": {
-								"input": {
-									"config": {
-										"flags": ["primary", "progressive"]
-									}
-								},
-								"button": {
-									"action": "submitButton"
-								}
+							"x-format": "button",
+							"x-button-action": "submitButton",
+							"x-input-config": {
+								"flags": ["primary", "progressive"]
 							}
 						},
 						"cancel": {
 							"type": "null",
 							"title": "Cancel",
-							"format": "button",
-							"options": {
-								"input": {
-									"config": {
-										"flags": ["destructive"],
-										"framed": false
-									}
-								},
-								"button": {
-									"action": "submitButton"
-								}
+							"x-format": "button",
+							"x-button-action": "cancelButton",
+							"x-input-config": {
+								"flags": ["destructive"]
 							}
 						}
 					}

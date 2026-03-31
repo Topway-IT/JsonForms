@@ -1,354 +1,23 @@
 {
 	"title": "Schema editor",
-	"options": {
-		"layout": {
-			"name": "paged",
-			"config": {
-				"toggle": true
-			}
-		}
+	"x-layout": "paged",
+	"x-layout-config": {
+		"toggle": true
 	},
 	"$ref": "#/definitions/schema",
 	"definitions": {
-		"options": {
-			"type": "object",
-			"defaultProperties": [],
-			"properties": {
-				"input": {
-					"type": "object",
-					"defaultProperties": [],
-					"properties": {
-						"name": {
-							"type": "string"
-						},
-						"config": {
-							"type": "object",
-							"additionalProperties": true
-						}
-					},
-					"required": [
-						"name"
-					]
-				},
-				"layout": {
-					"type": "object",
-					"defaultProperties": [],
-					"properties": {
-						"name": {
-							"type": "string"
-						},
-						"config": {
-							"type": "object",
-							"additionalProperties": true
-						}
-					},
-					"required": [
-						"name"
-					]
-				},
-				"dependencies": {
-					"type": "object",
-					"additionalProperties": {
-						"oneOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "number"
-							},
-							{
-								"type": "boolean"
-							},
-							{
-								"type": "array",
-								"items": {}
-							},
-							{
-								"type": "object",
-								"additionalProperties": {}
-							}
-						]
-					}
-				}
-			}
-		},
-		"schemaArray": {
-			"type": "array",
-			"minItems": 1,
-			"items": {
-				"$ref": "#/definitions/schema",
-				"title": "schema"
-			}
-		},
-		"null": {
-			"properties": {
-				"type": {
-					"enum": [
-						"null"
-					]
-				},
-				"default": {
-					"type": "null"
-				}
-			}
-		},
-		"boolean": {
-			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"type": {
-					"enum": [
-						"boolean"
-					]
-				},
-				"enum": {
-					"items": {
-						"type": "boolean"
-					}
-				},
-				"format": {
-					"type": "string",
-					"enum": [
-						"select",
-						"checkbox"
-					]
-				},
-				"default": {
-					"type": "boolean"
-				}
-			}
-		},
-		"string": {
-			"defaultProperties": [
-				"type",
-				"name",
-				"format"
-			],
-			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"format": {
-					"type": "string",
-					"default": "",
-					"enum": [
-						"color",
-						"date",
-						"datetime",
-						"email",
-						"month",
-						"number",
-						"range",
-						"tel",
-						"text",
-						"textarea",
-						"time",
-						"url",
-						"week"
-					]
-				},
-				"minLength": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"maxLength": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"pattern": {
-					"type": "string",
-					"format": "regex"
-				},
-				"type": {
-					"enum": [
-						"string"
-					]
-				},
-				"enum": {
-					"items": {
-						"type": "string",
-						"options": {
-							"input": {
-								"name": "tagmultiselect"
-							}
-						}
-					}
-				},
-				"default": {
-					"type": "string"
-				},
-				"media": {
-					"type": "object",
-					"properties": {
-						"type": {
-							"type": "string"
-						}
-					}
-				},
-				"template": {
-					"type": "string"
-				}
-			}
-		},
-		"number": {
-			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"type": {
-					"enum": [
-						"number"
-					]
-				},
-				"enum": {
-					"items": {
-						"type": "number"
-					}
-				},
-				"default": {
-					"type": "number"
-				},
-				"minimum": {
-					"type": "number"
-				},
-				"maximum": {
-					"type": "number"
-				},
-				"multipleOf": {
-					"type": "number"
-				}
-			}
-		},
-		"integer": {
-			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"type": {
-					"enum": [
-						"integer"
-					]
-				},
-				"enum": {
-					"items": {
-						"type": "integer"
-					}
-				},
-				"default": {
-					"type": "integer"
-				},
-				"minimum": {
-					"type": "number"
-				},
-				"maximum": {
-					"type": "number"
-				},
-				"multipleOf": {
-					"type": "number"
-				}
-			}
-		},
-		"object": {
-			"defaultProperties": [],
-			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"type": {
-					"enum": [
-						"object"
-					]
-				},
-				"default": {
-					"type": "object"
-				},
-				"properties": {
-					"type": "object",
-					"additionalProperties": true,
-					"patternProperties": {
-						".*": {
-							"$ref": "#/definitions/schema"
-						}
-					}
-				},
-				"patternProperties": {
-					"type": "object",
-					"additionalProperties": true,
-					"patternProperties": {
-						".*": {
-							"$ref": "#/definitions/schema"
-						}
-					}
-				},
-				"defaultProperties": {
-					"type": "array",
-					"items": {
-						"type": "string",
-						"options": {
-							"input": {
-								"name": "tagmultiselect"
-							}
-						}
-					}
-				},
-				"dependentSchemas": {
-					"type": "object",
-					"additionalProperties": true,
-					"patternProperties": {
-						".*": {
-							"$ref": "#/definitions/schema"
-						}
-					}
-				},
-				"additionalProperties": {
-					"type": "boolean"
-				},
-				"required": {
-					"type": "array",
-					"uniqueItems": true,
-					"items": {
-						"type": "string",
-						"options": {
-							"input": {
-								"name": "tagmultiselect"
-							}
-						}
-					}
-				},
-				"definitions": {
-					"type": "object",
-					"additionalProperties": true,
-					"patternProperties": {
-						".*": {
-							"$ref": "#/definitions/schema"
-						}
-					}
-				}
-			}
-		},
 		"array": {
-			"defaultProperties": [
-				"items"
-			],
+			"type": "object",
 			"properties": {
-				"options": {
-					"$ref": "#/definitions/options"
-				},
-				"type": {
-					"enum": [
-						"array"
-					]
-				},
-				"default": {
-					"type": "array"
-				},
+				"name": { "type": "null", "const": null },
+				"additionalItems": { "$ref": "#/definitions/schema" },
+				"const": { "type": "array" },
+				"type": { "enum": ["array"], "const": "array", "x-format": "hidden_" },
+				"contains": { "$ref": "#/definitions/schema" },
+				"default": { "type": "array" },
 				"items": {
 					"oneOf": [
-						{
-							"title": "simple",
-							"$ref": "#/definitions/schema"
-						},
+						{ "title": "simple", "$ref": "#/definitions/schema" },
 						{
 							"title": "tuple",
 							"type": "array",
@@ -356,214 +25,631 @@
 						}
 					]
 				},
-				"uniqueItems": {
-					"type": "boolean"
+				"maxContains": { "type": "integer", "minimum": 0 },
+				"maxItems": { "type": "integer", "minimum": 0 },
+				"minContains": { "type": "integer", "minimum": 0 },
+				"minItems": { "type": "integer", "minimum": 0 },
+				"prefixItems": {
+					"type": "array",
+					"items": { "$ref": "#/definitions/schema" }
 				},
-				"minItems": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"maxItems": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"contains": {
-					"$ref": "#/definitions/schema"
-				},
-				"minContains": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"maxContains": {
-					"type": "integer",
-					"minimum": 0
-				},
-				"additionalItems": {
-					"$ref": "#/definitions/schema"
-				},
-				"format": {
-					"type": "string",
-					"enum": [
-						"default",
-						"table",
-						"tabs"
-					]
-				}
+				"unevaluatedItems": { "$ref": "#/definitions/schema" },
+				"uniqueItems": { "type": "boolean" }
 			}
 		},
-		"schemaBaseNull": {
+		"arrayOptions": {
 			"type": "object",
-			"defaultProperties": [
-				"type",
-				"name",
-				"title"
-			],
-			"required": [
-				"type",
-				"name"
-			],
-			"properties": {
-				"type": {
-					"type": "string"
-				},
-				"name": {
-					"type": "string",
-					"readOnly": true
-				},
-				"id": {
-					"type": "string",
-					"format": "uri"
-				},
-				"$schema": {
-					"type": "string",
-					"format": "uri"
-				},
-				"title": {
-					"type": "string"
-				},
-				"description": {
-					"type": "string",
-					"format": "textarea"
-				}
-			}
-		},
-		"schemaBase": {
-			"type": "object",
-			"defaultProperties": [
-				"type",
-				"name",
-				"title"
-			],
-			"required": [
-				"type",
-				"name"
-			],
-			"properties": {
-				"type": {
-					"type": "string"
-				},
-				"name": {
-					"type": "string",
-					"readOnly": true
-				},
-				"id": {
-					"type": "string",
-					"format": "uri"
-				},
-				"$schema": {
-					"type": "string",
-					"format": "uri"
-				},
-				"title": {
-					"type": "string"
-				},
-				"description": {
-					"type": "string",
-					"format": "textarea"
-				},
-				"$ref": {
-					"type": "string",
-					"format": "uri-reference"
-				},
-				"watch": {
-					"type": "object",
-					"additionalProperties": true,
-					"patternProperties": {
-						".*": {
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
+				{
+					"properties": {
+						"x-layout": {
+							"type": "string",
+							"description": "use table for primitives items",
+							"enum": ["default", "tabs", "booklet", "table"]
+						},
+						"x-layout-config": {
+							"additionalProperties": true,
+							"type": "object"
+						},
+						"x-input": {
+							"enum": [
+								"mw.widgets.UsersMultiselectWidget",
+								"mw.widgets.TitlesMultiselectWidget",
+								"mw.widgets.CategoryMultiselectWidget",
+								"OO.ui.TagMultiselectWidget",
+								"OO.ui.MenuTagMultiselectWidget",
+								"MenuTagSearchMultiselect",
+								"OO.ui.MultiselectWidget",
+								"OO.ui.ButtonSelectWidget",
+								"OO.ui.CheckboxMultiselectInputWidget",
+								"OO.ui.DropdownInputWidget"
+							],
 							"type": "string"
+						},
+						"x-input-config": {
+							"additionalProperties": true,
+							"type": "object"
+						},
+						"x-control-config": {
+							"additionalProperties": true,
+							"type": "object"
 						}
 					}
 				}
-			}
+			]
 		},
-		"schema": {
-			"options": {
-				"input": {
-					"name": "button-select"
-				}
+		"boolean": {
+			"type": "object",
+			"properties": {
+				"const": { "type": "boolean" },
+				"type": {
+					"enum": ["boolean"],
+					"const": "boolean",
+					"x-format": "hidden_"
+				},
+				"default": { "type": "boolean" },
+				"enum": { "items": { "type": "boolean" } }
 			},
-			"default": {
-				"type": "object"
-			},
-			"oneOf": [
+			"required": ["name"]
+		},
+		"booleanOptions": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
 				{
-					"title": "String",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
+					"properties": {
+						"x-input": {
+							"enum": ["OO.ui.ToggleSwitchWidget", "OO.ui.CheckboxInputWidget"],
+							"type": "string"
 						},
-						{
-							"$ref": "#/definitions/string"
-						}
-					]
-				},
-				{
-					"title": "Number",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
+						"x-input-config": {
+							"additionalProperties": true,
+							"type": "object"
 						},
-						{
-							"$ref": "#/definitions/number"
+						"x-control-config": {
+							"additionalProperties": true,
+							"type": "object"
 						}
-					]
-				},
-				{
-					"title": "Integer",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
-						},
-						{
-							"$ref": "#/definitions/integer"
-						}
-					]
-				},
-				{
-					"title": "Boolean",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
-						},
-						{
-							"$ref": "#/definitions/boolean"
-						}
-					]
-				},
-				{
-					"title": "Object",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
-						},
-						{
-							"$ref": "#/definitions/object"
-						}
-					]
-				},
-				{
-					"title": "List",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBase"
-						},
-						{
-							"$ref": "#/definitions/array"
-						}
-					]
-				},
-				{
-					"title": "Null",
-					"allOf": [
-						{
-							"$ref": "#/definitions/schemaBaseNull"
-						},
-						{
-							"$ref": "#/definitions/null"
-						}
-					]
+					}
 				}
 			]
+		},
+		"commonOptions": {
+			"type": "object",
+			"properties": {
+				"x-compact": { "type": "boolean" },
+				"x-css-class": { "type": "string" },
+				"x-visibility": {
+					"additionalProperties": {
+						"oneOf": [
+							{ "type": "string" },
+							{ "type": "number" },
+							{ "type": "boolean" },
+							{ "type": "array", "items": {} },
+							{ "type": "object", "additionalProperties": {} }
+						]
+					},
+					"type": "object"
+				}
+			}
+		},
+		"integer": {
+			"type": "object",
+			"properties": {
+				"const": { "type": "integer" },
+				"type": {
+					"enum": ["integer"],
+					"const": "integer",
+					"x-format": "hidden_"
+				},
+				"default": { "type": "integer" },
+				"enum": {
+					"type": "array",
+					"items": {
+						"type": "integer",
+						"x-input": "tagmultiselect"
+					}
+				},
+				"exclusiveMaximum": { "type": "number" },
+				"exclusiveMinimum": { "type": "number" },
+				"maximum": { "type": "number" },
+				"minimum": { "type": "number" },
+				"multipleOf": { "type": "number" }
+			},
+			"required": ["name"]
+		},
+		"integerOptions": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
+				{
+					"properties": {
+						"x-input": {
+							"enum": ["OO.ui.NumberInputWidget", "OO.ui.TextInputWidget"],
+							"type": "string"
+						},
+						"x-input-config": {
+							"additionalProperties": true,
+							"type": "object"
+						},
+						"x-control-config": {
+							"additionalProperties": true,
+							"type": "object"
+						}
+					}
+				}
+			]
+		},
+		"null": {
+			"type": "object",
+			"properties": {
+				"const": { "type": "null" },
+				"type": { "enum": ["null"], "const": "null", "x-format": "hidden_" },
+				"default": { "type": "null" }
+			},
+			"required": ["name"]
+		},
+		"nullOptions": {
+			"type": "object",
+			"$ref": "#/definitions/commonOptions"
+		},
+		"number": {
+			"type": "object",
+			"properties": {
+				"const": { "type": "number" },
+				"type": { "enum": ["number"], "const": "number", "x-format": "hidden" },
+				"default": { "type": "number" },
+				"enum": {
+					"type": "array",
+					"items": {
+						"type": "number",
+						"x-input": "tagmultiselect"
+					}
+				},
+				"exclusiveMaximum": { "type": "number" },
+				"exclusiveMinimum": { "type": "number" },
+				"maximum": { "type": "number" },
+				"minimum": { "type": "number" },
+				"multipleOf": { "type": "number" }
+			},
+			"required": ["name"]
+		},
+		"numberOptions": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
+				{
+					"properties": {
+						"x-input": {
+							"enum": ["OO.ui.NumberInputWidget", "OO.ui.TextInputWidget"],
+							"type": "string"
+						},
+						"x-input-config": {
+							"additionalProperties": true,
+							"type": "object"
+						},
+						"x-control-config": {
+							"additionalProperties": true,
+							"type": "object"
+						}
+					}
+				}
+			]
+		},
+		"object": {
+			"type": "object",
+			"x-layout": "tabs_",
+			"properties": {
+				"type": { "enum": ["object"], "const": "object", "x-format": "hidden" },
+				"const": { "type": "object" },
+				"$defs": {
+					"additionalProperties": true,
+					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
+					"type": "object"
+				},
+				"additionalProperties": { "type": "boolean" },
+				"default": { "type": "object" },
+				"x-default-properties": {
+					"type": "array",
+					"items": {
+						"x-input": "tagmultiselect",
+						"type": "string"
+					}
+				},
+				"definitions": {
+					"additionalProperties": true,
+					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
+					"type": "object"
+				},
+				"maxProperties": { "minimum": 0, "type": "integer" },
+				"minProperties": { "minimum": 0, "type": "integer" },
+				"patternProperties": {
+					"additionalProperties": true,
+					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
+					"type": "object"
+				},
+				"properties": {
+					"additionalProperties": true,
+					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
+					"type": "object"
+				},
+				"propertyNames": { "$ref": "#/definitions/schema" },
+				"required": {
+					"type": "array",
+					"items": {
+						"x-input": "tagmultiselect",
+						"type": "string"
+					},
+					"uniqueItems": true
+				}
+			},
+			"required": ["name"]
+		},
+		"objectOptions": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
+				{
+					"properties": {
+						"x-layout": {
+							"type": "string",
+							"enum": ["fieldset", "tabs", "booklet", "horizontal", "survey"]
+						},
+						"x-layout-config": {
+							"additionalProperties": true,
+							"type": "object"
+						}
+					}
+				}
+			]
+		},
+		"stringOptions": {
+			"type": "object",
+			"allOf": [
+				{ "$ref": "#/definitions/commonOptions" },
+				{
+					"properties": {
+						"x-input": {
+							"enum": [
+								"mw.widgets.UserInputWidget",
+								"mw.widgets.TitleInputWidget",
+								"mw.widgets.DateInputWidget",
+								"OO.ui.TextInputWidget",
+								"LookupElement",
+								"OO.ui.MultilineTextInputWidget",
+								"OO.ui.ComboBoxInputWidget",
+								"OO.ui.NumberInputWidget",
+								"intl-tel-input",
+								"VisualEditor",
+								"JsonEditor",
+								"jsonForms"
+							],
+							"type": "string"
+						},
+						"x-input-config": {
+							"additionalProperties": true,
+							"type": "object"
+						},
+						"x-control-config": {
+							"additionalProperties": true,
+							"type": "object"
+						}
+					}
+				}
+			]
+		},
+		"schema": {
+			"default": { "type": "object" },
+			"x-input": "button-select",
+			"oneOf": [
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/string" },
+						{ "$ref": "#/definitions/stringOptions" }
+					],
+					"title": "String"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/number" },
+						{ "$ref": "#/definitions/numberOptions" }
+					],
+					"title": "Number"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/integer" },
+						{ "$ref": "#/definitions/integerOptions" }
+					],
+					"title": "Integer"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/boolean" },
+						{ "$ref": "#/definitions/booleanOptions" }
+					],
+					"title": "Boolean"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/object" },
+						{ "$ref": "#/definitions/objectOptions" }
+					],
+					"title": "Object"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBase" },
+						{ "$ref": "#/definitions/array" },
+						{ "$ref": "#/definitions/arrayOptions" }
+					],
+					"title": "Array"
+				},
+				{
+					"allOf": [
+						{ "$ref": "#/definitions/schemaBaseNull" },
+						{ "$ref": "#/definitions/null" },
+						{ "$ref": "#/definitions/nullOptions" }
+					],
+					"title": "Null"
+				}
+			]
+		},
+		"schemaArray": {
+			"type": "array",
+			"x-layout": "tabs",
+			"items": { "$ref": "#/definitions/schema", "title": "schema" },
+			"minItems": 1
+		},
+		"schemaBase": {
+			"type": "object",
+			"x-default-properties": ["type", "name", "title"],
+			"properties": {
+				"name": { "type": "string", "minLength": 1 },
+				"const": { "description": "The value must be equal to this constant" },
+				"type": { "type": "string" },
+				"title": { "type": "string" },
+				"description": { "type": "string", "x-format": "textarea" },
+				"x-wikitext-title": { "type": "string" },
+				"x-wikitext-description": { "type": "string", "x-format": "textarea" },
+				"$comment": { "type": "string" },
+				"$id": { "format": "uri", "type": "string" },
+				"$ref": { "format": "uri-reference", "type": "string" },
+				"$schema": { "format": "uri", "type": "string" },
+				"allOf": {
+					"description": "Schema must be valid against all of the subschemas",
+					"items": { "$ref": "#/definitions/schema" },
+					"type": "array"
+				},
+				"anyOf": {
+					"description": "Schema must be valid against at least one of the subschemas",
+					"items": { "$ref": "#/definitions/schema" },
+					"type": "array"
+				},
+				"contentEncoding": { "type": "string" },
+				"contentMediaType": { "type": "string" },
+				"deprecated": { "type": "boolean" },
+				"links": {
+					"type": "array",
+					"description": "",
+					"x-wikitext-description": "see [https://json-schema.org/draft-06/draft-wright-json-schema-hyperschema-01 draft-wright-json-schema-hyperschema-01]",
+					"items": { "$ref": "#/definitions/schema" }
+				},
+				"else": {
+					"$ref": "#/definitions/schema",
+					"description": "Conditional validation: must validate when 'if' does not validate"
+				},
+				"enum": {
+					"description": "The value must be one of these values",
+					"items": {},
+					"type": "array"
+				},
+				"examples": {
+					"items": {},
+					"type": "array"
+				},
+				"if": {
+					"$ref": "#/definitions/schema",
+					"description": "Conditional validation: if this schema validates, then 'then' must validate"
+				},
+				"not": {
+					"$ref": "#/definitions/schema",
+					"description": "Schema must not be valid against the given schema"
+				},
+				"oneOf": {
+					"description": "Schema must be valid against exactly one of the subschemas",
+					"type": "array",
+					"items": { "$ref": "#/definitions/schema" }
+				},
+				"readOnly": { "type": "boolean" },
+				"then": {
+					"$ref": "#/definitions/schema",
+					"description": "Conditional validation: must validate when 'if' validates"
+				},
+				"x-watch": {
+					"additionalProperties": true,
+					"patternProperties": { ".*": { "type": "string" } },
+					"type": "object"
+				},
+				"x-hidden": { "type": "boolean" },
+				"writeOnly": { "type": "boolean" }
+			},
+			"required": ["type"]
+		},
+		"schemaBaseNull": {
+			"type": "object",
+			"x-default-properties": ["type", "name", "title"],
+			"properties": {
+				"name": { "type": "string" },
+				"const": {
+					"description": "The value must be null",
+					"type": "null"
+				},
+				"type": { "type": "string" },
+				"title": { "type": "string" },
+				"$comment": { "type": "string" },
+				"$id": { "format": "uri", "type": "string" },
+				"$schema": { "format": "uri", "type": "string" },
+				"default": { "type": "null" },
+				"deprecated": { "type": "boolean" },
+				"description": { "type": "string", "x-format": "textarea" },
+				"enum": {
+					"description": "The value must be one of these null values",
+					"items": { "type": "null" },
+					"type": "array"
+				},
+				"examples": {
+					"items": {},
+					"type": "array"
+				},
+				"readOnly": { "type": "boolean" },
+				"writeOnly": { "type": "boolean" },
+				"x-format": {
+					"default": "",
+					"enum": ["info", "button"]
+				},
+				"x-button-action": ""
+			},
+			"required": ["type", "name"]
+		},
+		"string": {
+			"type": "object",
+			"x-default-properties": [],
+			"properties": {
+				"const": { "type": "string" },
+				"type": { "enum": ["string"], "const": "string", "x-format": "hidden" },
+				"default": { "type": "string" },
+				"enum": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"x-input": "tagmultiselect"
+					}
+				},
+				"x-enum-titles": {
+					"type": "array",
+					"description": "Labels for enum. Must be the same length of enum.",
+					"items": {
+						"type": "string",
+						"x-input": "tagmultiselect"
+					}
+				},
+				"x-enum-source": {
+					"description": "Dynamic source for enum options. Can be an array of items where each item defines a source of values. Sources can be watched field aliases, static arrays, or custom functions that return arrays of options. Supports filtering, slicing, sorting, and custom value/title mapping using template syntax.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"source": {
+								"description": "The source of enum values. Can be: a watched field alias (string) like 'target', a static array of values (array), or the name of a registered function that returns an array of options.",
+								"anyOf": [
+									{
+										"type": "string",
+										"description": "Alias of a watched field that will provide the array of values. Example: 'target', 'categories', 'users'"
+									},
+									{
+										"type": "array",
+										"description": "Static array of values to use as options. Example: ['Option 1', 'Option 2', 'Option 3']",
+										"items": {}
+									}
+								]
+							},
+							"title": {
+								"description": "Optional custom title for display. Can be a static string or a template using {{item.property}} syntax to access item properties. Example: '{{item.Vehicle type}} {{item.Make}} {{item.Model}}'",
+								"type": "string"
+							},
+							"value": {
+								"description": "Optional custom value transformation. Can be a static string or a template using {{item.property}} syntax to access item properties. Example: '{{item._localId}}'",
+								"type": "string"
+							},
+							"filter": {
+								"description": "Optional filter to apply to the source items. Can be: a registered function name, a string template to match against item properties, or false to disable filtering.",
+								"type": ["string", "boolean"]
+							},
+							"slice": {
+								"description": "Optional array of slice parameters [start, end] to limit the number of items. Example: [0, 10] takes the first 10 items.",
+								"type": "array",
+								"items": [
+									{
+										"type": "integer",
+										"description": "Start index (inclusive)"
+									},
+									{
+										"type": "integer",
+										"description": "End index (exclusive)"
+									}
+								],
+								"minItems": 1,
+								"maxItems": 2,
+								"additionalItems": false
+							},
+							"sort": {
+								"description": "Optional sort order for the items. Use 'asc' for ascending or 'desc' for descending order based on the value.",
+								"type": "string",
+								"enum": ["asc", "desc"]
+							}
+						},
+						"required": ["source"],
+						"additionalProperties": true
+					},
+					"default": []
+				},
+				"format": {
+					"default": "",
+					"enum": [
+						"date-time",
+						"time",
+						"date",
+						"email",
+						"idn-email",
+						"hostname",
+						"idn-hostname",
+						"ipv4",
+						"ipv6",
+						"uri",
+						"uri-reference",
+						"iri",
+						"uri-template",
+						"json-pointer",
+						"relative-json-pointer",
+						"regex"
+					],
+					"type": "string"
+				},
+				"x-format": {
+					"default": "",
+					"enum": [
+						"color",
+						"month",
+						"number",
+						"range",
+						"tel",
+						"text",
+						"textarea",
+						"url",
+						"week",
+						"info",
+						"rating",
+						"uuid",
+						"json",
+						"autocomplete",
+						"captcha",
+						"stripe"
+					],
+					"type": "string"
+				},
+				"maxLength": { "minimum": 0, "type": "integer" },
+				"minLength": { "minimum": 0, "type": "integer" },
+				"pattern": { "format": "regex", "type": "string" },
+				"x-template": { "type": "string" }
+			},
+			"required": ["name"]
 		}
 	}
 }

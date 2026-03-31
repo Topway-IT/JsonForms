@@ -124,11 +124,15 @@ class JsonForms {
 
 				if ( !empty( $formDescriptor['schema'] ) ) {
 					$metadata = self::getMetadata( $wikiPage );
-
 					if ( $metadata && is_array( $metadata['slots'] ) ) {
 						// *** or use $renderedRevision->getSlotParserOutput( $role )
-						foreach ( $metadata['schemas'] as $role => $schema ) {
-							if ( $schema === $formDescriptor['schema'] ) {
+						foreach ( $metadata['slots'] as $role => $slotData ) {
+							// $slotData : model, editor, schema
+							if ( !array_key_exists( 'schema', $slotData ) ) {
+								continue;
+							}
+
+							if ( $slotData['schema'] === self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . $formDescriptor['schema'] ) {
 								$content = self::getSlotContent( $wikiPage, $role );
 								if ( $content ) {
 									$startVal['form']['editor'] = $content;
@@ -149,27 +153,26 @@ class JsonForms {
 				// if ( $formDescriptor['edit_main_slot_content'] === true ) {
 			}
 		}
-// print_r($startVal);
-// exit;
+
 		$schemaName = null;
 		$schema = [];
 		if ( !empty( $formDescriptor['schema'] ) ) {
 			$schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
 
-			// *** necessary, since $schemaEditor->traverse
-			// will traverse only regular properties
-			$schema = self::processSchema( $output, $schema );
 			$schemaName = $formDescriptor['schema'];
+			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = 'JsonSchema:' . $schemaName;
 
-			// $jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = 'JsonSchema:' . $formDescriptor['schema'];
-			$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $schema;
-			
+			// ***important, encode schema otherwise $refs can mess with
+			// those of the host schema
+			$schema = self::processSchema( $output, $schema );
+			$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['schema'] = json_encode( $schema );
+
 			if ( !empty( $formDescriptor['start_path'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['start_path'] = $formDescriptor['start_path'];
+				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['start_path'] = $formDescriptor['start_path'];
 			}
 
 			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
 			}
 		}
 
@@ -192,7 +195,7 @@ class JsonForms {
 			$attr['width'] = $formDescriptor['width'];
 		}
 		
-		//print_r($formData);
+		// print_r($formData);
 		// exit;
 		$res_ = \JsonForms::getJsonFormHtml( $formData, $attr );
 
@@ -242,6 +245,21 @@ class JsonForms {
 		$wikiPage = self::getWikiPage( $title );
 		$parserOutput = $wikiPage->getParserOutput( $parserOptions );
 		return $parserOutput->getExtensionData( 'JsonForms' );
+	}
+
+	/**
+	 * @param int $ns
+	 * @return string|null
+	 */
+	public static function getFormattedNamespace( $ns ) {
+		$formattedNamespaces = MediaWikiServices::getInstance()
+			->getContentLanguage()->getFormattedNamespaces();
+
+		if ( isset( $formattedNamespaces[$ns] ) ) {
+			return $formattedNamespaces[$ns];
+		}
+		
+		return '';
 	}
 
 	/**
@@ -455,13 +473,16 @@ class JsonForms {
 		}
 		$ret = $schema;
 		$schemaEditor = new \MediaWiki\Extension\JsonForms\JsonSchemaEditor();
-		$wikitextKeys = [ 'title', 'description' ];
-		$schemaEditor->traverse( $ret, static function ( &$s ) use ( $output, $wikitextKeys ) {
-			foreach ( $wikitextKeys as $key ) {
-   				if ( isset( $s['options']['wikitext'][$key] ) ) {  
-					$s[$key] = self::parseWikitext(
+		$wikitextKeys = [
+			'x-wikitext-title' => 'title',
+			'x-wikitext-description' => 'description'
+		];
+		$schemaEditor->traverse( $ret, static function ( &$subSchema ) use ( $output, $wikitextKeys ) {
+			foreach ( $wikitextKeys as $key => $value ) {
+   				if ( isset( $subSchema[$key] ) ) {  
+					$s[$value] = self::parseWikitext(
 						$output,
-						$s['options']['wikitext'][$key]
+						$subSchema[$key]
 					);
 				}
 			}

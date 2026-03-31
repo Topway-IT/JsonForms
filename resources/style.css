@@ -113,6 +113,15 @@
     justify-content: space-between;
 }
 
+.jsonforms-overview_holder {
+	padding: 12px 0;
+}	
+
+.jsonforms-overview_holder a {
+  color: blue !important;
+  text-decoration: underline !important;
+}
+
 .jsonforms-controls h3 {
 	margin: 0;
 	margin-top: 0;
@@ -127,6 +136,10 @@
 
 .jsonforms-form {
 	width: 600px;
+}
+
+.jsonforms-breadcrumbs {
+	margin-bottom: 8px;
 }
 
 .jsonforms-jsoneditor {
@@ -224,14 +237,26 @@
 	padding: 6px;
 }
 
+.jsonforms-tree-page-controls {
+	margin-top: 2em;
+}
+
 .jsonforms-page-nav-footer {
+	margin-top: 1em;
 	display: flex;
 	justify-content: space-between;
 	gap: 1em;
-	margin-top: 2em;
 	background: #f6f6f6;
 	padding: 12px;
 	border-top: 1px dashed #aaa;
+}
+
+.jsonforms-form .oo-ui-buttonSelectWidget {
+	margin: 6px 0;
+}
+
+.jsonforms-form .jsonforms-tree-page-header-top .jsonforms-remove-object {
+	float: right;
 }
 
 .jsonforms-page-nav-left {

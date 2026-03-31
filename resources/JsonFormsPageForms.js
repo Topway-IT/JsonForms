@@ -139,14 +139,14 @@ default form descriptor
 		delete options['summary'];
 		delete options['minor'];
 	}
-	
+
 	this.hasOptions = Object.keys(options).length;
 
 	if (!this.hasOptions) {
 		delete ret.properties.buttons.properties.validate;
 		delete ret.properties.buttons.properties.goback;
 	}
-	
+
 	return ret;
 };
 
@@ -500,12 +500,68 @@ $(function () {
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
 
-		// editor.on('ready', async () => {
-		// 	const formEditor = editor.getEditor('root.form.editor');
+		const textarea = $('<textarea>', {
+			class: 'form-control',
+			id: 'value',
+			rows: 12,
+			style: 'font-size: 12px; font-family: monospace;',
+		});
+		$(el).append(textarea);
 
-		// 	// *** do something with the child editor if needed
-		// 	// const innerEditor = await formEditor.input.getEditor();
-		// });
+		editor.on('ready', async (editor_) => {
+			// console.log('editor_', editor_);
+
+			const formEditor = editor.getEditor('root.form.editor');
+
+			// *** do something with the child editor if needed
+			const innerEditor = await formEditor.input.getEditor();
+			innerEditor.on('change', () => {
+				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
+			});
+			innerEditor.on('ready', () => {
+				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
+			});
+
+			innerEditor.on('ready', async () => {
+
+				return;
+				innerEditor.on('change', (thisEditor, data) => {
+					return;
+					console.log('change');
+
+					console.log('thisEditor', thisEditor);
+					console.log('data', data);
+				});
+
+				innerEditor.on('switchEditor', (thisEditor, data) => {
+					return;
+
+					console.log('switchEditor');
+					console.log('thisEditor', thisEditor);
+					console.log('data', data);
+				});
+
+				innerEditor.on('addObjectProperty', (thisEditor, data) => {
+					return;
+					console.log('addObjectProperty');
+
+					console.log('thisEditor', thisEditor);
+					console.log('data', data);
+				});
+
+				innerEditor.on('addLazyProperty', (thisEditor, data) => {
+					return;
+					console.log('addLazyProperty');
+					console.log('thisEditor', thisEditor);
+					console.log('data', data);
+
+					const parentType = data.editor.parent.value.type;
+					console.log('parentType', parentType);
+
+					switch (parentType) {
+					}
+				});
+			});
+		});
 	});
 });
-

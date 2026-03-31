@@ -61,6 +61,7 @@ JsonForms.prototype.initialize = async function () {
 
 JsonForms.prototype.createDefaultEditor = function (config = {}) {
 	this.createEditor(this.el, {
+		JsonForms: this,
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
@@ -82,9 +83,6 @@ JsonForms.prototype.getProviders = function (providerClass) {
 	return ret;
 };
 
-// Fetch all page titles in a given namespace
-// Fetch all page titles in a given namespace (without namespace prefix)
-
 // @see KnowledgeGraph.js
 JsonForms.prototype.getModule = async function (str) {
 	if (this.moduleCache.has(str)) {
@@ -102,6 +100,44 @@ JsonForms.prototype.getModule = async function (str) {
 	}
 };
 
+JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
+	const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
+	return `${mwBaseUrl}?title=${maybeUrl}&action=raw`;
+};
+
+JsonForms.prototype.isMWSchema = function (maybeUrl, fileBase) {
+	if (JFUtilities.hasProtocol(maybeUrl)) {
+		return false;
+	}
+	if (!fileBase) {
+		return true;
+	}
+	const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
+	return (
+		fileBase.indexOf(mwBaseUrl) !== -1 || mwBaseUrl.indexOf(fileBase) !== -1
+	);
+};
+
+JsonForms.prototype.fetchSchema = function (schema) {
+	const payload = {
+		action: 'jsonforms-fetch-schema',
+		format: 'json',
+		schema,
+	};
+
+	// console.log('payload',payload)
+	return new Promise((resolve, reject) => {
+		new mw.Api().get(payload).done(function (thisRes) {
+			// console.log('thisRes', thisRes);
+			let result = thisRes[payload.action].result;
+			result = JSON.parse(result);
+			resolve(result);
+		});
+	}).catch((err) => {
+		reject(err);
+	});
+};
+
 JsonForms.prototype.getEditor = function () {
 	return this.editor;
 };
@@ -110,28 +146,19 @@ JsonForms.prototype.createEditor = function (el, config) {
 	JFEditor.defaults.options = this.defaultOptions;
 
 	this.editor = new JFEditor(el, {
-		ajax: true,
-		ajaxUrl: function (ref, fileBase) {
-			const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
-			if (
-				fileBase.indexOf(mwBaseUrl) === -1 &&
-				mwBaseUrl.indexOf(fileBase) === -1
-			) {
-				return ref;
-			}
-			return `${mwBaseUrl}?title=${ref}&action=raw&uid=${JFUtilities.uniqueID()}`;
-		},
 		schemaSelector: null,
 		...config,
+		ajax: true,
+		JsonForms: this,
 	});
 
-	/*
 	if (typeof this.editorScript === 'function') {
 		const updateEditorCallBack = (thisConfig) => {
 			this.createEditor(this.el, { ...config, ...thisConfig });
 		};
 		this.editorScript(this.editor, this.config, updateEditorCallBack);
 	}
-*/
+
 	return this.editor;
 };
+

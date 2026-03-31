@@ -14,11 +14,6 @@
 			"type": "object",
 			"required": ["content_model", "editor"],
 			"defaultProperties": ["content_model", "editor", "content"],
-			"options": {
-				"layout": {
-					"name": "booklet"
-				}
-			},
 			"properties": {
 				"role": {
 					"type": "string",

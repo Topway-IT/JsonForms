@@ -40,7 +40,7 @@ JsonFormsUtilities.prototype.getNestedProp = function (path, obj) {
 };
 
 JsonFormsUtilities.prototype.removeArrayItem = function (arr, value) {
-	if ( !arr) arr = []
+	if (!arr) arr = [];
 	const index = arr.indexOf(value);
 	if (index !== -1) {
 		arr.splice(index, 1);
@@ -50,6 +50,18 @@ JsonFormsUtilities.prototype.removeArrayItem = function (arr, value) {
 
 JsonFormsUtilities.prototype.uniqueID = function () {
 	return Math.random().toString(16).slice(2);
+};
+
+JsonFormsUtilities.prototype.hasProtocol = function (uri) {
+	return (
+		uri.startsWith('http://') ||
+		uri.startsWith('https://') ||
+		uri.startsWith('//') ||
+		uri.startsWith('blob:') ||
+		uri.startsWith('data:') ||
+		uri.startsWith('#') ||
+		uri.startsWith('/')
+	);
 };
 
 const JFUtilities = new JsonFormsUtilities();

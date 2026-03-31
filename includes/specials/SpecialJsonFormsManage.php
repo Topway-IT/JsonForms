@@ -129,7 +129,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 		];
 
 		if ( !empty( $formDescriptor['edit_page'] ) ) {
-			$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['disableFields'] = $formDescriptor['create_only_fields'];
+			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
 		}
 
 		$pageid = $this->getRequest()->getVal( 'pageid' );
@@ -157,7 +157,10 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
-				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $innerSchema;
+
+				// ***important, encode schema otherwise $refs can mess with
+				// those of the host schema
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
 				break;
 
 			case 'schemas':
@@ -167,14 +170,17 @@ class SpecialJsonFormsManage extends SpecialPage {
 				] );
 				$out->addHTML( $message );
 				$out->addHTML( '<br />' );
-		
+
 				$item = 'schema';
 				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';				
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
-				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['schema'] = $innerSchema;
-				$jsonForm['properties']['form']['properties']['editor']['options']['input']['config']['isMetaSchema'] = true;
+
+				// ***important, encode schema otherwise $refs can mess with
+				// those of the host schema
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['isMetaSchema'] = true;
 				break;
 		}
 		
