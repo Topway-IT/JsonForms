@@ -28,7 +28,6 @@ function JsonForms(el, data) {
 	this.editor = null;
 
 	this.data = data;
-
 	// @TODO add upload providers
 }
 
@@ -161,4 +160,37 @@ JsonForms.prototype.createEditor = function (el, config) {
 
 	return this.editor;
 };
+
+$(function () {
+	function resizeTreeSidePanel() {
+		// const actualHeight = secondColumnContent.scrollHeight;
+
+		const leftSelector =
+			'.jsonforms-treewidget.oo-ui-menuLayout-showMenu .oo-ui-menuLayout-menu';
+		const rightSelector =
+			'.jsonforms-treewidget.oo-ui-menuLayout-showMenu .oo-ui-menuLayout-content';
+
+		const $left = $(leftSelector);
+		const $right = $(rightSelector);
+
+		if (!$left[0] || !$right[0]) {
+			return;
+		}
+		const $container = $('.container');
+
+		const leftRect = $left[0].getBoundingClientRect();
+		const containerRect = $right[0].getBoundingClientRect();
+
+		const viewportHeight = $(window).height();
+		const toViewport = viewportHeight - leftRect.top;
+		const toContainer = containerRect.bottom - leftRect.top;
+		let available = Math.min(toViewport, toContainer);
+		available = Math.max(0, available);
+
+		$left.css('max-height', available + 'px');
+	}
+
+	$(window).on('scroll resize', resizeTreeSidePanel);
+	resizeTreeSidePanel();
+});
 

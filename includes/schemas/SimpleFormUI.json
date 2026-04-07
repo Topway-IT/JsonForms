@@ -5,9 +5,9 @@
 	"x-css-class": "jsonforms-outerform",
 	"required": [],
 	"properties": {
-		"form": {
+		"editor": {
 			"type": "string",
-			"format": "json",
+			"x-format": "json",
 			"x-compact": true,
 			"x-input": "jsonforms",
 			"x-input-config": {
@@ -25,7 +25,7 @@
 					"type": "boolean",
 					"title": "",
 					"description": "",
-					"x-description-wikitext": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
 					"x-input": "checkbox",
 					"x-control-config":  {
 						"align": "inline"

@@ -448,7 +448,7 @@
         }
       }
     },
-    "multiselectWidget": {
+    "multiselectWidgetProperties": {
       "type": "object",
       "properties": {
         "allowArbitrary": {
@@ -534,7 +534,7 @@
     },
     "menuTagMultiselectWidget": {
       "allOf": [
-        { "$ref": "#/definitions/multiselectWidget" },
+        { "$ref": "#/definitions/multiselectWidgetProperties" },
         {
           "properties": {
             "clearInputOnChoose": {
@@ -637,7 +637,8 @@
     },
     "multiselectWidget": {
       "allOf": [
-        { "$ref": "#/definitions/commonInputProperties" }
+        { "$ref": "#/definitions/commonInputProperties" },
+        { "$ref": "#/definitions/multiselectWidgetProperties" }
       ]
     },
     "buttonSelectWidget": {

@@ -29,11 +29,11 @@ function JsonFormsSlotManager(el, data) {
 
 OO.inheritClass(JsonFormsSlotManager, JsonForms);
 
-JsonFormsSlotManager.prototype.onFormButton = function (editor) {
-	const innerformEditor = this.editor.getEditor('root.form');
+JsonFormsSlotManager.prototype.onFormButton = function (action, editor) {
+	const innerformEditor = this.editor.getEditor('root.editor');
 	const innerEditor = innerformEditor.input.editor;
 
-	switch (editor.key) {
+	switch (action) {
 		case 'submit':
 			console.log(
 				'innerEditor.validation_results',
@@ -49,98 +49,20 @@ JsonFormsSlotManager.prototype.onFormButton = function (editor) {
 	}
 };
 
-// @TODO use describedBy instead
-JsonFormsSlotManager.prototype.watchEditor = function (
-	role,
-	editor,
-	contentEditor,
-) {
-	// console.log('watchEditor editor', editor.path);
-	if (!contentEditor) {
-		console.warn('contentEditor not set');
-		return;
-	}
-
-	let previousSchemaName = this.metadata?.slots?.[role]?.schema ?? null;
-
-	if (typeof contentEditor.input?.editor?.getSchemaName === 'function') {
-		previousSchemaName = contentEditor.input.editor.getSchemaName();
-	}
-
-	// without perefix
-	if (typeof previousSchemaName === 'string') {
-		previousSchemaName = previousSchemaName.includes(':')
-			? previousSchemaName.split(':').slice(1).join(':')
-			: previousSchemaName;
-	}
-
-	const editorName = editor.getValue();
-	// console.log('previousSchemaName', previousSchemaName);
-	// console.log('editor', editor);
-
-	const options = { compact: true };
-	switch (editorName) {
-		case 'WikiEditor':
-			options.format = 'textarea';
-			options.input = {
-				name: 'WikiEditor',
-			};
-			break;
-
-		case 'VisualEditor':
-			options.format = 'textarea';
-			options.input = {
-				name: 'visualeditor',
-			};
-			break;
-
-		case 'JSON Editor':
-			options.format = 'json';
-			options.input = {
-				name: 'JsonEditor',
-			};
-			break;
-
-		case 'JsonForms':
-			options.format = 'json';
-			options.input = {
-				name: 'JsonForms',
-				config: {
-					showSchemaSelector: true,
-					schemaSelectorDefault: previousSchemaName,
-				},
-			};
-			break;
-
-		case 'source':
-		default:
-			options.format = 'textarea';
-			options.input = {
-				config: {
-					autosize: true,
-					rows: 6,
-				},
-			};
-	}
-
-	// console.log('options', options);
-	contentEditor.rebuildWithOptions(options);
-};
-
 JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 	editor,
 	{ item, watched },
 ) {
 	// console.log('==watched',watched)
 	// console.log('==editor.path',editor.path)
-	if (!('contentModelProperty' in watched)) {
+	if (!('content_model' in watched)) {
 		console.warn('contentModelProperty not set in watch', watched);
 		return;
 	}
 
 	const jsonformsConfig = mw.config.get('jsonforms');
 
-	const contentModel = watched?.contentModelProperty || 'wikitext';
+	const contentModel = watched?.content_model || 'wikitext';
 
 	// @ATTENTION, before that that content model is updated
 	// with the default or initial value, it will be CSS
@@ -159,18 +81,30 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 	let options = ['source'];
 	switch (contentModel) {
 		case 'wikitext':
-			options = ['WikiEditor', 'VisualEditor'];
+			options = { wikieditor: 'WikiEditor', visualeditor: 'VisualEditor' };
+			break;
+
+/*
+		case 'css':
+		case 'javascript':
+				options = { codeeditor: 'codeEditor' };
 			break;
 
 		case 'json':
-			options = ['JSON Editor', 'JsonForms'];
+			// , 'JsonForms'
+			options = { codeeditor: 'codeEditor', jsoneditor: 'JSON Editor' };
 			break;
-
+*/
 		default:
 			if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
-				options = ['JSON Editor', 'JsonForms'];
+				// , 'JsonForms',  codeeditor: 'codeEditor', 
+				options = { jsoneditor: 'JSON Editor' };
 			}
 	}
+	
+	
+	// @TODO complete codeEditor widget
+	delete options.codeeditor
 
 	// console.log('options', options);
 	return options;
@@ -194,7 +128,7 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 
 		...{
 			submitButton: (editor) => {
-				this.onFormButton(editor);
+				this.onFormButton('submit',editor);
 			},
 		},
 	};
@@ -206,7 +140,7 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 };
 
 JsonFormsSlotManager.prototype.submitForm = function () {
-	const formEditor = this.editor.getEditor('root.form');
+	const formEditor = this.editor.getEditor('root.editor');
 	const innerEditor = formEditor.input.editor;
 	// console.log('innerEditor', innerEditor);
 
@@ -218,7 +152,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 		vars[path] = structuredValue[path].value;
 	}
 
-	const optionsEditor = this.editor.getEditor('root.form.options');
+	const optionsEditor = this.editor.getEditor('root.editor.options');
 
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
@@ -282,7 +216,7 @@ $(function () {
 		this.el = el;
 		const data = $(el).data().formData;
 
-		console.log('data', data);
+		// console.log('data', data);
 
 		const jsonForms = new JsonFormsSlotManager(el, data);
 
@@ -290,7 +224,6 @@ $(function () {
 
 		const editor = jsonForms.createDefaultEditor();
 
-/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -303,12 +236,12 @@ $(function () {
 		editor.on('change', () => {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 		});
-*/
+
 		const editorOnChange = async (editor) => {
 			// console.log('editorOnChange');
-		
+
 			const watching = [];
-			const formEditor = editor.getEditor('root.form');
+			const formEditor = editor.getEditor('root.editor');
 			// console.log('formEditor', formEditor);
 
 			if (!formEditor) {
@@ -325,19 +258,14 @@ $(function () {
 
 			const slotRoles = mw.config.get('jsonforms')['slotRoles'];
 
-			// @TODO use describedBy instead
 			const innerEditorOnChange = async (editor) => {
 				// console.log('innerEditorOnChange');
-				
-				editor.watch('root.editor', (thisEditor) => {
-					const contentEditor = editor.getEditor('root.content');
-					jsonForms.watchEditor('main', thisEditor, contentEditor);
-				});
-			
+
 				const editors = editor.getEditors();
 
 				// assign watchers to new slots
 				for (const path in editors) {
+					// console.log('path', path);
 					// maybe role
 					const role = path.replace(/^root\./, '');
 
@@ -346,13 +274,14 @@ $(function () {
 						if (!watching.includes(path)) {
 							// set role to hidden property
 
+							// console.log('`${path}.role`', `${path}.role`);
 							const roleEditor = editor.getEditor(`${path}.role`);
-							roleEditor.setValue(role);
+							// roleEditor.setValue(role);
 
-							editor.watch(`${path}.editor`, (thisEditor) => {
-								const contentEditor = editor.getEditor(`${path}.content`);
-								jsonForms.watchEditor(role, thisEditor, contentEditor);
-							});
+							// @TODO replace with setValue
+							// after updating the editor's setValue method
+							roleEditor.setStateValue(role);
+							roleEditor.input.setValue(role);
 
 							watching.push(path);
 						}
@@ -369,11 +298,10 @@ $(function () {
 
 			innerEditor.on('ready', innerEditorOnChange);
 			innerEditor.on('addObjectProperty', innerEditorOnChange);
-
 		};
 
 		// editor.on('ready', async () => {
-			//	editor.on('change', editorOnChange);
+		//	editor.on('change', editorOnChange);
 		// });
 		editor.on('ready', editorOnChange);
 		// editor.on('change', editorOnChange);

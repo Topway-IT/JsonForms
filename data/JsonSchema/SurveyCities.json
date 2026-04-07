@@ -4,22 +4,15 @@
 	"title": "European Countries Statistics Data",
 	"description": "Nested statistical data per country, main city, and employment status",
 	"type": "object",
-	"options": {
-		"layout": {
-			"name": "survey"
-		}
-	},
+	"x-layout": "survey",
 	"definitions": {
 		"inputOptions": {
-			"options": {
-				"input": {
-					"config": {
-						"labelPosition": "before",
-						"label": "%",
-						"step": "0.1",
-						"showButtons": false
-					}
-				}
+			"type": "number",
+			"x-input-config": {
+				"labelPosition": "before",
+				"label": "%",
+				"step": "0.1",
+				"showButtons": false
 			}
 		},
 		"leaf": {

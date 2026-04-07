@@ -8,11 +8,7 @@
 			"type": "array",
 			"items": {
 				"type": "string",
-				"options": {
-					"input": {
-						"name": "tagmultiselect"
-					}
-				}
+				"x-input": "tagmultiselect"
 			}
 		},
 		"vegetables": {

@@ -55,9 +55,14 @@ class SpecialJsonFormsDemo extends SpecialPage {
 
 		$this->addHelpLink( 'Extension:JsonForms' );
 		$out->addModules( 'ext.JsonForms.demo' );
+		
+		
+		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/DemoForm.json');
+		$jsonForm = json_decode( $jsonForm, true );
+		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$formData = [
-			'schema' => [],
+			'schema' => $jsonForm,
 			'name' => 'Demo',
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',

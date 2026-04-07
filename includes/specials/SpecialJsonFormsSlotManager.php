@@ -88,6 +88,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
 		$jsonForm = json_decode( $jsonForm, true );
+		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$innerSchema = file_get_contents(  __DIR__ . '/../schemas/SlotManager.json');
 		$innerSchema = json_decode( $innerSchema, true );
@@ -95,7 +96,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		// ***important, encode schema otherwise $refs can mess with
 		// those of the host schema
-		$jsonForm['properties']['form']['x-input-config']['schema'] = json_encode( $innerSchema );
+		$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
 
 		$editTitle = null;
 		if ( !empty( $par ) ) {
@@ -107,7 +108,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$metadata = null;
 		if ( $editTitle ) {
 			$startValInnerForm['title'] = $par;
-			$jsonForm['properties']['form']['x-input-config']['disableFields'] = [ 'title' ];
+			$jsonForm['properties']['editor']['x-input-config']['disableFields'] = [ 'title' ];
 
 			if ( $editTitle->isKnown() ) {
 				$editPage = $editTitle->getFullText();
@@ -146,7 +147,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		}
 		
 		$startVal = [
-			'form' => json_encode( $startValInnerForm )
+			'editor' => json_encode( $startValInnerForm )
 		];
 
 		$formData = [

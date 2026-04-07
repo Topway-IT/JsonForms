@@ -1,56 +1,82 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"type": "object",
-	"options": {
-		"layout": {
-			"name": "tabs",
-			"options": {
-				"mainLabel": "main"
-			}
-		}
+	"x-layout": "tabs",
+	"x-layout-config": {
+		"mainLabel": "main"
 	},
+	"x-default-properties": ["content_model", "editor", "content", "categories"],
 	"definitions": {
+		"editor_wikieditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "wikieditor"
+		},
+		"editor_codeeditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "codeeditor"
+		},
+		"editor_visualeditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "visualeditor"
+		},
+		"editor_jsoneditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "jsoneditor"
+		},
+		"editor_source": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input-config": {
+				"autosize": true,
+				"rows": 6
+			}
+		},
 		"slotOptions": {
 			"type": "object",
 			"required": ["content_model", "editor"],
-			"defaultProperties": ["content_model", "editor", "content"],
+			"x-default-properties": ["content_model", "editor", "content"],
 			"properties": {
 				"role": {
 					"type": "string",
-					"format": "hidden"
+					"x-format": "hidden",
+					"default": "main"
 				},
 				"content_model": {
 					"type": "string",
 					"title": "Content model",
 					"default": "wikitext",
-					"watch": {
-						"roleProperty": "role"
-					},
-					"enumSource": [
-						{
-							"source": "contentModelByRoleSource"
-						}
-					]
+					"x-watch": "role",
+					"x-enum-source": {
+						"source": "contentModelByRoleSource"
+					}
 				},
 				"editor": {
 					"type": "string",
 					"title": "Editor",
 					"default": "source",
-					"watch": {
-						"contentModelProperty": "content_model"
-					},
-					"enumSource": [
-						{
-							"source": "editorByContentModelSource"
-						}
-					]
+					"x-watch": "content_model",
+					"x-enum-source": {
+						"source": "editorByContentModelSource"
+					}
 				},
 				"content": {
 					"type": "string",
-					"format": "textarea",
-					"options": {
-						"compact": true
-					}
+					"x-watch" : "editor",
+					"links": [
+						{
+							"rel": "describedBy",
+							"href": "#/definitions/editor_{{editor}}"
+						}
+					]
 				}
 			}
 		}
@@ -63,11 +89,7 @@
 					"type": "string",
 					"minLength": 1,
 					"title": "Title",
-					"options": {
-						"input": {
-							"name": "title"
-						}
-					}
+					"x-input": "title"
 				}
 			},
 			"required": ["title"]
@@ -83,11 +105,7 @@
 					"type": "array",
 					"items": {
 						"type": "string",
-						"options": {
-							"input": {
-								"name": "categorymultiselect"
-							}
-						}
+						"x-input": "categorymultiselect"
 					}
 				}
 			}
@@ -96,20 +114,16 @@
 	"patternProperties": {
 		"^[a-zA-Z0-9_-]+$": {
 			"title": "Additional slot",
-			"options": {
-				"UISchema": {
-					"title": "New slot",
-					"type": "object",
-					"required": ["name"],
-					"properties": {
-						"name": {
-							"title": "slot name",
-							"type": "string",
-							"enumSource": [
-								{
-									"source": "slotRolesSource"
-								}
-							]
+			"x-ui-schema": {
+				"title": "New slot",
+				"type": "object",
+				"required": ["name"],
+				"properties": {
+					"name": {
+						"title": "slot name",
+						"type": "string",
+						"x-enum-source": {
+							"source": "slotRolesSource"
 						}
 					}
 				}
@@ -122,4 +136,3 @@
 		}
 	}
 }
-

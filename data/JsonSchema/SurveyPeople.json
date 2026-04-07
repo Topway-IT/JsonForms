@@ -4,23 +4,15 @@
 	"title": "People Statistics Table",
 	"description": "Data schema with districts as top-level rows, gender as row subgroups, and education × employment as columns",
 	"type": "object",
-	"options": {
-		"layout": {
-			"name": "survey"
-		}
-	},
+	"x-layout": "survey",
 	"definitions": {
 		"input": {
 			"type": "number",
-			"options": {
-				"input": {
-					"config": {
-						"labelPosition": "before",
-						"label": "%",
-						"step": "0.1",
-						"showButtons": false
-					}
-				}
+			"x-input-config": {
+				"labelPosition": "before",
+				"label": "%",
+				"step": "0.1",
+				"showButtons": false
 			}
 		},
 		"columnGroup": {

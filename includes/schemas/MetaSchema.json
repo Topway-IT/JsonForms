@@ -9,33 +9,45 @@
 		"array": {
 			"type": "object",
 			"properties": {
-				"name": { "type": "null", "const": null },
 				"additionalItems": { "$ref": "#/definitions/schema" },
 				"const": { "type": "array" },
-				"type": { "enum": ["array"], "const": "array", "x-format": "hidden_" },
+				"type": { "enum": ["array"], "const": "array", "x-format": "hidden" },
 				"contains": { "$ref": "#/definitions/schema" },
 				"default": { "type": "array" },
-				"items": {
-					"oneOf": [
-						{ "title": "simple", "$ref": "#/definitions/schema" },
-						{
-							"title": "tuple",
-							"type": "array",
-							"$ref": "#/definitions/schemaArray"
-						}
-					]
-				},
+  "items": {
+    "allOf": [
+      {
+        "oneOf": [
+          { "title": "simple", "$ref": "#/definitions/schema" },
+          {
+            "title": "tuple",
+            "allOf": [
+              { "$ref": "#/definitions/schemaArray" },
+              { "type": "array" }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "x-key": false
+        }
+      }
+    ]
+  },
 				"maxContains": { "type": "integer", "minimum": 0 },
 				"maxItems": { "type": "integer", "minimum": 0 },
 				"minContains": { "type": "integer", "minimum": 0 },
 				"minItems": { "type": "integer", "minimum": 0 },
 				"prefixItems": {
 					"type": "array",
-					"items": { "$ref": "#/definitions/schema" }
+					"items": { "$ref": "#/definitions/schema" },
+					"x-layout": "tabs_"
 				},
 				"unevaluatedItems": { "$ref": "#/definitions/schema" },
 				"uniqueItems": { "type": "boolean" }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"arrayOptions": {
 			"type": "object",
@@ -49,30 +61,34 @@
 							"enum": ["default", "tabs", "booklet", "table"]
 						},
 						"x-layout-config": {
-							"additionalProperties": true,
-							"type": "object"
+							"type": "object",
+							"x-enum-source": {
+								"source": "inputConfigSource"
+							}
 						},
 						"x-input": {
+							"type": "string",
 							"enum": [
+								"OO.ui.TagMultiselectWidget",
 								"mw.widgets.UsersMultiselectWidget",
 								"mw.widgets.TitlesMultiselectWidget",
 								"mw.widgets.CategoryMultiselectWidget",
-								"OO.ui.TagMultiselectWidget",
 								"OO.ui.MenuTagMultiselectWidget",
-								"MenuTagSearchMultiselect",
-								"OO.ui.MultiselectWidget",
-								"OO.ui.ButtonSelectWidget",
-								"OO.ui.CheckboxMultiselectInputWidget",
-								"OO.ui.DropdownInputWidget"
+								"OO.ui.CheckboxMultiselectInputWidget"
 							],
-							"type": "string"
+							"default": "OO.ui.TagMultiselectWidget"
 						},
 						"x-input-config": {
-							"additionalProperties": true,
-							"type": "object"
+							"type": "object",
+							"x-watch": "x-input",
+							"links": [
+								{
+									"rel": "describedBy",
+									"href": "JsonSchema:InputOptions#/definitions/{{x-input}}"
+								}
+							]
 						},
 						"x-control-config": {
-							"additionalProperties": true,
 							"type": "object"
 						}
 					}
@@ -86,12 +102,12 @@
 				"type": {
 					"enum": ["boolean"],
 					"const": "boolean",
-					"x-format": "hidden_"
+					"x-format": "hidden"
 				},
 				"default": { "type": "boolean" },
 				"enum": { "items": { "type": "boolean" } }
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		},
 		"booleanOptions": {
 			"type": "object",
@@ -104,11 +120,9 @@
 							"type": "string"
 						},
 						"x-input-config": {
-							"additionalProperties": true,
 							"type": "object"
 						},
 						"x-control-config": {
-							"additionalProperties": true,
 							"type": "object"
 						}
 					}
@@ -141,7 +155,7 @@
 				"type": {
 					"enum": ["integer"],
 					"const": "integer",
-					"x-format": "hidden_"
+					"x-format": "hidden"
 				},
 				"default": { "type": "integer" },
 				"enum": {
@@ -157,7 +171,7 @@
 				"minimum": { "type": "number" },
 				"multipleOf": { "type": "number" }
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		},
 		"integerOptions": {
 			"type": "object",
@@ -170,11 +184,16 @@
 							"type": "string"
 						},
 						"x-input-config": {
-							"additionalProperties": true,
-							"type": "object"
+							"type": "object",
+							"x-watch" : "x-input",
+							"links": [
+								{
+									"rel": "describedBy",
+									"href": "JsonSchema:InputOptions#/definitions/{{x-input}}"
+								}
+							]
 						},
 						"x-control-config": {
-							"additionalProperties": true,
 							"type": "object"
 						}
 					}
@@ -185,10 +204,10 @@
 			"type": "object",
 			"properties": {
 				"const": { "type": "null" },
-				"type": { "enum": ["null"], "const": "null", "x-format": "hidden_" },
+				"type": { "enum": ["null"], "const": "null", "x-format": "hidden" },
 				"default": { "type": "null" }
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		},
 		"nullOptions": {
 			"type": "object",
@@ -213,7 +232,7 @@
 				"minimum": { "type": "number" },
 				"multipleOf": { "type": "number" }
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		},
 		"numberOptions": {
 			"type": "object",
@@ -226,11 +245,9 @@
 							"type": "string"
 						},
 						"x-input-config": {
-							"additionalProperties": true,
 							"type": "object"
 						},
 						"x-control-config": {
-							"additionalProperties": true,
 							"type": "object"
 						}
 					}
@@ -284,7 +301,7 @@
 					"uniqueItems": true
 				}
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		},
 		"objectOptions": {
 			"type": "object",
@@ -297,8 +314,22 @@
 							"enum": ["fieldset", "tabs", "booklet", "horizontal", "survey"]
 						},
 						"x-layout-config": {
-							"additionalProperties": true,
 							"type": "object"
+						},
+						"x-ui-schema": {
+							"oneOf": [
+								{ "$ref": "#/definitions/schema" },
+								{ "format": "uri-reference", "type": "string" }
+							]
+						},
+						"x-lazy-properties-threshold": {
+							"type": "integer",
+							"default": 6
+						},			
+						"x-handle-properties-layout": {
+							"type": "string",
+							"enum": ["inline", "toolbar"],
+							"default": "inline"
 						}
 					}
 				}
@@ -312,28 +343,45 @@
 					"properties": {
 						"x-input": {
 							"enum": [
+								"OO.ui.TextInputWidget",
 								"mw.widgets.UserInputWidget",
 								"mw.widgets.TitleInputWidget",
 								"mw.widgets.DateInputWidget",
-								"OO.ui.TextInputWidget",
 								"LookupElement",
+								"autocomplete",
 								"OO.ui.MultilineTextInputWidget",
 								"OO.ui.ComboBoxInputWidget",
-								"OO.ui.NumberInputWidget",
 								"intl-tel-input",
 								"VisualEditor",
 								"JsonEditor",
 								"jsonForms"
 							],
-							"type": "string"
+							"type": "string",
+							"default": "OO.ui.TextInputWidget"
 						},
 						"x-input-config": {
-							"additionalProperties": true,
 							"type": "object"
 						},
 						"x-control-config": {
-							"additionalProperties": true,
 							"type": "object"
+						},
+						"x-autocomplete": {
+							"type": "object",
+							"properties": {
+								"search": {
+									"type": "string"
+								},
+								"getResultValue": {
+									"type": "string"
+								},
+								"renderResult": {
+									"type": "string"
+								},
+								"autoSelect": {
+									"type": "boolean",
+									"default": true
+								}
+							}
 						}
 					}
 				}
@@ -403,15 +451,15 @@
 		},
 		"schemaArray": {
 			"type": "array",
-			"x-layout": "tabs",
+			"x-layout": "tabs_",
 			"items": { "$ref": "#/definitions/schema", "title": "schema" },
 			"minItems": 1
 		},
 		"schemaBase": {
 			"type": "object",
-			"x-default-properties": ["type", "name", "title"],
+			"x-default-properties": ["type", "x-key", "title"],
 			"properties": {
-				"name": { "type": "string", "minLength": 1 },
+				"x-key": { "type": "string", "title": "name", "minLength": 1, "readOnly_": true, "writeOnly": true },
 				"const": { "description": "The value must be equal to this constant" },
 				"type": { "type": "string" },
 				"title": { "type": "string" },
@@ -425,18 +473,21 @@
 				"allOf": {
 					"description": "Schema must be valid against all of the subschemas",
 					"items": { "$ref": "#/definitions/schema" },
-					"type": "array"
+					"type": "array",
+					"x-layout": "tabs_"
 				},
 				"anyOf": {
 					"description": "Schema must be valid against at least one of the subschemas",
 					"items": { "$ref": "#/definitions/schema" },
-					"type": "array"
+					"type": "array",
+					"x-layout": "tabs_"
 				},
 				"contentEncoding": { "type": "string" },
 				"contentMediaType": { "type": "string" },
 				"deprecated": { "type": "boolean" },
 				"links": {
 					"type": "array",
+					"x-layout": "tabs_",
 					"description": "",
 					"x-wikitext-description": "see [https://json-schema.org/draft-06/draft-wright-json-schema-hyperschema-01 draft-wright-json-schema-hyperschema-01]",
 					"items": { "$ref": "#/definitions/schema" }
@@ -473,9 +524,21 @@
 					"description": "Conditional validation: must validate when 'if' validates"
 				},
 				"x-watch": {
-					"additionalProperties": true,
-					"patternProperties": { ".*": { "type": "string" } },
-					"type": "object"
+					"description": "Watched fields. Can be a single field, an array of fields or key/values with alias as key and field name as value",
+					"oneOf": [
+						{
+							"type": "string"
+						},		
+						{
+							"items": { "type": "string" },
+							"type": "array"
+						},		
+						{
+							"type": "object",
+							"additionalProperties": true,
+							"patternProperties": { ".*": { "type": "string" } }
+						}
+					]
 				},
 				"x-hidden": { "type": "boolean" },
 				"writeOnly": { "type": "boolean" }
@@ -484,9 +547,9 @@
 		},
 		"schemaBaseNull": {
 			"type": "object",
-			"x-default-properties": ["type", "name", "title"],
+			"x-default-properties": ["type", "x-key", "title"],
 			"properties": {
-				"name": { "type": "string" },
+				"x-key": { "type": "string", "title": "name" },
 				"const": {
 					"description": "The value must be null",
 					"type": "null"
@@ -514,9 +577,9 @@
 					"default": "",
 					"enum": ["info", "button"]
 				},
-				"x-button-action": ""
+				"x-button-action":  { "type": "string" }
 			},
-			"required": ["type", "name"]
+			"required": ["type", "x-key"]
 		},
 		"string": {
 			"type": "object",
@@ -647,9 +710,10 @@
 				"maxLength": { "minimum": 0, "type": "integer" },
 				"minLength": { "minimum": 0, "type": "integer" },
 				"pattern": { "format": "regex", "type": "string" },
+				"x-pattern-message": { "x-format": "textarea", "type": "string" },
 				"x-template": { "type": "string" }
 			},
-			"required": ["name"]
+			"required": ["x-key"]
 		}
 	}
 }

@@ -201,6 +201,10 @@ metadata can be stored:
 */
 
 		$output = $this->output;
+		
+		if ( !isset( $data['options'] ) ) {
+			$data['options'] = [];
+		}
 
 		if ( !empty( $data['options']['captcha'] ) ) {
 			$recaptchaSecret = $GLOBALS['wgJsonFormsReCaptchaSecretKey'];

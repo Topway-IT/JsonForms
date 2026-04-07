@@ -51,6 +51,12 @@ JsonFormsPageForm.prototype.initialize = async function () {
 		},
 	};
 
+	/*
+	this.defaultOptions.callbacks.template = {
+		...this.defaultOptions.callbacks.template,
+		...this.enumProviders,
+	};
+*/
 	this.schema = this.adjustFormSchema();
 };
 
@@ -110,7 +116,7 @@ default form descriptor
 	if (!formDescriptor.captcha) {
 		delete ret.properties.captcha;
 	} else {
-		ret.properties.captcha.options.siteKey =
+		ret.properties.captcha['x-captcha-sitekey'] =
 			mw.config.get('jsonforms').captchaSiteKey;
 	}
 
@@ -146,6 +152,8 @@ default form descriptor
 		delete ret.properties.buttons.properties.validate;
 		delete ret.properties.buttons.properties.goback;
 	}
+
+	// console.log('ret',ret)
 
 	return ret;
 };
@@ -185,8 +193,9 @@ JsonForms.prototype.createDefaultEditor = async function (config = {}) {
 		// the user-defined start_path is declared inside
 		// the config object in the jsonform widget from php
 		// so we don't need to handle it here
-		start_path: !this.isPopup ? '' : 'form.editor',
+		// start_path: ...
 	};
+
 	if (!this.isPopup) {
 		// this is returned as resolved promise
 		// return JsonFormsPageForm.super.prototype.createDefaultEditor.call(this);
@@ -212,7 +221,10 @@ JsonForms.prototype.createPopup = async function (config) {
 			});
 
 			const el = document.createElement('div');
-			const editor = this.createEditor(el, config);
+			const editor = this.createEditor(el, {
+				...config,
+				start_path: 'form.editor',
+			});
 			panelA.$element.append(el);
 
 			const panelB = new OO.ui.PanelLayout({
@@ -255,7 +267,7 @@ JsonForms.prototype.createPopup = async function (config) {
 		},
 		setupProcess: (dialog) => {
 			const hasData = JFUtilities.getNestedProp(
-				['form', 'form'],
+				['form', 'editor'],
 				this.startval,
 			);
 
@@ -341,11 +353,15 @@ JsonForms.prototype.createPopup = async function (config) {
 
 // inline form only
 JsonFormsPageForm.prototype.onNavButton = function (editor) {
+	// console.log('editor',editor)
+
 	const jsonEditor = editor.jsoneditor;
 	const formEditor = jsonEditor.getEditor('root.form');
+	
+	// console.log('formEditor',formEditor)
 
 	// defined in the PageFormUI.json schema
-	const booklet = formEditor.editor_holder.layout;
+	const booklet = formEditor.groupWidget.layout;
 
 	const validateButton = jsonEditor.getEditor('root.buttons.validate');
 	const submitButton = jsonEditor.getEditor('root.buttons.submit');
@@ -499,69 +515,6 @@ $(function () {
 
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
-
-		const textarea = $('<textarea>', {
-			class: 'form-control',
-			id: 'value',
-			rows: 12,
-			style: 'font-size: 12px; font-family: monospace;',
-		});
-		$(el).append(textarea);
-
-		editor.on('ready', async (editor_) => {
-			// console.log('editor_', editor_);
-
-			const formEditor = editor.getEditor('root.form.editor');
-
-			// *** do something with the child editor if needed
-			const innerEditor = await formEditor.input.getEditor();
-			innerEditor.on('change', () => {
-				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
-			});
-			innerEditor.on('ready', () => {
-				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
-			});
-
-			innerEditor.on('ready', async () => {
-
-				return;
-				innerEditor.on('change', (thisEditor, data) => {
-					return;
-					console.log('change');
-
-					console.log('thisEditor', thisEditor);
-					console.log('data', data);
-				});
-
-				innerEditor.on('switchEditor', (thisEditor, data) => {
-					return;
-
-					console.log('switchEditor');
-					console.log('thisEditor', thisEditor);
-					console.log('data', data);
-				});
-
-				innerEditor.on('addObjectProperty', (thisEditor, data) => {
-					return;
-					console.log('addObjectProperty');
-
-					console.log('thisEditor', thisEditor);
-					console.log('data', data);
-				});
-
-				innerEditor.on('addLazyProperty', (thisEditor, data) => {
-					return;
-					console.log('addLazyProperty');
-					console.log('thisEditor', thisEditor);
-					console.log('data', data);
-
-					const parentType = data.editor.parent.value.type;
-					console.log('parentType', parentType);
-
-					switch (parentType) {
-					}
-				});
-			});
-		});
 	});
 });
+

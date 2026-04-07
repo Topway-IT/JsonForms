@@ -1,10 +1,6 @@
 {
 	"title": "Payment Method",
-	"options": {
-		"input": {
-			"name": "button-select"
-		}
-	},
+	"x-input": "button-select",
 	"oneOf": [
 		{
 			"title": "None",
@@ -30,11 +26,7 @@
 		{
 			"title": "Bank EFT",
 			"type": "object",
-			"options": {
-				"layout": {
-					"name": "horizontal"
-				}
-			},
+			"x-layout": "horizontal",
 			"properties": {
 				"method": {
 					"type": "string",
@@ -71,11 +63,7 @@
 		{
 			"title": "Credit Card",
 			"type": "object",
-			"options": {
-				"layout": {
-					"name": "horizontal"
-				}
-			},
+			"x-layout": "horizontal",
 			"properties": {
 				"method": {
 					"type": "string",

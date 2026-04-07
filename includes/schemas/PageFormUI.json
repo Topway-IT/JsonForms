@@ -3,23 +3,20 @@
 	"@type": "JsonForms default schema",
 	"x-compact": true,
 	"x-css-class": "jsonforms-outerform",
-	"required": [
-	],
+	"required": [],
 	"properties": {
 		"form": {
 			"type": "object",
-			"options": {
-				"x-compact": true,
-				"x-css-class": "jsonforms-innerform",
-				"x-layout": "booklet",
-				"x-layout-config": {
-					"outlined": false
-				}
+			"x-compact": true,
+			"x-css-class": "jsonforms-innerform",
+			"x-layout": "booklet",
+			"x-layout-config": {
+				"outlined": false
 			},
 			"properties": {
 				"editor": {
 					"type": "string",
-					"format": "json",
+					"x-format": "json",
 					"x-compact": true,
 					"x-input": "jsonforms",
 					"x-input-config": {
@@ -121,10 +118,7 @@
 					"x-format": "button",
 					"x-button-action": "outerFormNavButton",
 					"x-input-config": {
-						"flags": [
-							"primary",
-							"progressive"
-						]
+						"flags": ["primary", "progressive"]
 					}
 				},
 				"submit": {
@@ -132,10 +126,7 @@
 					"x-format": "button",
 					"x-button-action": "outerFormNavButton",
 					"x-input-config": {
-						"flags": [
-							"primary",
-							"progressive"
-						]
+						"flags": ["primary", "progressive"]
 					}
 				},
 				"goback": {

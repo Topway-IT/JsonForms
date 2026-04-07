@@ -78,9 +78,11 @@
 	padding: 8px;
 }
 
-.jsonforms-form .jsonforms-innerform > .oo-ui-widget > .oo-ui-layout > .oo-ui-menuLayout-content > .oo-ui-layout > .oo-ui-layout {
+/* @TODO find a better solution */
+.jsonforms-form .jsonforms-innerform > div > .oo-ui-widget > .oo-ui-layout > .oo-ui-menuLayout-content > .oo-ui-layout > .oo-ui-layout {
 	padding: 0;
 }
+
 
 .jsonforms-switcher {
 	float: right;
@@ -113,14 +115,57 @@
     justify-content: space-between;
 }
 
+.jsonforms-container-scroll {
+    
+}
+
+.jsonforms-form .oo-ui-selectWidget {
+	z-index: 10;
+}
+
+.jsonforms-form .oo-ui-menuSelectWidget {
+	z-index: 100;
+}
+
+.jsonforms-treewidget.oo-ui-menuLayout-showMenu {
+    display: flex !important;
+    align-items: stretch;
+    height: auto;
+    min-height: 0; 
+}
+
+.jsonforms-treewidget.oo-ui-menuLayout-showMenu .oo-ui-menuLayout-menu {
+    display: block !important;
+    min-height: 0;
+    overflow-y: auto;
+    flex: 0 0 230px;	// ~14em
+}
+
+.jsonforms-treewidget.oo-ui-menuLayout-showMenu .oo-ui-menuLayout-content {
+    display: block !important;
+    flex: 1;
+    overflow: auto;
+}
+
+.oo-ui-indicator-subtract {
+  background-image: url( ./subtract.svg);
+}
+
+
 .jsonforms-overview_holder {
 	padding: 12px 0;
-}	
+	text-align: right;
+}
 
+.jsonforms-overview_holder div {
+	text-align: left;
+}	
+/*
 .jsonforms-overview_holder a {
   color: blue !important;
   text-decoration: underline !important;
 }
+*/
 
 .jsonforms-controls h3 {
 	margin: 0;
@@ -237,6 +282,20 @@
 	padding: 6px;
 }
 
+.jsonforms-tree-page {
+	height: 100%;
+}
+
+.jsonforms-tree-page {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.jsonforms-tree-page-body {
+	flex: 1;
+}
+
 .jsonforms-tree-page-controls {
 	margin-top: 2em;
 }
@@ -269,9 +328,6 @@
 	text-align: right;
 }
 
-.jsonforms-form .oo-ui-selectWidget {
-	z-index: 10;
-}
 
 :root {
   --oo-outline-indent: 1em; /* base indentation per level */

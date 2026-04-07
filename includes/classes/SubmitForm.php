@@ -247,6 +247,8 @@ class SubmitForm {
 			];
 		}
 
+		// @TODO strip all writeOnly properties
+
 		$slotEditor = new SlotEditor();
 
 		$summary = $data['options']['summary'] ?? '';

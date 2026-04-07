@@ -65,7 +65,7 @@ EnumProviders.prototype.contentModelByRole = function () {
 	// key/value object, this is also supported
 	return {
 		source: (jseditor, { item, watched }) => {			
-			const role = watched?.roleProperty || 'main';
+			const role = watched?.role || 'main';
 
 			switch (role) {
 				case 'main':

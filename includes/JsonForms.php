@@ -480,7 +480,7 @@ class JsonForms {
 		$schemaEditor->traverse( $ret, static function ( &$subSchema ) use ( $output, $wikitextKeys ) {
 			foreach ( $wikitextKeys as $key => $value ) {
    				if ( isset( $subSchema[$key] ) ) {  
-					$s[$value] = self::parseWikitext(
+					$subSchema[$value] = self::parseWikitext(
 						$output,
 						$subSchema[$key]
 					);

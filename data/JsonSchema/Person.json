@@ -1,9 +1,4 @@
 {
-	"options": {
-		"layout": {
-			"name": "paged"
-		}
-	},
 	"$ref": "JsonSchema:BasicPerson",
 	"additionalProperties": true,
 	"properties": {
@@ -20,21 +15,17 @@
 				"citystate": {
 					"type": "string",
 					"description": "This is generated automatically from the previous two fields",
-					"template": "{{city}}, {{state}}",
-					"watch_": {
-						"city": "location.city",
-						"state": "location.state"
-					}
+					"x-template": "{{city}}, {{state}}",
+					"x-watch": [
+						"city",
+						"state"
+					]
 				}
 			}
 		},
 		"pets": {
 			"type": "array",
-			"options": {
-				"layout": {
-					"name": "table"
-				}
-			},
+			"x-layout": "table",
 			"title": "Pets",
 			"uniqueItems": true,
 			"items": {
@@ -57,22 +48,14 @@
 					"fixed": {
 						"type": "boolean",
 						"title": "spayed / neutered",
-						"options": {
-							"input": {
-								"name": "checkbox"
-							}
-						}
+						"x-input": "checkbox"
 					}
 				}
 			}
 		},
 		"cars": {
 			"type": "array",
-			"options": {
-				"layout": {
-					"name": "tabs"
-				}
-			},
+			"x-layout": "tabs",
 			"title": "Cars",
 			"uniqueItems": false,
 			"items": {

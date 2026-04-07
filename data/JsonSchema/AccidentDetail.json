@@ -1,22 +1,14 @@
 {
 	"type": "object",
-	"options": {
-		"layout": {
-			"name": "paged"
-		}
-	},
-	"title": "",
+	"x-layout": "paged",
+	"title": "AccidentDetail",
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"properties": {
 		"accidentDetails": {
 			"$ref": "#/definitions/accidentDetails"
 		},
 		"vehicles": {
-			"options": {
-				"layout": {
-					"name": "tabs"
-				}
-			},
+			"x-layout": "tabs",
 			"title": "vehicles",
 			"type": "array",
 			"items": {
@@ -24,11 +16,7 @@
 			}
 		},
 		"people": {
-			"options": {
-				"layout": {
-					"name": "tabs"
-				}
-			},
+			"x-layout": "tabs",
 			"type": "array",
 			"title": "people",
 			"items": {
@@ -78,17 +66,14 @@
 				},
 				"vehicle": {
 					"type": "string",
-					"watch": {
+					"x-watch": {
 						"target": "vehicles"
 					},
-					"fieldType": "reference",
-					"enumSource": [
-						{
-							"title": "{{item.Vehicle type}} {{item.Make}} {{item.Model}}",
-							"value": "{{item._localId}}",
-							"source": "target"
-						}
-					]
+					"x-enum-source": {
+						"title": "{{item.Vehicle type}} {{item.Make}} {{item.Model}}",
+						"value": "{{item._localId}}",
+						"source": "target"
+					}
 				},
 				"Hospital": {
 					"type": "string",
@@ -96,10 +81,8 @@
 				},
 				"_localId": {
 					"type": "string",
-					"format": "uuid",
-					"options": {
-						"hidden": true
-					},
+					"x-format": "uuid",
+					"x-hidden": true,
 					"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
 				},
 				"Involvment": {
@@ -222,10 +205,8 @@
 				},
 				"_localId": {
 					"type": "string",
-					"format": "uuid",
-					"options": {
-						"hidden": true
-					},
+					"x-format": "uuid",
+					"x-hidden": true,
 					"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
 				},
 				"Direction": {
@@ -296,10 +277,8 @@
 				},
 				"_localId": {
 					"type": "string",
-					"format": "uuid",
-					"options": {
-						"hidden": true
-					},
+					"x-format": "uuid",
+					"x-hidden": true,
 					"pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
 				},
 				"Main cause": {

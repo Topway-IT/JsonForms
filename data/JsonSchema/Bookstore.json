@@ -2,11 +2,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"title": "Bookstore",
-	"options": {
-		"layout": {
-			"name": "paged"
-		}
-	},
+	"x-layout": "paged_",
 	"definitions": {
 		"newPropertySchema": {
 			"title": "New property",
@@ -43,27 +39,23 @@
 						"url",
 						"json"
 					],
-					"options": {
-						"input": {
-							"name": "RadioSelectInputWidget"
-						},
-						"enum_titles": [
-							"Text",
-							"Number",
-							"Integer",
-							"Date",
-							"Datetime-local",
-							"Time",
-							"Boolean",
-							"Textarea",
-							"Email",
-							"Color",
-							"Range",
-							"Tel",
-							"Url",
-							"Json"
-						]
-					}
+					"x-input": "RadioSelectInputWidget",
+					"x-enum-titles": [
+						"Text",
+						"Number",
+						"Integer",
+						"Date",
+						"Datetime-local",
+						"Time",
+						"Boolean",
+						"Textarea",
+						"Email",
+						"Color",
+						"Range",
+						"Tel",
+						"Url",
+						"Json"
+					]
 				},
 				"multiple": {
 					"title": "multiple",
@@ -81,12 +73,8 @@
 				"type": "object",
 				"title": "book",
 				"additionalProperties": true,
-				"options": {
-					"additionalProperties": {
-						"UISchema": {
-							"$ref": "#/definitions/newPropertySchema"
-						}
-					}
+				"x-ui-schema": {
+					"$ref": "#/definitions/newPropertySchema"
 				},
 				"properties": {
 					"Title": {

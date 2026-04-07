@@ -1,0 +1,30 @@
+{
+	"type": "object",
+	"title": "Demo",
+	"properties": {
+		"schema": {
+			"type": "string",
+			"title": "schema",
+			"default": "",
+			"x-enum-source": {
+				"source": "jsonSchemasSource",
+				"filter": "jsonSchemasFilter",
+				"title": "jsonSchemasTitle",
+				"value": "jsonSchemasValue"
+			}								
+		},
+		"editor": {
+			"type": "object",
+			"x-compact": "true",
+			"x-watch" : "schema",
+			"links": [
+				{
+					"rel": "describedBy",
+					"href": "JsonSchema:{{schema}}",
+					"x-destroy-values-on-switch": true
+				}
+			]
+		}
+	}
+}
+

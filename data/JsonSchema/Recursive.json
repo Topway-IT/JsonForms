@@ -1,16 +1,12 @@
 {
 	"$ref": "#/definitions/person",
-	"options": {
-		"layout": {
-			"name": "paged"
-		}
-	},
+	"x-layout": "paged",
 	"definitions": {
 		"person": {
 			"title": "Person",
 			"type": "object",
 			"id": "person",
-			"defaultProperties": [
+			"x-default-properties": [
 				"fname",
 				"lname",
 				"coworkers"

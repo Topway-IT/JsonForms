@@ -1,7 +1,7 @@
 {
 	"name": "JsonForms",
 	"author": "thomas-topway-it",
-	"version": "0.9.2",
+	"version": "0.9",
 	"url": "https://www.mediawiki.org/wiki/Extension:JsonForms",
 	"descriptionmsg": "jsonforms-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -47,7 +47,7 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "JsonFormsHooks::onLoadExtensionSchemaUpdates",
 		"MediaWikiServices": "JsonFormsHooks::onMediaWikiServices",
-		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",		
+		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",
 		"ContentAlterParserOutput": "JsonFormsHooks::onContentAlterParserOutput",
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
@@ -176,9 +176,7 @@
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"styles": [],
-			"scripts": [
-				"stripe/js.stripe.com.js"
-			]
+			"scripts": ["stripe/js.stripe.com.js"]
 		},
 		"ext.JsonForms.demo": {
 			"localBasePath": "resources",
@@ -196,6 +194,7 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
+
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -204,6 +203,63 @@
 				"JsonFormsUtilities.js",
 				"JsonForms.js",
 				"JsonFormsDemo.js"
+			],
+			"dependencies": [
+				"mediawiki.rcfilters.filters.base.styles",
+				"mediawiki.util",
+				"mediawiki.base",
+				"mediawiki.cookie",
+				"mediawiki.api",
+				"oojs-ui-core",
+				"oojs-ui-widgets",
+				"mediawiki.storage",
+				"oojs-ui.styles.icons-alerts",
+				"oojs-ui.styles.icons-interactions",
+				"oojs-ui.styles.icons-editing-core",
+				"oojs-ui.styles.icons-layout",
+				"oojs-ui.styles.icons-movement",
+				"oojs-ui.styles.icons-moderation",
+				"oojs-ui.styles.icons-accessibility",
+				"oojs-ui-toolbars",
+				"oojs-ui-windows",
+				"mediawiki.widgets",
+				"mediawiki.widgets.datetime",
+				"mediawiki.widgets.DateInputWidget",
+				"mediawiki.widgets.TitlesMultiselectWidget",
+				"mediawiki.widgets.CategoryMultiselectWidget",
+				"mediawiki.widgets.UserInputWidget",
+				"mediawiki.widgets.UsersMultiselectWidget",
+				"mediawiki.Upload"
+			],
+			"messages": ["jsonforms-jsmodule-return-errors"],
+			"position": "top"
+		},
+
+		"ext.JsonForms.ManageSchemas": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+				"datatables/datatables.min.css",
+				"datatables/style.css",
+				"libs/autocomplete.min.css",
+				"style.css"
+			],
+			"scripts": [
+				"datatables/object_hash.js",
+				"datatables/datatables.min.js",
+				"libs/autocomplete.min.js",
+				"libs/handlebars.min.js",
+				"libs/imask.min.js",
+				"libs/signature_pad.umd.min.js",
+
+				"editor/jsonforms-editor.js",
+				"EnumProviders.js",
+				"AutocompleteProviders.js",
+				"JsonFormsNonModalDialog.js",
+				"JsonFormsDialog.js",
+				"JsonFormsUtilities.js",
+				"JsonForms.js",
+				"JsonFormsManageSchemas.js"
 			],
 			"dependencies": [
 				"mediawiki.rcfilters.filters.base.styles",
@@ -252,6 +308,7 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
+
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -314,6 +371,7 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
+
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -369,4 +427,3 @@
 	},
 	"manifest_version": 2
 }
-

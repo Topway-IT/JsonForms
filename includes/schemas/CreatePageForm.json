@@ -10,27 +10,21 @@
 			"type": "string",
 			"title": "Form name",
 			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms:[form name]}}",
-			"minLength": 1,
-			"options": {}
+			"minLength": 1
 		},
 		"schema": {
 			"type": "string",
 			"title": "JSON Schema",
 			"description": "",
 			"default": "",
-			"options": {
-				"wikitext": {
-					"description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}"
-				}
-			},
-			"enumSource": [
-				{
-					"source": "jsonSchemasSource",
-					"filter": "jsonSchemasFilter",
-					"title": "jsonSchemasTitle",
-					"value": "jsonSchemasValue"
-				}
-			]
+			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
+
+			"x-enum-source": {
+				"source": "jsonSchemasSource",
+				"filter": "jsonSchemasFilter",
+				"title": "jsonSchemasTitle",
+				"value": "jsonSchemasValue"
+			}
 		},
 		"edit_categories": {
 			"type": "boolean",
@@ -44,28 +38,17 @@
 			"type": "array",
 			"items": {
 				"type": "string",
-				"options": {
-					"input": {
-						"name": "categorymultiselect"
-					}
-				}
+				"x-input": "categorymultiselect"
 			}
 		},
 		"default_data_slot": {
 			"type": "string",
 			"title": "Default slot",
 			"description": "Default slot for form data: if different than main the related article will be saved as a Multi-Content-Revision",
-			"options": {
-				"wikitext": {
-					"description": "Default slot for form data: if different than main the related article will be saved as a [https:\/\/www.mediawiki.org\/wiki\/Multi-Content_Revisions\/Content_Meta-Data Multi-Content-Revision]"
-				}
-			},
 			"default": "main",
-			"enumSource": [
-				{
-					"source": "jsonSlotsSource"
-				}
-			]
+			"x-enum-source": {
+				"source": "jsonSlotsSource"
+			}
 		},
 		"edit_data_slot_role": {
 			"type": "boolean",
@@ -78,11 +61,9 @@
 			"title": "Edit main slot content model",
 			"description": "Is the user allowed to edit the content model of the main slot ?",
 			"default": false,
-			"options": {
-				"dependencies": {
-					"default_data_slot": {
-						"!=": "main"
-					}
+			"x-visibility": {
+				"default_data_slot": {
+					"!=": "main"
 				}
 			}
 		},
@@ -91,11 +72,9 @@
 			"title": "Edit main slot content",
 			"description": "Is the user allowed to edit the content of main slot ? (usually wikitext)",
 			"default": false,
-			"options": {
-				"dependencies": {
-					"default_data_slot": {
-						"!=": "main"
-					}
+			"x-visibility": {
+				"default_data_slot": {
+					"!=": "main"
 				}
 			}
 		},
@@ -103,16 +82,12 @@
 			"type": "string",
 			"title": "Default content model of main slot",
 			"default": "wikitext",
-			"enumSource": [
-				{
-					"source": "contentModelsSource"
-				}
-			],
-			"options": {
-				"dependencies": {
-					"default_data_slot": {
-						"!=": "main"
-					}
+			"x-enum-source": {
+				"source": "contentModelsSource"
+			},
+			"x-visibility": {
+				"default_data_slot": {
+					"!=": "main"
 				}
 			}
 		},
@@ -121,21 +96,15 @@
 			"title": "Edit page",
 			"description": "Page to redirect to after editing",
 			"default": "",
-			"options": {
-				"input": {
-					"name": "title"
-				}
-			}
+			"x-input": "title"
 		},
 		"pagename_formula": {
 			"type": "string",
 			"title": "Page name formula",
 			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
 			"default": "",
-			"options": {
-				"dependencies": {
-					"edit_page": ""
-				}
+			"x-visibility": {
+				"edit_page": ""
 			}
 		},
 		"create_only_fields": {
@@ -146,13 +115,9 @@
 			"items": {
 				"type": "string"
 			},
-			"options": {
-				"input": {
-					"name": "tagmultiselect"
-				},
-				"dependencies": {
-					"edit_page": ""
-				}
+			"x-input": "tagmultiselect",
+			"x-visibility": {
+				"edit_page": ""
 			}
 		},
 		"overwrite_existing_article_on_create": {
@@ -171,11 +136,10 @@
 			"type": "string",
 			"title": "popup button label",
 			"description": "Open popup button's label",
-			"options": {
-				"input": "tagmultiselect",
-				"dependencies": {
-					"view": "popup"
-				}
+			"x-input": "tagmultiselect",
+
+			"x-visibility": {
+				"view": "popup"
 			}
 		},
 		"callback": {
@@ -189,11 +153,7 @@
 			"title": "Preload page",
 			"description": "Page to preload content from",
 			"default": "",
-			"options": {
-				"input": {
-					"name": "title"
-				}
-			}
+			"x-input": "title"
 		},
 		"preload_data": {
 			"type": "string",
@@ -244,22 +204,14 @@
 			"title": "editor options",
 			"description": "Editor options in the MediaWiki: namespace, javascript content model",
 			"default": "MediaWiki:DefaultEditorOptions",
-			"options": {
-				"input": {
-					"name": "title"
-				}
-			}
+			"x-input": "title"
 		},
 		"editor_script": {
 			"type": "string",
 			"title": "editor script",
 			"description": "Editor script in the MediaWiki: namespace, javascript content model",
 			"default": "MediaWiki:DefaultEditorScript",
-			"options": {
-				"input": {
-					"name": "title"
-				}
-			}
+			"x-input": "title"
 		},
 		"width": {
 			"type": "string",
@@ -274,4 +226,3 @@
 		}
 	}
 }
-

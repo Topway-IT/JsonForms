@@ -114,7 +114,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$action = $this->getRequest()->getVal( 'action' );
 
-		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/PageFormUI.json');
+		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
 		$jsonForm = json_decode( $jsonForm, true );
 
 		// $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
@@ -129,7 +129,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 		];
 
 		if ( !empty( $formDescriptor['edit_page'] ) ) {
-			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
+			$jsonForm['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
 		}
 
 		$pageid = $this->getRequest()->getVal( 'pageid' );
@@ -160,7 +160,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 				// ***important, encode schema otherwise $refs can mess with
 				// those of the host schema
-				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
+				$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
 				break;
 
 			case 'schemas':
@@ -172,15 +172,15 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$out->addHTML( '<br />' );
 
 				$item = 'schema';
-				$formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';				
+				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-key}}';				
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 				// ***important, encode schema otherwise $refs can mess with
 				// those of the host schema
-				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
-				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['isMetaSchema'] = true;
+				$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
+				$jsonForm['properties']['editor']['x-input-config']['isMetaSchema'] = true;
 				break;
 		}
 		
@@ -197,7 +197,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				];
 
 				if ( isset( $articleContent ) ) {
-					$formData['startval']['form']['editor'] = $articleContent;
+					$formData['startval']['editor'] = $articleContent;
 				}
 
 				$formData = \JsonForms::prepareFormData( $out, $formData );
@@ -215,7 +215,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$html = $res_->value;
 
 				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
-				$out->addModules( 'ext.JsonForms.pageForms' );
+				$out->addModules( 'ext.JsonForms.ManageSchemas' );
 
 				\JsonForms::addJsConfigVars( $out );
 

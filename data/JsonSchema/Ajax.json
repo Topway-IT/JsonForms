@@ -1,11 +1,7 @@
 {
 	"type": "array",
 	"title": "People",
-	"options": {
-		"layout": {
-			"name": "booklet"
-		}
-	},
+	"x-layout": "booklet",
 	"items": {
 		"title": "Person",
 		"headerTemplate": "{{i}} - {{self.name}}",
