@@ -1,0 +1,48 @@
+{
+	"title": "starrating editor examples",
+	"type": "object",
+	"properties": {
+		"_header": {
+			"type": "string",
+			"x-format": "hidden",
+			"description": "\u003Ch3\u003EString based Starrating editor\u003C/h3\u003E\u003Cp\u003E\u003Cul\u003E\u003Cli\u003EIf \"displayValue\" is set to true, the seleced option will be displayed below the stars.\u003C/li\u003E\u003C/ul\u003E\u003C/p\u003E"
+		},
+		"starrating": {
+			"type": "string",
+			"x-format": "starrating",
+			"title": "Starrating 1",
+			"x-stars": 5
+		},
+		"starrating1": {
+			"type": "string",
+			"x-format": "starrating",
+			"title": "Starrating 2",
+			"enum": [
+				"Beginner",
+				"Skilled",
+				"Experienced",
+				"Advanced",
+				"Expert"
+			]
+		},
+		"starrating2": {
+			"type": "string",
+			"x-format": "starrating",
+			"title": "Starrating",
+			"default": "5 Stars",
+			"enum": [
+				"1 Star",
+				"2 Stars",
+				"3 Stars",
+				"4 Stars",
+				"5 Stars",
+				"6 Stars",
+				"7 Stars",
+				"8 Stars",
+				"9 Stars",
+				"10 Stars"
+			]
+		}
+	}
+}
+

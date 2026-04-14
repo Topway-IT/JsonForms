@@ -24,6 +24,8 @@ function JsonFormsManageSchemas(el, data) {
 
 	this.formDescriptor = data.formDescriptor;
 	// console.log('this.schema', this.schema);
+	// console.log('data', data);
+	// console.log('this.schemaName', this.schemaName);
 }
 
 OO.inheritClass(JsonFormsManageSchemas, JsonForms);
@@ -69,6 +71,12 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 	*/
 			if (innerEditor.validation_results.length) {
 				alert('there are errors');
+			}
+
+			if ( innerEditor.getValue()['x-key'] !== innerEditor.getSchemaName() ) {
+				if ( !confirm('This will rename the schema, ok ?' ) ) {
+					return
+				}			
 			}
 			this.submitForm(innerEditor).catch((err) =>
 				console.error('API error:', err),

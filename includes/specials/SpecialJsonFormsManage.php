@@ -22,6 +22,7 @@
  * @copyright Copyright ©2026, https://wikisphere.org
  */
 
+use MediaWiki\Extension\JsonForms\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Parser\ParserOptions;
 
@@ -59,7 +60,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 	 * @return string|Message
 	 */
 	public function getDescription() {
-		$msg = $this->msg( 'jsonformsbrowse' . strtolower( (string)$this->par ) );
+		$msg = $this->msg( 'jsonformsbrowse' . $this->par );
 		if ( version_compare( MW_VERSION, '1.40', '>' ) ) {
 			return $msg;
 		}
@@ -79,7 +80,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 			return;
 		}
 
-		$this->par = $par;
+		$this->par = strtolower( (string)$par );
 
 		$this->setHeaders();
 		$this->outputHeader();
@@ -108,7 +109,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$this->addNavigationLinks( $par );
 
-		$out->addWikiMsg( 'jsonforms-special-browse-' . strtolower( $this->par ) . '-description' );
+		$out->addWikiMsg( 'jsonforms-special-browse-' . $this->par . '-description' );
 
 		$this->localTitle = SpecialPage::getTitleFor( 'JsonFormsManage', $par );
 
@@ -123,15 +124,16 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$formDescriptor['edit_categories'] = false;
 		// $formDescriptor['width'] = '800px';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
-		$formDescriptor['create_only_fields'] = [
-			'name',
-			// 'edit_page'
-		];
+		// $formDescriptor['create_only_fields'] = [
+		// 	'name',
+		// 	// 'edit_page'
+		// ];
 
-		if ( !empty( $formDescriptor['edit_page'] ) ) {
-			$jsonForm['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
-		}
+		// if ( !empty( $formDescriptor['edit_page'] ) ) {
+		// 	$jsonForm['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
+		// }
 
+		$schemaName = '';
 		$pageid = $this->getRequest()->getVal( 'pageid' );
 
 		if ( $pageid ) {
@@ -141,16 +143,17 @@ class SpecialJsonFormsManage extends SpecialPage {
 			}
 
 			$formDescriptor['edit_page'] = $title->getFullText();
-
 			$articleContent = \JsonForms::getArticleContent( $title );
 			// if ( $text ) {
 			//	$startVal = json_decode( $articleContent, true );
 			// }
+	
+			$schemaName = $title->getText();
 		}
 
 		$item = null;
 		$startVal = [];
-		switch( strtolower($this->par ) ) {
+		switch( $this->par ) {
 			case 'forms':
 				$item = 'form';
 				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
@@ -179,16 +182,23 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 				// ***important, encode schema otherwise $refs can mess with
 				// those of the host schema
-				$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
-				$jsonForm['properties']['editor']['x-input-config']['isMetaSchema'] = true;
+				$jsonForm['properties']['editor']['x-input-config'] = [
+					'schema' => json_encode( $innerSchema ),
+					'isMetaSchema' => true,
+					'schemaName' => $schemaName,
+				];
 				break;
 		}
-		
+
+		if ( $pageid ) {
+			$out->addHTML( HtmlClass::rawElement( 'p', [], $this->msg( 'jsonforms-special-manage-schemas-schemaname', $title->getFullText())->parse() ) );
+		}
+
 		switch ( $action ) {
 			case 'edit':
 				$formData = [
 					'schema' => $jsonForm,
-					'name' => 'PageForm',
+					'schemaName' => ( $this->par === 'forms' ? 'CreatePageForm' : 'MetaSchema' ),
 					'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 					'editorScript'=> 'MediaWiki:DefaultEditorScript',
 					'formDescriptor' => $formDescriptor,
@@ -351,8 +361,8 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$formDescriptor = [];
 
 		switch ( $this->par ) {
-			case 'Schemas':
-			case 'Forms':
+			case 'schemas':
+			case 'forms':
 			default:
 				$schemaname = $request->getVal( 'schemaname' );
 				$formDescriptor['schema'] = [

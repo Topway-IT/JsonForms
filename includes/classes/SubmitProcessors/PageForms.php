@@ -236,7 +236,7 @@ metadata can be stored:
 			$targetTitle = \JsonForms::parseTitleCounter( $targetTitle );
 
 			if ( empty( $targetTitle ) ) {
-				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-title-counter-error' )->text() );
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-computed-target-title-error' )->text() );
 			}
 		}
 
@@ -286,6 +286,17 @@ metadata can be stored:
 			//	return ResultWrapper::failure(  $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
 			// 		$targetTitle->getDBKey(), $contentModel )->parse() );
 			// }
+		}
+
+		$movePage = false;
+		if (
+			!empty( $data['formDescriptor']['edit_page'] ) &&
+			$data['formDescriptor']['edit_page'] !== $targetTitle->getFullText()
+		) {
+			$movePage = [
+				$data['formDescriptor']['edit_page'],
+				$targetTitle->getFullText()
+			];
 		}
 
 		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
@@ -359,7 +370,8 @@ metadata can be stored:
 		$slots = [
 			$targetSlot => [
 				'model' => 'json',
-				'content' => json_encode( $dataToSave )
+				// this will strip writeOnly and other post-processing
+				'content' => json_encode( $this->postProcessJsonData( $dataToSave, $data['structuredValue'] ) )
 			]
 		];
 
@@ -397,7 +409,8 @@ metadata can be stored:
 			]
 		];
 
-		if ( !empty( $data['options']['categories'] ) &&
+		if (
+			!empty( $data['options']['categories'] ) &&
 			is_array( $data['options']['categories'] )
 		) {
 			$metadata['categories'] = $data['options']['categories'];			
@@ -448,6 +461,7 @@ metadata can be stored:
 			'contentModel' => $contentModel,
 			'main_slot_content' => $main_slot_content,
 			'metadata' => $metadata,
+			'movePage' => $movePage,
 		];
 
 		$returnData = [

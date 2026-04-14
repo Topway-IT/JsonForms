@@ -187,7 +187,7 @@ class ImportData extends Maintenance {
 		}
 
 		$thisClass = $this;
-	 	$callback = static function ( &$parent, $key, $value ) use ( $thisClass ) {
+	 	$callback = static function ( &$parent, $key, $value, $pathArr ) use ( $thisClass ) {
     		if ( $key !== '$ref' || !is_string( $value ) ) {
     			return;
     		}

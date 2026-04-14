@@ -195,6 +195,27 @@ class SubmitForm {
 	}
 
 	/**
+	 * @param array $json
+	 * @param array $structuredValue
+	 * @return array
+	 */
+	protected function postProcessJsonData( $json, $structuredValue ) {
+	 	$callback = static function ( &$parent, $key, $value, $pathArr ) use ( $structuredValue ) {
+	 		$path = implode( '.', $pathArr );
+	 		
+	 		// strip writeOnly
+	 		if (
+	 			isset( $structuredValue[ $path ]['schema']['writeOnly'] ) &&
+	 			$structuredValue[ $path ]['schema']['writeOnly'] === true
+	 		) {
+	 			unset( $parent[$key] );
+	 		}
+		};
+
+		return \JsonForms::traverseSchema( $json, $callback );
+	}
+
+	/**
 	 * @param array $data
 	 * @return array
 	 */
@@ -247,9 +268,10 @@ class SubmitForm {
 			];
 		}
 
-		// @TODO strip all writeOnly properties
-
 		$slotEditor = new SlotEditor();
+		
+		// @TODO move page
+		// 'movePage' => $movePage,
 
 		$summary = $data['options']['summary'] ?? '';
 		$minor = $data['options']['minor'] ?? false;

@@ -23,7 +23,7 @@ function JsonForms(el, data) {
 	this.moduleCache = new Map();
 	this.el = el;
 	this.schema = data.schema;
-	this.schemaName = data.name;
+	this.schemaName = data.schemaName;
 	this.startval = data.startval;
 	this.editor = null;
 

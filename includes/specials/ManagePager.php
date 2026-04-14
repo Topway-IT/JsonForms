@@ -131,7 +131,6 @@ class ManagePager extends TablePager {
 		$formatted = '';
 
 		switch ( $field ) {
-
 			case 'page_id':
 				// error, page_id is 0 for new articles
 				if ( !$row->page_id ) {

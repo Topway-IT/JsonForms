@@ -39,12 +39,12 @@ JsonFormsSlotManager.prototype.onFormButton = function (action, editor) {
 				'innerEditor.validation_results',
 				innerEditor.validation_results,
 			);
+			
 			if (innerEditor.validation_results.length) {
 				alert('there are errors');
 			} else {
 				this.submitForm().catch((err) => console.error('API error:', err));
 			}
-			this.submitForm().catch((err) => console.error('API error:', err));
 			break;
 	}
 };

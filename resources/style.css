@@ -241,6 +241,7 @@
 .jsonforms-form .jsonforms-outerform-footer {
      background: #eaecf0;
      border-top: none;
+     padding: 1em 1em 1.5em 1em;
 }
  
 .jsonforms-form .jsonforms-outerform-buttons .oo-ui-fieldsetLayout-group {
@@ -286,6 +287,8 @@
 	height: 100%;
 }
 
+
+/*
 .jsonforms-tree-page {
 	display: flex;
 	flex-direction: column;
@@ -295,6 +298,7 @@
 .jsonforms-tree-page-body {
 	flex: 1;
 }
+*/
 
 .jsonforms-tree-page-controls {
 	margin-top: 2em;

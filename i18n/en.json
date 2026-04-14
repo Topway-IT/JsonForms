@@ -27,8 +27,10 @@
 	"jsonformsmanageforms": "Manage Forms",
 	"jsonformsmanageschemas": "Manage Schemas",
 
+	"jsonforms-special-manage-schemas-schemaname": "'''Editing [[$1]]'''",
+	
 	"jsonforms-special-submit-captcha-error": "cannot verify captcha",
-	"jsonforms-special-submit-title-counter-error": "computed title error",
+	"jsonforms-special-submit-computed-target-title-error": "computed title error",
 	"jsonforms-special-submit-notitle": "article no title",
 	"jsonforms-special-submit-permission-error": "permission error",
 	"jsonforms-special-submit-article-exists": "article exists",

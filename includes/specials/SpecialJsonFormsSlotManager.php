@@ -110,7 +110,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 			$startValInnerForm['title'] = $par;
 			$jsonForm['properties']['editor']['x-input-config']['disableFields'] = [ 'title' ];
 
-			if ( $editTitle->isKnown() ) {
+			if ( $editTitle->isKnown() ) {			
 				$editPage = $editTitle->getFullText();
 				$wikiPage = \JsonForms::getWikiPage( $editTitle );
 				$metadata = \JsonForms::getMetadata( $wikiPage );

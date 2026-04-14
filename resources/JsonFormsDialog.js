@@ -20,12 +20,15 @@
  */
 
 function JsonFormsDialog(config, callbacks, editor) {
-	config = Object.assign({ size: 'large', classes: [ 'jsonforms-form-dialog' ] }, config);
+	config = Object.assign(
+		{ size: 'large', classes: ['jsonforms-form-dialog'] },
+		config,
+	);
 	this.config = config;
 	this.callbacks = callbacks;
 	this.editor = editor;
-	
-	this.title = config.title
+
+	this.title = config.title;
 
 	JsonFormsDialog.super.call(this, config);
 
@@ -34,74 +37,52 @@ function JsonFormsDialog(config, callbacks, editor) {
 
 OO.inheritClass(JsonFormsDialog, OO.ui.ProcessDialog);
 JsonFormsDialog.static.name = 'myDialog';
-JsonFormsDialog.static.actions_ = [
+
+JsonFormsDialog.static.actions = [
 	{
-		action: 'done',
-		flags: ['primary', 'progressive'],
-		label: 'done',
-		modes: ['done'],
+		action: 'delete',
+		label: 'delete',
+		flags: 'destructive',
+		modes: ['validate-delete', 'submit-single-delete'],
 	},
 	{
-		action: 'save',
+		action: 'validate',
+		modes: ['validate', 'validate-delete'],
+		label: 'validate',
 		flags: ['primary', 'progressive'],
-		label: 'save',
-		modes: ['save'],
+	},
+	{
+		action: 'back',
+		label: 'back',
+		flags: ['safe', 'back'],
+		modes: ['submit', 'submit-delete'],
+	},
+	{
+		action: 'submit',
+		label: 'submit',
+		flags: ['primary', 'progressive'],
+		modes: ['submit', 'submit-delete'],
+	},
+	{
+		action: 'validate&submit',
+		label: 'submit',
+		flags: ['primary', 'progressive'],
+		modes: ['submit-single', 'submit-single-delete'],
 	},
 
 	// https://gerrit.wikimedia.org/r/plugins/gitiles/oojs/ui/+/refs/heads/master/demos/classes/BookletDialog.js
+
 	{
-		action: 'cancel',
-		label: 'Cancel',
+		label: 'close',
 		flags: ['safe', 'close'],
-		modes: ['done', 'save'],
+		modes: [
+			'validate',
+			'submit-single',
+			'validate-delete',
+			'submit-single-delete',
+		],
 	},
 ];
-
-	JsonFormsDialog.static.actions = [
-		{
-			action: 'delete',
-			label: 'delete',
-			flags: 'destructive',
-			modes: [ 'validate-delete', 'submit-single-delete' ]
-		},
-		{
-			action: 'validate',
-			modes: [ 'validate', 'validate-delete' ],
-			label: 'validate',
-			flags: [ 'primary', 'progressive' ]
-		},
-		{
-			action: 'back',
-			label: 'back',
-			flags: [ 'safe', 'back' ],
-			modes: [ 'submit', 'submit-delete' ]
-		},
-		{
-			action: 'submit',
-			label: 'submit',
-			flags: [ 'primary', 'progressive' ],
-			modes: [ 'submit', 'submit-delete' ]
-		},
-		{
-			action: 'validate&submit',
-			label: 'submit',
-			flags: [ 'primary', 'progressive' ],
-			modes: [ 'submit-single', 'submit-single-delete' ]
-		},
-
-		// https://gerrit.wikimedia.org/r/plugins/gitiles/oojs/ui/+/refs/heads/master/demos/classes/BookletDialog.js
-
-		{
-			label:'close',
-			flags: [ 'safe', 'close' ],
-			modes: [
-				'validate',
-				'submit-single',
-				'validate-delete',
-				'submit-single-delete'
-			]
-		}
-	];
 
 // Customize the initialize() function to add content and layouts:
 JsonFormsDialog.prototype.initialize = function () {
@@ -116,9 +97,7 @@ JsonFormsDialog.prototype.getBodyHeight = function () {
 JsonFormsDialog.prototype.getSetupProcess = function (data) {
 	data = data || {};
 	const self = this;
-	
-    
-    
+
 	return JsonFormsDialog.super.prototype.getSetupProcess
 		.call(this, data)
 		.next(function () {
@@ -140,7 +119,6 @@ JsonFormsDialog.prototype.getActionProcess = function (action) {
 	return JsonFormsDialog.super.prototype.getActionProcess.call(this, action);
 };
 
-
 JsonFormsDialog.prototype.getTeardownProcess = function (data) {
 	return JsonFormsDialog.super.prototype.getTeardownProcess
 		.call(this, data)
@@ -153,11 +131,12 @@ JsonFormsDialog.prototype.open = function () {
 	// const windowManager = createWindowManager();
 	const windowManager = new OO.ui.WindowManager();
 	$(document.body).append(windowManager.$element);
-	
+
 	const myDialog = this;
-	const title = this.title
+	const title = this.title;
 	windowManager.addWindows([myDialog]);
 	windowManager.openWindow(myDialog, { title }).opening.then((promise) => {
 		this.callbacks.onOpen(this, promise);
 	});
 };
+

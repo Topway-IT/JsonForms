@@ -1,7 +1,7 @@
 {
 	"type": "array",
 	"title": "People",
-	"x-layout": "booklet",
+	"x-layout": "tabs",
 	"items": {
 		"title": "Person",
 		"headerTemplate": "{{i}} - {{self.name}}",

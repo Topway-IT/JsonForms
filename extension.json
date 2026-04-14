@@ -47,7 +47,7 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "JsonFormsHooks::onLoadExtensionSchemaUpdates",
 		"MediaWikiServices": "JsonFormsHooks::onMediaWikiServices",
-		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",
+		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",		
 		"ContentAlterParserOutput": "JsonFormsHooks::onContentAlterParserOutput",
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
@@ -176,7 +176,9 @@
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
 			"styles": [],
-			"scripts": ["stripe/js.stripe.com.js"]
+			"scripts": [
+				"stripe/js.stripe.com.js"
+			]
 		},
 		"ext.JsonForms.demo": {
 			"localBasePath": "resources",
@@ -194,7 +196,6 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
-
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -251,7 +252,6 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
-
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -308,7 +308,6 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
-
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -371,7 +370,6 @@
 				"libs/handlebars.min.js",
 				"libs/imask.min.js",
 				"libs/signature_pad.umd.min.js",
-
 				"editor/jsonforms-editor.js",
 				"EnumProviders.js",
 				"AutocompleteProviders.js",
@@ -427,3 +425,4 @@
 	},
 	"manifest_version": 2
 }
+

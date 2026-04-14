@@ -1,6 +1,7 @@
 {
 	"$ref": "JsonSchema:BasicPerson",
 	"additionalProperties": true,
+	"x-layout": "booklet",
 	"properties": {
 		"location": {
 			"type": "object",

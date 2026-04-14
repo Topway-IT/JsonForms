@@ -6,6 +6,16 @@
 	},
 	"$ref": "#/definitions/schema",
 	"definitions": {
+		"schemaNoXKey": {
+			"allOf": [
+				{ "$ref": "#/definitions/schema" },
+				{
+					"properties": {
+						"x-key": false
+					}
+				}
+			]
+		},
 		"array": {
 			"type": "object",
 			"properties": {
@@ -14,34 +24,25 @@
 				"type": { "enum": ["array"], "const": "array", "x-format": "hidden" },
 				"contains": { "$ref": "#/definitions/schema" },
 				"default": { "type": "array" },
-  "items": {
-    "allOf": [
-      {
-        "oneOf": [
-          { "title": "simple", "$ref": "#/definitions/schema" },
-          {
-            "title": "tuple",
-            "allOf": [
-              { "$ref": "#/definitions/schemaArray" },
-              { "type": "array" }
-            ]
-          }
-        ]
-      },
-      {
-        "properties": {
-          "x-key": false
-        }
-      }
-    ]
-  },
+				"items": {
+					"oneOf": [
+						{ "title": "simple", "$ref": "#/definitions/schemaNoXKey" },
+						{
+							"title": "tuple",
+							"type": "array",
+							"x-layout": "tabs_",
+							"items": { "$ref": "#/definitions/schemaNoXKey" },
+							"minItems": 1
+						}
+					]
+				},
 				"maxContains": { "type": "integer", "minimum": 0 },
 				"maxItems": { "type": "integer", "minimum": 0 },
 				"minContains": { "type": "integer", "minimum": 0 },
 				"minItems": { "type": "integer", "minimum": 0 },
 				"prefixItems": {
 					"type": "array",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"x-layout": "tabs_"
 				},
 				"unevaluatedItems": { "$ref": "#/definitions/schema" },
@@ -134,17 +135,8 @@
 			"properties": {
 				"x-compact": { "type": "boolean" },
 				"x-css-class": { "type": "string" },
-				"x-visibility": {
-					"additionalProperties": {
-						"oneOf": [
-							{ "type": "string" },
-							{ "type": "number" },
-							{ "type": "boolean" },
-							{ "type": "array", "items": {} },
-							{ "type": "object", "additionalProperties": {} }
-						]
-					},
-					"type": "object"
+				"x-dependency": {
+					"$ref": "JsonSchema:DependenciesMeta.json"
 				}
 			}
 		},
@@ -185,7 +177,7 @@
 						},
 						"x-input-config": {
 							"type": "object",
-							"x-watch" : "x-input",
+							"x-watch": "x-input",
 							"links": [
 								{
 									"rel": "describedBy",
@@ -325,7 +317,7 @@
 						"x-lazy-properties-threshold": {
 							"type": "integer",
 							"default": 6
-						},			
+						},
 						"x-handle-properties-layout": {
 							"type": "string",
 							"enum": ["inline", "toolbar"],
@@ -449,17 +441,16 @@
 				}
 			]
 		},
-		"schemaArray": {
-			"type": "array",
-			"x-layout": "tabs_",
-			"items": { "$ref": "#/definitions/schema", "title": "schema" },
-			"minItems": 1
-		},
 		"schemaBase": {
 			"type": "object",
 			"x-default-properties": ["type", "x-key", "title"],
 			"properties": {
-				"x-key": { "type": "string", "title": "name", "minLength": 1, "readOnly_": true, "writeOnly": true },
+				"x-key": {
+					"type": "string",
+					"title": "name",
+					"minLength": 1,
+					"writeOnly": true
+				},
 				"const": { "description": "The value must be equal to this constant" },
 				"type": { "type": "string" },
 				"title": { "type": "string" },
@@ -472,13 +463,13 @@
 				"$schema": { "format": "uri", "type": "string" },
 				"allOf": {
 					"description": "Schema must be valid against all of the subschemas",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"type": "array",
 					"x-layout": "tabs_"
 				},
 				"anyOf": {
 					"description": "Schema must be valid against at least one of the subschemas",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"type": "array",
 					"x-layout": "tabs_"
 				},
@@ -490,7 +481,17 @@
 					"x-layout": "tabs_",
 					"description": "",
 					"x-wikitext-description": "see [https://json-schema.org/draft-06/draft-wright-json-schema-hyperschema-01 draft-wright-json-schema-hyperschema-01]",
-					"items": { "$ref": "#/definitions/schema" }
+					"items": {
+						"type": "object",
+						"properties": {
+							"rel": {
+								"type": "string"
+							},
+							"href": {
+								"type": "string"
+							}
+						}
+					}
 				},
 				"else": {
 					"$ref": "#/definitions/schema",
@@ -516,7 +517,7 @@
 				"oneOf": {
 					"description": "Schema must be valid against exactly one of the subschemas",
 					"type": "array",
-					"items": { "$ref": "#/definitions/schema" }
+					"items": { "$ref": "#/definitions/schemaNoXKey" }
 				},
 				"readOnly": { "type": "boolean" },
 				"then": {
@@ -528,11 +529,11 @@
 					"oneOf": [
 						{
 							"type": "string"
-						},		
+						},
 						{
 							"items": { "type": "string" },
 							"type": "array"
-						},		
+						},
 						{
 							"type": "object",
 							"additionalProperties": true,
@@ -577,7 +578,7 @@
 					"default": "",
 					"enum": ["info", "button"]
 				},
-				"x-button-action":  { "type": "string" }
+				"x-button-action": { "type": "string" }
 			},
 			"required": ["type", "x-key"]
 		},
@@ -717,4 +718,3 @@
 		}
 	}
 }
-

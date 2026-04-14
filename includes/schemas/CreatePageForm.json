@@ -61,7 +61,7 @@
 			"title": "Edit main slot content model",
 			"description": "Is the user allowed to edit the content model of the main slot ?",
 			"default": false,
-			"x-visibility": {
+			"x-dependency": {
 				"default_data_slot": {
 					"!=": "main"
 				}
@@ -72,7 +72,7 @@
 			"title": "Edit main slot content",
 			"description": "Is the user allowed to edit the content of main slot ? (usually wikitext)",
 			"default": false,
-			"x-visibility": {
+			"x-dependency": {
 				"default_data_slot": {
 					"!=": "main"
 				}
@@ -85,7 +85,7 @@
 			"x-enum-source": {
 				"source": "contentModelsSource"
 			},
-			"x-visibility": {
+			"x-dependency": {
 				"default_data_slot": {
 					"!=": "main"
 				}
@@ -103,7 +103,7 @@
 			"title": "Page name formula",
 			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
 			"default": "",
-			"x-visibility": {
+			"x-dependency": {
 				"edit_page": ""
 			}
 		},
@@ -116,7 +116,7 @@
 				"type": "string"
 			},
 			"x-input": "tagmultiselect",
-			"x-visibility": {
+			"x-dependency": {
 				"edit_page": ""
 			}
 		},
@@ -138,7 +138,7 @@
 			"description": "Open popup button's label",
 			"x-input": "tagmultiselect",
 
-			"x-visibility": {
+			"x-dependency": {
 				"view": "popup"
 			}
 		},

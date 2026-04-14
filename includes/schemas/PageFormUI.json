@@ -1,5 +1,4 @@
 {
-	"type": "object",
 	"@type": "JsonForms default schema",
 	"x-compact": true,
 	"x-css-class": "jsonforms-outerform",

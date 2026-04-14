@@ -179,9 +179,8 @@ class JsonForms {
 		$formData = [
 			// *** alternatively pass only the schema and build the form client-side
 			// 'schema' => $schema,
-			// 'name' => $schemaName,
 			'schema' => $jsonForm,
-			'name' => 'PageForm',
+			'schemaName' => 'PageForm',
 			'editorOptions' => $formDescriptor['editor_options'] ?? 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> $formDescriptor['editor_script'] ?? 'MediaWiki:DefaultEditorScript',
 			'startval'=> $startVal,
@@ -1120,12 +1119,17 @@ class JsonForms {
 		);
 
 		foreach ( $it as $key => $value ) {
+			$path = [];
+			for ( $depth = 0; $depth <= $it->getDepth(); $depth++ ) {
+				$path[] = $it->getSubIterator( $depth )->key();
+			}
+
 			$parent =& $schema;
 			for ( $depth = 0; $depth < $it->getDepth(); $depth++ ) {
 				$parent =& $parent[ $it->getSubIterator( $depth )->key() ];
 			}
 
-			$callback( $parent, $key, $value );
+			$callback( $parent, $key, $value, $path );
 		}
 
 		return $schema;

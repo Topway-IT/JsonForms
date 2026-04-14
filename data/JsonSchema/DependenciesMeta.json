@@ -1,0 +1,267 @@
+{
+	"$id": "https://example.com/dependency.schema.json",
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$comment": "Version 1.0.0",
+	"title": "Dependency Condition",
+	"description": "Declarative condition DSL supporting logical operators and comparisons.",
+	"examples": [
+		{
+			"and": [
+				{
+					"op": "==",
+					"value": 10
+				},
+				{
+					"path": "other",
+					"op": "!=",
+					"value": 5
+				}
+			]
+		},
+		{
+			"or": [
+				{
+					"op": "exists",
+					"path": "field"
+				},
+				{
+					"op": "matches",
+					"value": "^foo"
+				}
+			]
+		},
+		{
+			"not": {
+				"path": "status",
+				"op": "==",
+				"value": "inactive"
+			}
+		},
+		{
+			"op": "in",
+			"value": [
+				1,
+				2,
+				3
+			]
+		},
+		{
+			"path": "tags",
+			"op": "contains",
+			"value": "urgent"
+		}
+	],
+	"definitions": {
+		"primitive": {
+			"title": "Primitive value",
+			"description": "A literal value used in comparisons.",
+			"type": [
+				"string",
+				"number",
+				"boolean",
+				"null"
+			]
+		},
+		"op": {
+			"title": "Operator",
+			"description": "Comparison operator.",
+			"type": "string",
+			"enum": [
+				"==",
+				"!=",
+				"\u003E",
+				"\u003E=",
+				"\u003C",
+				"\u003C=",
+				"exists",
+				"matches",
+				"in",
+				"contains"
+			]
+		},
+		"value": {
+			"title": "Value",
+			"description": "Any valid value: primitive, array, or plain object (not a condition).",
+			"anyOf": [
+				{
+					"$ref": "#/definitions/primitive"
+				},
+				{
+					"type": "array",
+					"title": "Array value",
+					"items": {
+						"$ref": "#/definitions/value"
+					}
+				},
+				{
+					"type": "object",
+					"title": "Object value",
+					"not": {
+						"anyOf": [
+							{
+								"required": [
+									"and"
+								]
+							},
+							{
+								"required": [
+									"or"
+								]
+							},
+							{
+								"required": [
+									"not"
+								]
+							},
+							{
+								"required": [
+									"op"
+								]
+							}
+						]
+					},
+					"additionalProperties": {
+						"$ref": "#/definitions/value"
+					}
+				}
+			]
+		},
+		"condition": {
+			"title": "Condition",
+			"description": "A logical or comparison condition, or a shorthand value.",
+			"anyOf": [
+				{
+					"$ref": "#/definitions/comparison"
+				},
+				{
+					"$ref": "#/definitions/logical"
+				},
+				{
+					"$ref": "#/definitions/value"
+				}
+			]
+		},
+		"logical": {
+			"title": "Logical condition",
+			"description": "Combines multiple conditions using AND, OR, or NOT.",
+			"type": "object",
+			"oneOf": [
+				{
+					"title": "AND",
+					"required": [
+						"and"
+					],
+					"properties": {
+						"and": {
+							"description": "All subconditions must be true.",
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/condition"
+							},
+							"minItems": 1
+						}
+					},
+					"additionalProperties": false
+				},
+				{
+					"title": "OR",
+					"required": [
+						"or"
+					],
+					"properties": {
+						"or": {
+							"description": "At least one subcondition must be true.",
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/condition"
+							},
+							"minItems": 1
+						}
+					},
+					"additionalProperties": false
+				},
+				{
+					"title": "NOT",
+					"required": [
+						"not"
+					],
+					"properties": {
+						"not": {
+							"description": "Negates a condition.",
+							"$ref": "#/definitions/condition"
+						}
+					},
+					"additionalProperties": false
+				}
+			]
+		},
+		"comparison": {
+			"title": "Comparison condition",
+			"description": "Compares values using an operator.",
+			"type": "object",
+			"oneOf": [
+				{
+					"title": "Compare another field",
+					"description": "Compare a field (by path) to a value or check its existence.",
+					"required": [
+						"op",
+						"path"
+					],
+					"properties": {
+						"op": {
+							"$ref": "#/definitions/op"
+						},
+						"path": {
+							"title": "Field path",
+							"description": "Path to another field.",
+							"type": "string"
+						}
+					},
+					"additionalProperties": false
+				},
+				{
+					"title": "Compare current field to value",
+					"description": "Compare the current field to a literal value.",
+					"required": [
+						"op",
+						"value"
+					],
+					"properties": {
+						"op": {
+							"$ref": "#/definitions/op"
+						},
+						"value": {
+							"$ref": "#/definitions/value"
+						}
+					},
+					"additionalProperties": false
+				},
+				{
+					"title": "Explicit operands",
+					"description": "Compare two explicit values.",
+					"required": [
+						"op",
+						"left",
+						"right"
+					],
+					"properties": {
+						"op": {
+							"$ref": "#/definitions/op"
+						},
+						"left": {
+							"title": "Left operand",
+							"$ref": "#/definitions/value"
+						},
+						"right": {
+							"title": "Right operand",
+							"$ref": "#/definitions/value"
+						}
+					},
+					"additionalProperties": false
+				}
+			]
+		}
+	},
+	"$ref": "#/definitions/condition"
+}
+

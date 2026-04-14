@@ -1,0 +1,90 @@
+{
+  "$id": "https://example.com/survey-meta.schema.json",
+  "title": "Survey Table Meta Schema",
+  "description": "Defines hierarchical survey structures with arbitrary rows, columns, and leaf inputs.",
+  "type": "object",
+  "required": ["type"],
+  "additionalProperties": false,
+
+  "properties": {
+    "type": {
+      "title": "Node type",
+      "enum": ["group", "leaf"]
+    },
+
+    "title": {
+      "type": "string"
+    },
+
+    "axis": {
+      "type": "string",
+      "enum": ["row", "column", "survey"]
+    },
+
+    "entries": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#" }
+        }
+      ]
+    },
+
+    "cell": {
+      "$ref": "#"
+    },
+
+    "leaf": {
+      "type": "object",
+      "required": ["schema"],
+      "properties": {
+        "schema": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "definitions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#"
+      }
+    },
+
+    "ref": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "leaf" } }
+      },
+      "then": {
+        "required": ["leaf"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "group" } }
+      },
+      "then": {
+        "required": ["axis"],
+        "not": {
+          "required": ["ref", "cell"]
+        },
+        "anyOf": [
+          { "required": ["entries", "cell"] },
+          { "required": ["ref"] }
+        ]
+      }
+    }
+  ]
+}

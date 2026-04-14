@@ -34,6 +34,7 @@ class ManageSchemas extends PageForms {
 	public function processData( $data ) {
 		// adjust processData as needed
 
+		// parent::processData is from extended class PageForms
 		$returnData = parent::processData($data);
 		return $returnData;
 	}

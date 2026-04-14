@@ -1,9 +1,9 @@
 {
 	"$ref": "#/definitions/person",
+	"title": "Person",
 	"x-layout": "paged",
 	"definitions": {
 		"person": {
-			"title": "Person",
 			"type": "object",
 			"id": "person",
 			"x-default-properties": [
@@ -13,6 +13,7 @@
 			],
 			"patternProperties": {
 				"^cousin_[0-9]+$": {
+					"title": "Cousin",
 					"$ref": "#/definitions/person"
 				}
 			},
@@ -27,11 +28,7 @@
 				},
 				"bestFriend": {
 					"title": "best friend",
-					"options": {
-						"input": {
-							"name": "button-select"
-						}
-					},
+					"x-inoput": "button-select",
 					"oneOf": [
 						{
 							"title": "none",
