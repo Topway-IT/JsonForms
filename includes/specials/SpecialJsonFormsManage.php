@@ -163,7 +163,10 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 				// ***important, encode schema otherwise $refs can mess with
 				// those of the host schema
-				$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
+				$jsonForm['properties']['editor']['x-input-config'] = [
+					'schema' => json_encode( $innerSchema ),
+					'lazyPropertiesLayout' => 'buttons'
+				];
 				break;
 
 			case 'schemas':
@@ -186,6 +189,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 					'schema' => json_encode( $innerSchema ),
 					'isMetaSchema' => true,
 					'schemaName' => $schemaName,
+					'lazyPropertiesLayout' => 'toolbar'
 				];
 				break;
 		}

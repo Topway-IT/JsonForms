@@ -18,7 +18,6 @@
 			"description": "",
 			"default": "",
 			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
-
 			"x-enum-source": {
 				"source": "jsonSchemasSource",
 				"filter": "jsonSchemasFilter",
@@ -132,6 +131,16 @@
 			"enum": ["inline", "popup"],
 			"default": "inline"
 		},
+		"lazy_properties_layout": {
+			"type": "string",
+			"title": "lazy properties layout",
+			"description": "set the layout of non required and non-default properties",
+			"enum": [
+				"buttons",
+				"toolbar"
+			],
+			"default": "buttons"
+		},
 		"popup_button_label": {
 			"type": "string",
 			"title": "popup button label",
@@ -145,6 +154,7 @@
 		"callback": {
 			"type": "string",
 			"title": "Callback",
+			"x-format": "hidden",
 			"description": "JavaScript callback or handler name",
 			"default": ""
 		},

@@ -171,6 +171,10 @@ class JsonForms {
 				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['start_path'] = $formDescriptor['start_path'];
 			}
 
+			if ( !empty( $formDescriptor['lazy_properties_layout'] ) ) {
+				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['lazyPropertiesLayout'] = $formDescriptor['lazy_properties_layout'];
+			}
+
 			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
 				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
 			}

@@ -97,7 +97,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		// ***important, encode schema otherwise $refs can mess with
 		// those of the host schema
 		$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
-
+		$jsonForm['properties']['editor']['x-input-config']['lazyPropertiesLayout'] = 'toolbar';
 		$editTitle = null;
 		if ( !empty( $par ) ) {
 			$editTitle = TitleClass::newFromText( $par );

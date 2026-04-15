@@ -73,7 +73,7 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 				alert('there are errors');
 			}
 
-			if ( innerEditor.getValue()['x-key'] !== innerEditor.getSchemaName() ) {
+			if ( innerEditor.getValue()['x-name'] !== innerEditor.getSchemaName() ) {
 				if ( !confirm('This will rename the schema, ok ?' ) ) {
 					return
 				}			

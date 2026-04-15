@@ -4,21 +4,18 @@
 	"x-layout-config": {
 		"toggle": true
 	},
-	"allOf": [
-		{ "$ref": "#/definitions/schemaRoot", "title": "object" },
-		{
-			"properties": {
-				"x-name": {
-					"type": "string",
-					"title": "name",
-					"minLength": 1,
-					"writeOnly": true
-				}
-			},
-			"required": ["x-name"]
-		}
-	],
+	"$ref": "#/definitions/schema",
 	"definitions": {
+		"schemaNoXKey": {
+			"allOf": [
+				{ "$ref": "#/definitions/schema" },
+				{
+					"properties": {
+						"x-key": false
+					}
+				}
+			]
+		},
 		"array": {
 			"type": "object",
 			"properties": {
@@ -29,12 +26,12 @@
 				"default": { "type": "array" },
 				"items": {
 					"oneOf": [
-						{ "title": "simple", "$ref": "#/definitions/schema" },
+						{ "title": "simple", "$ref": "#/definitions/schemaNoXKey" },
 						{
 							"title": "tuple",
 							"type": "array",
 							"x-layout": "tabs_",
-							"items": { "$ref": "#/definitions/schema" },
+							"items": { "$ref": "#/definitions/schemaNoXKey" },
 							"minItems": 1
 						}
 					]
@@ -45,12 +42,13 @@
 				"minItems": { "type": "integer", "minimum": 0 },
 				"prefixItems": {
 					"type": "array",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"x-layout": "tabs_"
 				},
 				"unevaluatedItems": { "$ref": "#/definitions/schema" },
 				"uniqueItems": { "type": "boolean" }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"arrayOptions": {
 			"type": "object",
@@ -109,7 +107,8 @@
 				},
 				"default": { "type": "boolean" },
 				"enum": { "items": { "type": "boolean" } }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"booleanOptions": {
 			"type": "object",
@@ -163,7 +162,8 @@
 				"maximum": { "type": "number" },
 				"minimum": { "type": "number" },
 				"multipleOf": { "type": "number" }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"integerOptions": {
 			"type": "object",
@@ -198,7 +198,8 @@
 				"const": { "type": "null" },
 				"type": { "enum": ["null"], "const": "null", "x-format": "hidden" },
 				"default": { "type": "null" }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"nullOptions": {
 			"type": "object",
@@ -222,7 +223,8 @@
 				"maximum": { "type": "number" },
 				"minimum": { "type": "number" },
 				"multipleOf": { "type": "number" }
-			}
+			},
+			"required": ["x-key"]
 		},
 		"numberOptions": {
 			"type": "object",
@@ -246,6 +248,7 @@
 		},
 		"object": {
 			"type": "object",
+			"x-layout": "tabs_",
 			"properties": {
 				"type": { "enum": ["object"], "const": "object", "x-format": "hidden" },
 				"const": { "type": "object" },
@@ -289,7 +292,8 @@
 					},
 					"uniqueItems": true
 				}
-			}
+			},
+			"required": ["x-key"]
 		},
 		"objectOptions": {
 			"type": "object",
@@ -309,6 +313,15 @@
 								{ "$ref": "#/definitions/schema" },
 								{ "format": "uri-reference", "type": "string" }
 							]
+						},
+						"x-lazy-properties-threshold": {
+							"type": "integer",
+							"default": 6
+						},
+						"x-handle-properties-layout": {
+							"type": "string",
+							"enum": ["inline", "toolbar"],
+							"default": "inline"
 						}
 					}
 				}
@@ -363,28 +376,6 @@
 							}
 						}
 					}
-				}
-			]
-		},
-		"schemaRoot": {
-			"default": { "type": "object" },
-			"x-input": "button-select",
-			"oneOf": [
-				{
-					"allOf": [
-						{ "$ref": "#/definitions/schemaBase" },
-						{ "$ref": "#/definitions/object" },
-						{ "$ref": "#/definitions/objectOptions" }
-					],
-					"title": "Object"
-				},
-				{
-					"allOf": [
-						{ "$ref": "#/definitions/schemaBase" },
-						{ "$ref": "#/definitions/array" },
-						{ "$ref": "#/definitions/arrayOptions" }
-					],
-					"title": "Array"
 				}
 			]
 		},
@@ -452,8 +443,14 @@
 		},
 		"schemaBase": {
 			"type": "object",
-			"x-default-properties": ["type", "title"],
+			"x-default-properties": ["type", "x-key", "title"],
 			"properties": {
+				"x-key": {
+					"type": "string",
+					"title": "name",
+					"minLength": 1,
+					"writeOnly": true
+				},
 				"const": { "description": "The value must be equal to this constant" },
 				"type": { "type": "string" },
 				"title": { "type": "string" },
@@ -466,13 +463,13 @@
 				"$schema": { "format": "uri", "type": "string" },
 				"allOf": {
 					"description": "Schema must be valid against all of the subschemas",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"type": "array",
 					"x-layout": "tabs_"
 				},
 				"anyOf": {
 					"description": "Schema must be valid against at least one of the subschemas",
-					"items": { "$ref": "#/definitions/schema" },
+					"items": { "$ref": "#/definitions/schemaNoXKey" },
 					"type": "array",
 					"x-layout": "tabs_"
 				},
@@ -520,7 +517,7 @@
 				"oneOf": {
 					"description": "Schema must be valid against exactly one of the subschemas",
 					"type": "array",
-					"items": { "$ref": "#/definitions/schema" }
+					"items": { "$ref": "#/definitions/schemaNoXKey" }
 				},
 				"readOnly": { "type": "boolean" },
 				"then": {
@@ -551,8 +548,9 @@
 		},
 		"schemaBaseNull": {
 			"type": "object",
-			"x-default-properties": ["type", "title"],
+			"x-default-properties": ["type", "x-key", "title"],
 			"properties": {
+				"x-key": { "type": "string", "title": "name" },
 				"const": {
 					"description": "The value must be null",
 					"type": "null"
@@ -582,7 +580,7 @@
 				},
 				"x-button-action": { "type": "string" }
 			},
-			"required": ["type"]
+			"required": ["type", "x-key"]
 		},
 		"string": {
 			"type": "object",
@@ -715,7 +713,8 @@
 				"pattern": { "format": "regex", "type": "string" },
 				"x-pattern-message": { "x-format": "textarea", "type": "string" },
 				"x-template": { "type": "string" }
-			}
+			},
+			"required": ["x-key"]
 		}
 	}
 }
