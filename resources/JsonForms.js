@@ -105,16 +105,21 @@ JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
 };
 
 JsonForms.prototype.isMWSchema = function (maybeUrl, fileBase) {
+console.log('config',mw.config)
+
 	if (JFUtilities.hasProtocol(maybeUrl)) {
 		return false;
 	}
 	if (!fileBase) {
 		return true;
 	}
+	return true;
+/*
 	const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
 	return (
 		fileBase.indexOf(mwBaseUrl) !== -1 || mwBaseUrl.indexOf(fileBase) !== -1
 	);
+*/
 };
 
 JsonForms.prototype.fetchSchema = function (schema) {
