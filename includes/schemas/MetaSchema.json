@@ -13,6 +13,11 @@
 					"title": "name",
 					"minLength": 1,
 					"writeOnly": true
+				},
+				"x-layout": {
+					"type": "string",
+					"description": "use table for primitives items",
+					"enum": [ "default", "paged", "tabs", "booklet", "table"]
 				}
 			},
 			"required": ["x-name"]
@@ -299,7 +304,7 @@
 					"properties": {
 						"x-layout": {
 							"type": "string",
-							"enum": ["fieldset", "tabs", "booklet", "horizontal", "survey"]
+							"enum": ["default", "tabs", "booklet", "horizontal", "survey"]
 						},
 						"x-layout-config": {
 							"type": "object"
@@ -608,7 +613,7 @@
 				},
 				"x-enum-source": {
 					"description": "Dynamic source for enum options. Can be an array of items where each item defines a source of values. Sources can be watched field aliases, static arrays, or custom functions that return arrays of options. Supports filtering, slicing, sorting, and custom value/title mapping using template syntax.",
-					"type": "array",
+					"type": ["array", "object"],
 					"items": {
 						"type": "object",
 						"properties": {

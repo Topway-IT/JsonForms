@@ -64,7 +64,7 @@
 				"color": {
 					"type": "string",
 					"title": "Color",
-					"format": "color"
+					"x-format": "color"
 				},
 				"year": {
 					"type": "string",

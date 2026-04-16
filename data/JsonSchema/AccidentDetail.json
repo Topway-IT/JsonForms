@@ -36,7 +36,7 @@
 			"properties": {
 				"Age": {
 					"type": "string",
-					"format": "number"
+					"x-format": "number"
 				},
 				"Sex": {
 					"enum": [
@@ -48,7 +48,7 @@
 				},
 				"Name": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Injury": {
 					"enum": [
@@ -62,7 +62,7 @@
 				},
 				"Address": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"vehicle": {
 					"type": "string",
@@ -77,7 +77,7 @@
 				},
 				"Hospital": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"_localId": {
 					"type": "string",
@@ -119,7 +119,7 @@
 				},
 				"License number": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Seat belt/helmet": {
 					"enum": [
@@ -144,11 +144,11 @@
 			"properties": {
 				"Make": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Model": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Damage": {
 					"enum": [
@@ -221,7 +221,7 @@
 				},
 				"Plate number": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Vehicle type": {
 					"enum": [
@@ -242,15 +242,15 @@
 				},
 				"Engine number": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Chassis number": {
 					"type": "string",
-					"format": "text"
+					"x-format": "text"
 				},
 				"Insurance details": {
 					"type": "string",
-					"format": "textarea"
+					"x-format": "textarea"
 				}
 			},
 			"definitions": [],
@@ -293,11 +293,11 @@
 				},
 				"Description": {
 					"type": "string",
-					"format": "textarea"
+					"x-format": "textarea"
 				},
 				"Num vehicles": {
 					"type": "string",
-					"format": "number"
+					"x-format": "number"
 				},
 				"Surface type": {
 					"enum": [
@@ -359,16 +359,16 @@
 				},
 				"Num driver casualties": {
 					"type": "string",
-					"format": "number",
+					"x-format": "number",
 					"isSearchable": true
 				},
 				"Num passenger casualties": {
 					"type": "string",
-					"format": "number"
+					"x-format": "number"
 				},
 				"Num pedestrian casualties": {
 					"type": "string",
-					"format": "number"
+					"x-format": "number"
 				}
 			},
 			"definitions": [],

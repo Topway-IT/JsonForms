@@ -58,7 +58,7 @@
 		"billing": {
 			"title": "Billing address same as shipping address",
 			"type": "boolean",
-			"format": "checkbox",
+			"x-input": "checkbox",
 			"default": false
 		},
 		"billingaddress": {

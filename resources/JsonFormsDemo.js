@@ -60,6 +60,8 @@ $(function () {
 			
 
 		editor.on('change', () => {
+			// console.log('editor.on change')
+		
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 			textareaB.val(
 				JSON.stringify(Object.keys(editor.editors), null, 2),

@@ -99,19 +99,13 @@
 				"expiration": {
 					"title": "Expiration month",
 					"type": "string",
-					"format": "month",
-					"options": {
-						"grid_columns": 3
-					}
+					"x-format": "month"
 				},
 				"CCV": {
 					"type": "string",
 					"maxLength": 4,
 					"minLength": 3,
-					"pattern": "[0-9]*",
-					"options": {
-						"grid_columns": 2
-					}
+					"pattern": "[0-9]*"
 				}
 			},
 			"required": [

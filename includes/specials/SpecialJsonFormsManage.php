@@ -178,7 +178,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$out->addHTML( '<br />' );
 
 				$item = 'schema';
-				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-key}}';				
+				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';				
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				$innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
