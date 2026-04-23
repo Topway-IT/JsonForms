@@ -1,6 +1,5 @@
 {
 	"$ref": "JsonSchema:BasicPerson",
-	"additionalProperties": true,
 	"x-layout": "booklet",
 	"properties": {
 		"location": {
@@ -63,6 +62,10 @@
 				"type": "object",
 				"title": "Car",
 				"additionalProperties": true,
+				"x-additional-properties-ui": {
+					"label": "New property",
+					"schema": "JsonSchema:MetaSchema/NewProperty"
+				},
 				"properties": {
 					"manufacturer": {
 						"type": "string"

@@ -1,108 +1,114 @@
-function EnumProviders() {
-	this.providers = {
-		jsonSchemas: this.jsonSchemas,
-		contentModels: this.contentModels,
-		jsonSlots: this.jsonSlots,
-		slotRoles: this.slotRoles,
-		contentModelByRole: this.contentModelByRole,
-	};
-}
+// use IIFE, this ensure name is scoped
+(function () {
+	function EnumProviders() {
+		this.providers = {
+			jsonSchemas: this.jsonSchemas,
+			contentModels: this.contentModels,
+			jsonSlots: this.jsonSlots,
+			slotRoles: this.slotRoles,
+			contentModelByRole: this.contentModelByRole,
+		};
+	}
 
-EnumProviders.prototype.getTitlesInNamespace = function (nsId) {
-	let cache = null;
-	let pending = null;
+	EnumProviders.prototype.getTitlesInNamespace = function (nsId) {
+		let cache = null;
+		let pending = null;
 
-	return async () => {
-		if (cache) return cache;
-		if (pending) return pending;
+		return async () => {
+			if (cache) return cache;
+			if (pending) return pending;
 
-		const api = new mw.Api();
+			const api = new mw.Api();
 
-		pending = api
-			.get({
-				action: 'query',
-				list: 'allpages',
-				apnamespace: nsId,
-				aplimit: 'max',
-				formatversion: 2,
-			})
-			.then((res) => {
-				cache = res.query.allpages.map((page) => {
-					const titleObj = new mw.Title(page.title);
-					const baseTitle = titleObj.getMainText();
-					return {
-						text: baseTitle,
-						value: baseTitle,
-					};
+			pending = api
+				.get({
+					action: 'query',
+					list: 'allpages',
+					apnamespace: nsId,
+					aplimit: 'max',
+					formatversion: 2,
+				})
+				.then((res) => {
+					cache = res.query.allpages.map((page) => {
+						const titleObj = new mw.Title(page.title);
+						const baseTitle = titleObj.getMainText();
+						return {
+							text: baseTitle,
+							value: baseTitle,
+						};
+					});
+					pending = null;
+					return cache;
 				});
-				pending = null;
-				return cache;
-			});
 
-		return pending;
+			return pending;
+		};
 	};
-};
 
-EnumProviders.prototype.jsonSchemas = function () {
-	return {
-		source: async () => {
-			const fetchFn = this.getTitlesInNamespace(2100);
-			return await fetchFn();
-		},
-		filter: (jseditor, { item, watched }) => {
-			return true;
-		},
-		title: (jseditor, { item, watched }) => item.text,
-		value: (jseditor, { item, watched }) => item.value,
+	EnumProviders.prototype.jsonSchemas = function () {
+		return {
+			source: async () => {
+				const fetchFn = this.getTitlesInNamespace(2100);
+				return await fetchFn();
+			},
+			filter: (jseditor, { item, watched }) => {
+				return true;
+			},
+			title: (jseditor, { item, watched }) => item.text,
+			value: (jseditor, { item, watched }) => item.value,
+		};
 	};
-};
 
-EnumProviders.prototype.contentModelByRole = function () {
-	const contentModels = mw.config.get('jsonforms')['contentModels'];
-	const roleContentModelMap = mw.config.get('jsonforms')['roleContentModelMap'];
-	// const roles = mw.config.get('jsonforms')['slotRoles'];
+	EnumProviders.prototype.contentModelByRole = function () {
+		const contentModels = mw.config.get('jsonforms')['contentModels'];
+		const roleContentModelMap =
+			mw.config.get('jsonforms')['roleContentModelMap'];
+		// const roles = mw.config.get('jsonforms')['slotRoles'];
 
-	// key/value object, this is also supported
-	return {
-		source: (jseditor, { item, watched }) => {			
-			const role = watched?.role || 'main';
+		// key/value object, this is also supported
+		return {
+			source: (jseditor, { item, watched }) => {
+				const role = watched?.role || 'main';
 
-			switch (role) {
-				case 'main':
-					return contentModels;
+				switch (role) {
+					case 'main':
+						return contentModels;
 
-				default:
-					const contentModel = roleContentModelMap[role];
-					return { [contentModel]: contentModels[contentModel] };
-			}
-		},
+					default:
+						const contentModel = roleContentModelMap[role];
+						return { [contentModel]: contentModels[contentModel] };
+				}
+			},
+		};
 	};
-};
 
-EnumProviders.prototype.slotRoles = function () {
-	const roles = mw.config.get('jsonforms')['slotRoles'];
+	EnumProviders.prototype.slotRoles = function () {
+		const roles = mw.config.get('jsonforms')['slotRoles'];
 
-	return {
-		source: () => roles,
+		return {
+			source: () => roles,
+		};
 	};
-};
 
-EnumProviders.prototype.jsonSlots = function () {
-	const slots = ['main', ...mw.config.get('jsonforms')['jsonSlots']];
+	EnumProviders.prototype.jsonSlots = function () {
+		const slots = ['main', ...mw.config.get('jsonforms')['jsonSlots']];
 
-	return {
-		source: () => slots,
+		return {
+			source: () => slots,
+		};
 	};
-};
 
-EnumProviders.prototype.contentModels = function () {
-	const contentModels = mw.config.get('jsonforms')['contentModels'];
+	EnumProviders.prototype.contentModels = function () {
+		const contentModels = mw.config.get('jsonforms')['contentModels'];
 
-	// key/value object, this is also supported
-	return {
-		source: () => {
-			return contentModels;
-		},
+		// key/value object, this is also supported
+		return {
+			source: () => {
+				return contentModels;
+			},
+		};
 	};
-};
 
+	// attach instance
+	JsonForms.EnumProviders = new EnumProviders();
+})();

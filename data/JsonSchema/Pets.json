@@ -1,6 +1,5 @@
 {
 	"type": "object",
-	"additionalProperties": false,
 	"properties": {
 		"has_pet": {
 			"title": "Has Pet",
@@ -15,44 +14,26 @@
 					"const": "no"
 				}
 			],
-			"x-jsf-presentation": {
-				"inputType": "radio"
-			},
 			"type": "string"
 		},
 		"pet_name": {
 			"title": "Pet's name",
 			"description": "What's your pet's name?",
-			"x-jsf-presentation": {
-				"inputType": "text"
-			},
 			"type": "string"
 		},
 		"pet_age": {
 			"title": "Pet's age",
 			"description": "What's your pet's age",
-			"x-jsf-presentation": {
-				"inputType": "number"
-			},
 			"type": "number"
 		},
 		"dietary_needs": {
 			"title": "Dietary needs",
 			"description": "What are your pet's dietary needs?",
-			"x-jsf-presentation": {
-				"inputType": "textarea"
-			},
 			"type": "string"
 		}
 	},
 	"required": [
 		"has_pet"
-	],
-	"x-jsf-order": [
-		"has_pet",
-		"pet_name",
-		"pet_age",
-		"dietary_needs"
 	],
 	"allOf": [
 		{

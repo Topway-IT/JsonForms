@@ -168,7 +168,7 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 						),
 						type: 'error',
 					};
-					const nonModalDialog = new NonModalDialog();
+					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 				} else if (result.returnUrl) {
 					if (result.returnUrl === window.location.href) {
@@ -181,7 +181,7 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 						htmlMessage: result.message,
 						type: 'success',
 					};
-					const nonModalDialog = new NonModalDialog();
+					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 					resolve(result);
 					this.editor.destroy();

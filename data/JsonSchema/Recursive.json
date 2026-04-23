@@ -28,7 +28,7 @@
 				},
 				"bestFriend": {
 					"title": "best friend",
-					"x-inoput": "button-select",
+					"x-input": "button-select",
 					"oneOf": [
 						{
 							"title": "none",

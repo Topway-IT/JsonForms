@@ -115,8 +115,8 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 	await JsonFormsSlotManager.super.prototype.initialize.call(this);
 
 	let roles = mw.config.get('jsonforms')['slotRoles'];
-	roles = JFUtilities.removeArrayItem(roles, 'main');
-	roles = JFUtilities.removeArrayItem(roles, 'jsonforms-metadata');
+	roles = JsonForms.Utilities.removeArrayItem(roles, 'main');
+	roles = JsonForms.Utilities.removeArrayItem(roles, 'jsonforms-metadata');
 
 	this.enumProviders['slotRolesSource'] = () => roles;
 
@@ -191,7 +191,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 						type: 'error',
 					};
 					resolve(result);
-					const nonModalDialog = new NonModalDialog();
+					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 				} else {
 					if (result.returnUrl === window.location.href) {

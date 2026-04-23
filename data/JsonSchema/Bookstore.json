@@ -73,8 +73,10 @@
 				"type": "object",
 				"title": "book",
 				"additionalProperties": true,
-				"x-ui-schema": {
-					"$ref": "#/definitions/newPropertySchema"
+				"x-additional-properties-ui": {
+					"label": "New property",
+					"schema": {"$ref": "#/definitions/newPropertySchema" },
+					"converter": "newPropertyNoSchema"
 				},
 				"properties": {
 					"Title": {

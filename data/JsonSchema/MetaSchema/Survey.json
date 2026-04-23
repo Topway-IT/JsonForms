@@ -1,0 +1,128 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Survey",
+	"description": "Each item can have multiple rows and columns and nested child items. Cell values are stored separately.",
+	"type": "object",
+	"x-layout": "paged",
+	"definitions": {
+		"cell": {
+			"title": "Data Cell",
+			"description": "Configuration for data cells",
+			"type": "object",
+			"properties": {
+				"type": {
+					"type": "string",
+					"enum": [
+						"integer",
+						"number",
+						"string"
+					],
+					"default": "number"
+				},
+				"input": {
+					"type": "string",
+					"description": "Input widget type"
+				},
+				"inputConfig": {
+					"type": "object",
+					"description": "Input configuration options",
+					"x-watch": "input"
+				}
+			}
+		},
+		"row": {
+			"title": "Row Definition",
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string",
+					"title": "Row Name",
+					"description": "Internal identifier for the row"
+				},
+				"title": {
+					"type": "string",
+					"title": "Row Title",
+					"description": "Display title for the row"
+				}
+			},
+			"required": [
+				"name",
+				"title"
+			]
+		},
+		"column": {
+			"title": "Column Definition",
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string",
+					"title": "Column Name",
+					"description": "Internal identifier for the column"
+				},
+				"title": {
+					"type": "string",
+					"title": "Column Title",
+					"description": "Display title for the column"
+				}
+			},
+			"required": [
+				"name",
+				"title"
+			]
+		},
+		"item": {
+			"title": "Matrix Item",
+			"type": "object",
+			"properties": {
+				"title": {
+					"type": "string",
+					"title": "Item Title",
+					"description": "Display title for this matrix section"
+				},
+				"rows": {
+					"title": "Rows",
+					"description": "Array of row definitions for this item",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/row"
+					},
+					"minItems": 1
+				},
+				"columns": {
+					"title": "Columns",
+					"description": "Array of column definitions for this item",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/column"
+					},
+					"minItems": 1
+				},
+				"items": {
+					"title": "Child Items",
+					"description": "Nested child items",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/item"
+					}
+				}
+			},
+			"required": [
+				"rows",
+				"columns"
+			]
+		}
+	},
+	"properties": {
+		"items": {
+			"$ref": "#/definitions/item"
+		},
+		"cell": {
+			"$ref": "#/definitions/cell"
+		}
+	},
+	"required": [
+		"items",
+		"cell"
+	]
+}
+

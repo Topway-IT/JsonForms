@@ -108,7 +108,7 @@ default form descriptor
 
 	if (formDescriptor.pagename_formula || formDescriptor.edit_page) {
 		delete options.title;
-		JFUtilities.removeArrayItem(required, 'title');
+		JsonForms.Utilities.removeArrayItem(required, 'title');
 	} else {
 		required.push('title');
 	}
@@ -266,7 +266,7 @@ JsonForms.prototype.createPopup = async function (config) {
 			_resolveEditorReady(editor);
 		},
 		setupProcess: (dialog) => {
-			const hasData = JFUtilities.getNestedProp(
+			const hasData = JsonForms.Utilities.getNestedProp(
 				['form', 'editor'],
 				this.startval,
 			);
@@ -335,7 +335,7 @@ JsonForms.prototype.createPopup = async function (config) {
 	});
 
 	button.on('click', () => {
-		new JsonFormsDialog(
+		new JsonForms.Dialog(
 			{ size: this.formDescriptor.popup_size, title: this.formDescriptor.name },
 			callbacks,
 			this,
@@ -466,7 +466,7 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 						),
 						type: 'error',
 					};
-					const nonModalDialog = new NonModalDialog();
+					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 				} else if (result.returnUrl) {
 					if (result.returnUrl === window.location.href) {
@@ -479,7 +479,7 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 						htmlMessage: result.message,
 						type: 'success',
 					};
-					const nonModalDialog = new NonModalDialog();
+					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 					resolve(result);
 					this.editor.destroy();

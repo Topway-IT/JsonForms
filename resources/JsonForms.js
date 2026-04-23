@@ -35,11 +35,13 @@ JsonForms.prototype.initialize = async function () {
 	this.editorOptions = await this.getModule(this.data.editorOptions);
 	this.editorScript = await this.getModule(this.data.editorScript);
 
-	const enumProviders = new EnumProviders();
-	this.enumProviders = this.getProviders(enumProviders);
+	this.enumProviders = this.formatProviders(JsonForms.EnumProviders);
+	this.autocompleteProviders = this.formatProviders(JsonForms.AutocompleteProviders);
 
-	const autocompleteProviders = new AutocompleteProviders();
-	this.autocompleteProviders = this.getProviders(autocompleteProviders);
+	const UISchemaConverters = new JsonForms.UISchemaConverters();
+	UISchemaConverters.initConverters();
+	
+	// console.log('defaultOptions',defaultOptions)
 
 	const defaultOptions = this.editorOptions;
 
@@ -53,6 +55,11 @@ JsonForms.prototype.initialize = async function () {
 	defaultOptions.callbacks.autocomplete = {
 		...this.autocompleteProviders,
 		...(defaultOptions?.callbacks?.autocomplete ?? {}),
+	};
+	
+	defaultOptions.callbacks.ui_schema_converters = {
+		...UISchemaConverters.converters,
+		...(defaultOptions?.callbacks?.ui_schema_converters ?? {}),
 	};
 
 	this.defaultOptions = defaultOptions;
@@ -70,15 +77,14 @@ JsonForms.prototype.createDefaultEditor = function (config = {}) {
 	return this.editor;
 };
 
-JsonForms.prototype.getProviders = function (providerClass) {
+JsonForms.prototype.formatProviders = function (providersClass) {
 	const ret = {};
-	for (const provider in providerClass.providers) {
-		const obj = providerClass.providers[provider].bind(providerClass)();
+	for (const provider in providersClass.providers) {
+		const obj = providersClass.providers[provider].bind(providersClass)();
 		for (const action in obj) {
-			ret[provider + JFUtilities.ucfirst(action)] = obj[action];
+			ret[provider + JsonForms.Utilities.ucfirst(action)] = obj[action];
 		}
 	}
-
 	return ret;
 };
 
@@ -107,29 +113,29 @@ JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
 JsonForms.prototype.isMWSchema = function (maybeUrl, fileBase) {
 console.log('config',mw.config)
 
-	if (JFUtilities.hasProtocol(maybeUrl)) {
+	if (JsonForms.Utilities.hasProtocol(maybeUrl)) {
 		return false;
 	}
 	if (!fileBase) {
 		return true;
 	}
-	return true;
-/*
+
 	const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
 	return (
 		fileBase.indexOf(mwBaseUrl) !== -1 || mwBaseUrl.indexOf(fileBase) !== -1
 	);
-*/
+
 };
 
 JsonForms.prototype.fetchSchema = function (schema) {
+	console.log('fetchSchema',schema)
 	const payload = {
 		action: 'jsonforms-fetch-schema',
 		format: 'json',
 		schema,
 	};
 
-	// console.log('payload',payload)
+	console.log('payload',payload)
 	return new Promise((resolve, reject) => {
 		new mw.Api().get(payload).done(function (thisRes) {
 			// console.log('thisRes', thisRes);

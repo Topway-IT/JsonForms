@@ -17,13 +17,38 @@
 				"x-layout": {
 					"type": "string",
 					"description": "use table for primitives items",
-					"enum": [ "default", "paged", "tabs", "booklet", "table"]
+					"enum": ["default", "paged", "tabs", "booklet", "table"]
 				}
 			},
 			"required": ["x-name"]
 		}
 	],
 	"definitions": {
+		"uiSchemaItem": {
+			"type": "object",
+			"required": ["label", "schema", "name"],
+			"properties": {
+				"label": {
+					"type": "string",
+					"description": "Display label for the property",
+					"examples": ["field", "subitem"]
+				},
+				"schema": {
+					"type": "string",
+					"description": "Reference to the JSON schema definition",
+					"pattern": "^JsonSchema:MetaSchema/",
+					"examples": [
+						"JsonSchema:MetaSchema/Field",
+						"JsonSchema:MetaSchema/Subitem"
+					]
+				},
+				"name": {
+					"type": "string",
+					"description": "Property name identifier",
+					"examples": ["field", "subitem"]
+				}
+			}
+		},
 		"array": {
 			"type": "object",
 			"properties": {
@@ -92,7 +117,7 @@
 							"links": [
 								{
 									"rel": "describedBy",
-									"href": "JsonSchema:InputOptions#/definitions/{{x-input}}"
+									"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
 								}
 							]
 						},
@@ -142,7 +167,7 @@
 				"x-compact": { "type": "boolean" },
 				"x-css-class": { "type": "string" },
 				"x-dependency": {
-					"$ref": "JsonSchema:DependenciesMeta.json"
+					"$ref": "JsonSchema:MetaSchema/Dependencies"
 				}
 			}
 		},
@@ -186,7 +211,7 @@
 							"links": [
 								{
 									"rel": "describedBy",
-									"href": "JsonSchema:InputOptions#/definitions/{{x-input}}"
+									"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
 								}
 							]
 						},
@@ -254,11 +279,6 @@
 			"properties": {
 				"type": { "enum": ["object"], "const": "object", "x-format": "hidden" },
 				"const": { "type": "object" },
-				"$defs": {
-					"additionalProperties": true,
-					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
-					"type": "object"
-				},
 				"additionalProperties": { "type": "boolean" },
 				"default": { "type": "object" },
 				"x-default-properties": {
@@ -268,22 +288,44 @@
 						"type": "string"
 					}
 				},
+				"x-ui-schema": { "$ref": "#/definitions/schema", "description": "alternative schema to add pattern properties" },
+				"x-ui-name": { "type": "string", "description": "name of desired UI schema to display the object among those listed in x-additional-properties-ui" },
 				"definitions": {
-					"additionalProperties": true,
 					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
 					"type": "object"
 				},
 				"maxProperties": { "minimum": 0, "type": "integer" },
 				"minProperties": { "minimum": 0, "type": "integer" },
 				"patternProperties": {
-					"additionalProperties": true,
 					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
 					"type": "object"
 				},
 				"properties": {
-					"additionalProperties": true,
 					"patternProperties": { ".*": { "$ref": "#/definitions/schema" } },
-					"type": "object"
+					"type": "object",
+					"additionalProperties": true,
+					"x-additional-properties-ui": [
+						{
+							"label": "field",
+							"schema": "JsonSchema:MetaSchema/Field",
+							"name": "field"
+						},
+						{
+							"label": "subitem",
+							"schema": "JsonSchema:MetaSchema/Subitem",
+							"name": "subitem"
+						},
+						{
+							"label": "geolocation",
+							"schema": "JsonSchema:MetaSchema/Geolocation",
+							"name": "geolocation"
+						},
+						{
+							"label": "survey",
+							"schema": "JsonSchema:MetaSchema/Survey",
+							"name": "survey"
+						}
+					]
 				},
 				"propertyNames": { "$ref": "#/definitions/schema" },
 				"required": {
@@ -309,10 +351,44 @@
 						"x-layout-config": {
 							"type": "object"
 						},
-						"x-ui-schema": {
+						"x-message": {
+							"type": "object",
+							"properties": {
+								"type": {
+									"type": "string",
+									"enum": ["notice", "error", "warning", "succes"]
+								},
+								"label": {
+									"type": "string",
+									"x-format": "textarea"
+								},
+								"label-wikitext": {
+									"type": "string",
+									"x-format": "textarea"
+								},
+								"icon": {
+									"type": "string"
+								},
+								"inline": {
+									"type": "boolean"
+								}
+							}
+						},
+						"x-additional-properties-ui": {
+							"title": "UI Schema Configuration",
+							"description": "UI schema can be a single item or an array of items",
 							"oneOf": [
-								{ "$ref": "#/definitions/schema" },
-								{ "format": "uri-reference", "type": "string" }
+								{
+									"title": "Single UI Schema",
+									"$ref": "#/definitions/uiSchemaItem"
+								},
+								{
+									"title": "Multiple UI Schemas",
+									"type": "array",
+									"items": { "$ref": "#/definitions/uiSchemaItem" },
+									"minItems": 1,
+									"uniqueItems": true
+								}
 							]
 						}
 					}
@@ -544,8 +620,7 @@
 						},
 						{
 							"type": "object",
-							"additionalProperties": true,
-							"patternProperties": { ".*": { "type": "string" } }
+							"additionalProperties": { "type": "string" }
 						}
 					]
 				},
@@ -671,8 +746,14 @@
 					},
 					"default": []
 				},
+				"x-format-type": {
+					"type": "string",
+					"enum": ["custom", "default"],
+					"default": "custom"
+				},
 				"format": {
 					"default": "",
+					"type": "string",
 					"enum": [
 						"date-time",
 						"time",
@@ -691,10 +772,12 @@
 						"relative-json-pointer",
 						"regex"
 					],
-					"type": "string"
+					"x-dependency": {
+						"x-format-type": "default"
+					}
 				},
 				"x-format": {
-					"default": "",
+					"type": "string",
 					"enum": [
 						"color",
 						"month",
@@ -713,7 +796,10 @@
 						"captcha",
 						"stripe"
 					],
-					"type": "string"
+					"default": "",
+					"x-dependency": {
+						"x-format-type": "custom"
+					}
 				},
 				"maxLength": { "minimum": 0, "type": "integer" },
 				"minLength": { "minimum": 0, "type": "integer" },
@@ -724,3 +810,4 @@
 		}
 	}
 }
+

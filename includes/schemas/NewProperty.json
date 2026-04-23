@@ -1,0 +1,12 @@
+{
+	"title": "New property",
+	"type": "object",
+	"required": ["name"],
+	"properties": {
+		"name": {
+			"title": "Property name",
+			"type": "string",
+			"pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+		}
+	}
+}

@@ -13,6 +13,8 @@ export default {
 		template: {
 		},
 		upload: {
+		},
+		ui_schema_converters: {
 		}
 	}
 };
