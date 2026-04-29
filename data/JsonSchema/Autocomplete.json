@@ -2,15 +2,9 @@
 	"type": "object",
 	"title": "Autocomplete example",
 	"properties": {
-		"_header": {
-			"type": "string",
-			"x-format": "hidden",
-			"title": "Autocomplete example",
-			"description": "\u003Cp\u003EThis example shows various setups using the autocomplete editor, based on the \u003Ca href=\"https://autocomplete.trevoreyre.com/#/javascript-component\" target=\"_blank\"\u003Eautocomplete\u003C/a\u003E library. The setup for each lookup engine is defined in a special callback list.\u003C/p\u003E"
-		},
 		"text": {
 			"type": "string",
-			"x-input": "lookupelement",
+			"x-input": "LookupElement",
 			"title": "Wikipedia lookup (Page titles)",
 			"description": "Enter a text of minimum 3 characters.",
 			"x-autocomplete": {
@@ -22,7 +16,7 @@
 		},
 		"text2": {
 			"type": "string",
-			"x-input": "lookupelement",
+			"x-input": "LookupElement",
 			"title": "DAWA lookup (Danish streetnames)",
 			"description": "Enter a text of minimum 3 characters.",
 			"x-autocomplete": {
@@ -33,7 +27,7 @@
 		},
 		"text3": {
 			"type": "string",
-			"x-input": "lookupelement",
+			"x-input": "LookupElement",
 			"title": "Local form lookup (Font names from 'possibleFonts' array)",
 			"description": "Enter a text of minimum 1 characters. (Try 'a')",
 			"x-autocomplete": {

@@ -165,7 +165,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				// those of the host schema
 				$jsonForm['properties']['editor']['x-input-config'] = [
 					'schema' => json_encode( $innerSchema ),
-					'lazyPropertiesLayout' => 'buttons'
+					// 'lazyPropertiesLayout' => 'buttons'
 				];
 				break;
 
@@ -189,7 +189,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 					'schema' => json_encode( $innerSchema ),
 					'isMetaSchema' => true,
 					'schemaName' => $schemaName,
-					'lazyPropertiesLayout' => 'toolbar'
+					// 'lazyPropertiesLayout' => 'toolbar'
 				];
 				break;
 		}
@@ -226,7 +226,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 					// return $this->printError( $out, 'jsonforms-special-browse-error-invalid-form' );
 				}
 
-				$html = $res_->value;
+				$html = HtmlClass::rawElement( 'div', [ 'class' => 'jsonforms-build-container' ], $res_->value );
 
 				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
 				$out->addModules( 'ext.JsonForms.ManageSchemas' );

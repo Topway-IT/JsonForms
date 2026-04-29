@@ -1,23 +1,15 @@
 // use IIFE, this ensure name is scoped
 (function () {
 	function UISchemaConverters() {
-		this.converters = {};
+		this.converters = {
+			NewProperty: new JsonForms.UISchemaConverters.NewProperty(),
+			survey: new JsonForms.UISchemaConverters.Survey(),
+			field: new JsonForms.UISchemaConverters.Field(),
+			subitem: new JsonForms.UISchemaConverters.Subitem(),
+			geolocation: new JsonForms.UISchemaConverters.Geolocation(),
+		};
 	}
 
-	UISchemaConverters.prototype.initConverters = function () {
-		this.converters = {
-			newPropertyNoSchema: new this.constructor.NewPropertyNoSchema(),
-			survey: new this.constructor.Survey(),
-			field: new this.constructor.Field(),
-			subitem: new this.constructor.Subitem(),
-			geolocation: new this.constructor.Geolocation(),
-		};
-    
-		return this;
-	};
-
-
-	// attach instance
 	JsonForms.UISchemaConverters = UISchemaConverters;
 })();
 

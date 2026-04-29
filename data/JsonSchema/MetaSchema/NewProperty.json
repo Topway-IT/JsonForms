@@ -12,7 +12,7 @@
 		"type": {
 			"title": "type",
 			"type": "string",
-			"x-input": "RadioSelectInputWidget",
+			"x-input": "OO.ui.RadioSelectInputWidget",
 			"description": "Select the type of property",
 			"enum": [
 				"text",

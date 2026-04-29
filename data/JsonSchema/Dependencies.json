@@ -58,7 +58,7 @@
 		"billing": {
 			"title": "Billing address same as shipping address",
 			"type": "boolean",
-			"x-input": "checkbox",
+			"x-input": "OO.ui.CheckboxInputWidget",
 			"default": false
 		},
 		"billingaddress": {

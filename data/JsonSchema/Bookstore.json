@@ -2,7 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"title": "Bookstore",
-	"x-layout": "paged_",
 	"definitions": {
 		"newPropertySchema": {
 			"title": "New property",
@@ -39,7 +38,7 @@
 						"url",
 						"json"
 					],
-					"x-input": "RadioSelectInputWidget",
+					"x-input": "OO.ui.RadioSelectInputWidget",
 					"x-enum-titles": [
 						"Text",
 						"Number",
@@ -69,31 +68,27 @@
 		"Book": {
 			"title": "books",
 			"type": "array",
+			"x-layout": "tabs",
 			"items": {
 				"type": "object",
 				"title": "book",
 				"additionalProperties": true,
 				"x-additional-properties-ui": {
-					"label": "New property",
-					"schema": {"$ref": "#/definitions/newPropertySchema" },
-					"converter": "newPropertyNoSchema"
+					"schema": {
+						"$ref": "#/definitions/newPropertySchema"
+					},
+					"name": "NewProperty",
+					"label": "New property"
 				},
 				"properties": {
 					"Title": {
 						"type": "string"
 					},
-					"Price": {
-						"type": "number"
-					},
-					"ISBN": {
-						"type": "string"
-					},
-					"Genre": {
-						"type": "string"
-					},
 					"Author": {
 						"type": "array",
-						"title": "authors",
+						"title": "",
+						"x-layout": "booklet",
+						"x-collapsible": true,
 						"items": {
 							"type": "object",
 							"title": "author",
@@ -106,6 +101,15 @@
 								}
 							}
 						}
+					},
+					"Price": {
+						"type": "number"
+					},
+					"ISBN": {
+						"type": "string"
+					},
+					"Genre": {
+						"type": "string"
 					}
 				}
 			}

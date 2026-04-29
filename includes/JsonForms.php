@@ -165,18 +165,18 @@ class JsonForms {
 			// ***important, encode schema otherwise $refs can mess with
 			// those of the host schema
 			$schema = self::processSchema( $output, $schema );
-			$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['schema'] = json_encode( $schema );
+			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $schema );
 
 			if ( !empty( $formDescriptor['start_path'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['start_path'] = $formDescriptor['start_path'];
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['start_path'] = $formDescriptor['start_path'];
 			}
 
-			if ( !empty( $formDescriptor['lazy_properties_layout'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['lazyPropertiesLayout'] = $formDescriptor['lazy_properties_layout'];
-			}
+			// if ( !empty( $formDescriptor['lazy_properties_layout'] ) ) {
+			// 	$jsonForm['properties']['form']['properties']['editor']['x-input-config']['lazyPropertiesLayout'] = $formDescriptor['lazy_properties_layout'];
+			// }
 
 			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['options']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
 			}
 		}
 
@@ -187,9 +187,15 @@ class JsonForms {
 			'schemaName' => 'PageForm',
 			'editorOptions' => $formDescriptor['editor_options'] ?? 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> $formDescriptor['editor_script'] ?? 'MediaWiki:DefaultEditorScript',
-			'startval'=> $startVal,
 			'formDescriptor' => $formDescriptor
 		];
+
+		// @ATTENTION, if an empty PHP object will be passed
+		// this will be converted to an empty js arrany and the
+		// editor won't work anymore
+		if ( !empty( $startVal ) ) {
+			$formData['startVal'] = $startVal;
+		}
 
 		$formData = \JsonForms::prepareFormData( $output, $formData );
 

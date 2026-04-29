@@ -2,10 +2,7 @@
 
 (function () {
 	function Field() {
-		JsonForms.UISchemaConverters.call(this);
 	}
-
-	OO.inheritClass(Field, JsonForms.UISchemaConverters);
 
 	Field.prototype.onBeforeCreateItem = function (uiSchemaValue, UISchema) {
 		return { key: uiSchemaValue.name, schema: UISchema, value: uiSchemaValue };

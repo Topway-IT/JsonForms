@@ -5,14 +5,16 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"properties": {
 		"accidentDetails": {
-			"$ref": "#/definitions/accidentDetails"
+			"$ref": "#/definitions/accidentDetails",
+			"type": "object"
 		},
 		"vehicles": {
 			"x-layout": "tabs",
 			"title": "vehicles",
 			"type": "array",
 			"items": {
-				"$ref": "#/definitions/vehicle"
+				"$ref": "#/definitions/vehicle",
+				"type": "object"
 			}
 		},
 		"people": {
@@ -20,7 +22,8 @@
 			"type": "array",
 			"title": "people",
 			"items": {
-				"$ref": "#/definitions/person"
+				"$ref": "#/definitions/person",
+				"type": "object"
 			}
 		}
 	},
@@ -131,7 +134,6 @@
 					"default": ""
 				}
 			},
-			"definitions": [],
 			"description": "A person involved in the accident"
 		},
 		"vehicle": {
@@ -253,7 +255,6 @@
 					"x-format": "textarea"
 				}
 			},
-			"definitions": [],
 			"description": "A vehicle involved in the accident"
 		},
 		"accidentDetails": {
@@ -371,7 +372,6 @@
 					"x-format": "number"
 				}
 			},
-			"definitions": [],
 			"description": "Details for Accident"
 		}
 	},

@@ -47,10 +47,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -91,10 +88,7 @@
 				"labelPosition": {
 					"type": "string",
 					"description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
-					"enum": [
-						"before",
-						"after"
-					]
+					"enum": ["before", "after"]
 				},
 				"maxLength": {
 					"type": "integer",
@@ -133,44 +127,32 @@
 				"type": {
 					"type": "string",
 					"description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
-					"enum": [
-						"text",
-						"password",
-						"email",
-						"url",
-						"number"
-					]
+					"enum": ["text", "password", "email", "url", "number"]
 				},
 				"validate": {
 					"type": "string",
-					"description": "A regular expression that must match the value for it to be considered valid. See \u003Ca target=\"_blank\" href=\"https://json-schema.org/understanding-json-schema/reference/regular_expressions\"\u003ERegular Expressions\u003C/a\u003E"
+					"description": "A regular expression that must match the value for it to be considered valid. See <a target=\"_blank\" href=\"https://json-schema.org/understanding-json-schema/reference/regular_expressions\">Regular Expressions</a>"
 				}
 			}
 		},
 		"OO.ui.TextInputWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonProperties"
-				},
-				{
-					"$ref": "#/definitions/textInput"
+					"$ref": "#/definitions/textInputProperties"
 				}
 			]
 		},
 		"mw.widgets.DateInputWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/textInput"
+					"$ref": "#/definitions/textInputProperties"
 				},
 				{
 					"properties": {
 						"precision": {
 							"type": "string",
 							"description": "Date precision to use, 'day' or 'month'",
-							"enum": [
-								"day",
-								"month"
-							]
+							"enum": ["day", "month"]
 						},
 						"inputFormat": {
 							"type": "string",
@@ -209,9 +191,6 @@
 		"mw.widgets.TitleInputWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonProperties"
-				},
-				{
 					"$ref": "#/definitions/textInputProperties"
 				},
 				{
@@ -220,6 +199,11 @@
 							"type": "integer",
 							"minimum": 1,
 							"description": "Number of results to show"
+						},
+						"maxLength": {
+							"type": "integer",
+							"minimum": 0,
+							"description": "Maximum query length"
 						},
 						"namespace": {
 							"type": "integer",
@@ -288,10 +272,7 @@
 		"mw.widgets.UserInputWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonProperties"
-				},
-				{
-					"$ref": "#/definitions/textInput"
+					"$ref": "#/definitions/textInputProperties"
 				},
 				{
 					"properties": {
@@ -311,7 +292,7 @@
 				}
 			]
 		},
-		"radioSelectInputWidget": {
+		"OO.ui.RadioSelectInputWidget": {
 			"type": "object",
 			"properties": {
 				"classes": {
@@ -321,10 +302,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -382,10 +360,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -426,10 +401,7 @@
 				"labelPosition": {
 					"type": "string",
 					"description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
-					"enum": [
-						"before",
-						"after"
-					]
+					"enum": ["before", "after"]
 				},
 				"max": {
 					"type": "number",
@@ -488,13 +460,7 @@
 				"type": {
 					"type": "string",
 					"description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
-					"enum": [
-						"text",
-						"password",
-						"email",
-						"url",
-						"number"
-					]
+					"enum": ["text", "password", "email", "url", "number"]
 				},
 				"validate": {
 					"type": "string",
@@ -503,11 +469,7 @@
 			}
 		},
 		"OO.ui.NumberInputWidget": {
-			"x-default-properties": [],
 			"allOf": [
-				{
-					"$ref": "#/definitions/commonProperties"
-				},
 				{
 					"$ref": "#/definitions/numberInputProperties"
 				}
@@ -571,19 +533,12 @@
 				"inputPosition": {
 					"type": "string",
 					"description": "Position of the input. Options are: - inline: The input is invisible, but exists inside the tag list, so the user types into the tag groups to add tags. - outline: The input is underneath the tag area. - none: No input supplied",
-					"enum": [
-						"inline",
-						"outline",
-						"none"
-					]
+					"enum": ["inline", "outline", "none"]
 				},
 				"orientation": {
 					"type": "string",
 					"description": "Item orientation: 'horizontal' or 'vertical'.",
-					"enum": [
-						"horizontal",
-						"vertical"
-					]
+					"enum": ["horizontal", "vertical"]
 				},
 				"placeholder": {
 					"type": "string",
@@ -604,57 +559,7 @@
 				}
 			}
 		},
-		"menuTagMultiselectWidget": {
-			"allOf": [
-				{
-					"$ref": "#/definitions/multiselectWidgetProperties"
-				},
-				{
-					"properties": {
-						"clearInputOnChoose": {
-							"type": "boolean",
-							"description": "Clear the text input value when a menu option is chosen"
-						}
-					}
-				}
-			]
-		},
-		"categoryMultiselectWidget": {
-			"allOf": [
-				{
-					"$ref": "#/definitions/multiselectWidgetProperties"
-				},
-				{
-					"properties": {
-						"limit": {
-							"type": "integer",
-							"minimum": 1,
-							"description": "Maximum number of results to load"
-						}
-					}
-				}
-			]
-		},
-		"titlesMultiselectWidget": {
-			"allOf": [
-				{
-					"$ref": "#/definitions/multiselectWidgetProperties"
-				},
-				{
-					"properties": {
-						"clearInputOnChoose": {
-							"type": "boolean",
-							"description": "clear input on choose"
-						},
-						"allowEditTags": {
-							"type": "boolean",
-							"description": "clear input on choose"
-						}
-					}
-				}
-			]
-		},
-		"usersMultiselectWidget": {
+		"mw.widgets.UsersMultiselectWidget": {
 			"allOf": [
 				{
 					"$ref": "#/definitions/multiselectWidgetProperties"
@@ -687,14 +592,68 @@
 				}
 			]
 		},
-		"comboBoxInputWidget": {
+		"mw.widgets.TitlesMultiselectWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/multiselectWidgetProperties"
+				},
+				{
+					"properties": {
+						"clearInputOnChoose": {
+							"type": "boolean",
+							"description": "Clear input on choose"
+						},
+						"inputPosition": {
+							"type": "string",
+							"description": "Input position"
+						},
+						"allowEditTags": {
+							"type": "boolean",
+							"description": "Clear input on choose"
+						}
+					}
+				}
+			]
+		},
+		"mw.widgets.CategoryMultiselectWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/multiselectWidgetProperties"
+				},
+				{
+					"properties": {
+						"limit": {
+							"type": "integer",
+							"minimum": 1,
+							"description": "Maximum number of results to load"
+						}
+					}
+				}
+			]
+		},
+		"OO.ui.MenuTagMultiselectWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/multiselectWidgetProperties"
+				},
+				{
+					"properties": {
+						"clearInputOnChoose": {
+							"type": "boolean",
+							"description": "Clear the text input value when a menu option is chosen"
+						}
+					}
+				}
+			]
+		},
+		"OO.ui.ComboBoxInputWidget": {
 			"allOf": [
 				{
 					"$ref": "#/definitions/textInputProperties"
 				}
 			]
 		},
-		"multilineTextInputWidget": {
+		"OO.ui.MultilineTextInputWidget": {
 			"allOf": [
 				{
 					"$ref": "#/definitions/textInputProperties"
@@ -719,17 +678,14 @@
 				}
 			]
 		},
-		"multiselectWidget": {
+		"OO.ui.MultiselectWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonInputProperties"
-				},
-				{
-					"$ref": "#/definitions/multiselectWidgetProperties"
+					"$ref": "#/definitions/commonProperties"
 				}
 			]
 		},
-		"buttonSelectWidget": {
+		"OO.ui.ButtonSelectWidget": {
 			"type": "object",
 			"properties": {
 				"classes": {
@@ -758,7 +714,7 @@
 				}
 			}
 		},
-		"checkboxMultiselectInputWidget": {
+		"OO.ui.CheckboxMultiselectInputWidget": {
 			"type": "object",
 			"properties": {
 				"accessKey": {
@@ -772,10 +728,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -807,7 +760,7 @@
 				}
 			}
 		},
-		"dropdownInputWidget": {
+		"OO.ui.DropdownInputWidget": {
 			"type": "object",
 			"properties": {
 				"accessKey": {
@@ -821,10 +774,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -856,7 +806,7 @@
 				}
 			}
 		},
-		"inputWidget": {
+		"OO.ui.InputWidget": {
 			"type": "object",
 			"properties": {
 				"accessKey": {
@@ -870,10 +820,7 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -905,10 +852,10 @@
 				}
 			}
 		},
-		"dateTimeInputWidget": {
+		"mw.widgets.datetime.DateTimeInputWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/inputWidget"
+					"$ref": "#/definitions/OO.ui.InputWidget"
 				},
 				{
 					"properties": {
@@ -936,14 +883,14 @@
 				}
 			]
 		},
-		"buttonMultiselectWidget": {
+		"ButtonMultiselectWidget": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonInputProperties"
+					"$ref": "#/definitions/commonProperties"
 				}
 			]
 		},
-		"intlTelInput": {
+		"intl-tel-input": {
 			"type": "object",
 			"properties": {
 				"allowDropdown": {
@@ -1025,14 +972,35 @@
 				}
 			}
 		},
-		"ratingWidget": {
+		"LookupElement": {
 			"allOf": [
 				{
-					"$ref": "#/definitions/commonInputProperties"
+					"$ref": "#/definitions/textInputProperties"
 				}
 			]
 		},
-		"visualEditor": {
+		"OO.ui.TagMultiselectWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/multiselectWidgetProperties"
+				}
+			]
+		},
+		"MenuTagSearchMultiselect": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/multiselectWidgetProperties"
+				}
+			]
+		},
+		"RatingWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/commonProperties"
+				}
+			]
+		},
+		"VisualEditor": {
 			"type": "object",
 			"properties": {
 				"classes": {
@@ -1041,27 +1009,19 @@
 				}
 			}
 		},
-		"selectFileWidget": {
+		"OO.ui.SelectFileWidget": {
 			"type": "object",
 			"properties": {
 				"accept": {
 					"type": "array",
-					"items": {
-						"type": "string"
-					},
+					"items": { "type": "string" },
 					"description": "MIME types to accept."
 				},
-				"accessKey": {
-					"type": "string",
-					"description": "The access key"
-				},
+				"accessKey": { "type": "string", "description": "The access key" },
 				"dir": {
 					"type": "string",
-					"description": "The directionality of the input (ltr/rtl).",
-					"enum": [
-						"ltr",
-						"rtl"
-					]
+					"enum": ["ltr", "rtl"],
+					"description": "The directionality of the input (ltr/rtl)."
 				},
 				"disabled": {
 					"type": "boolean",
@@ -1073,31 +1033,28 @@
 				},
 				"icon": {
 					"type": "string",
-					"description": "The symbolic name of the icon (e.g., 'remove' or 'menu'), or a map of symbolic names."
+					"description": "The symbolic name of the icon"
 				},
-				"id": {
-					"type": "string",
-					"description": "The HTML id attribute used in the rendered tag."
-				},
+				"id": { "type": "string", "description": "The HTML id attribute" },
 				"inputFilter": {
 					"type": "string",
-					"description": "The name of an input filter function. Input filters modify the value of an input before it is accepted"
+					"description": "The name of an input filter function"
 				},
 				"inputId": {
 					"type": "string",
-					"description": "The value of the input's HTML id attribute."
+					"description": "The value of the input's HTML id attribute"
 				},
 				"invisibleLabel": {
 					"type": "boolean",
-					"description": "Whether the label should be visually hidden (but still accessible to screen-readers)."
+					"description": "Whether the label should be visually hidden"
 				},
 				"name": {
 					"type": "string",
-					"description": "The value of the input's HTML name attribute."
+					"description": "The value of the input's HTML name attribute"
 				},
 				"notsupported": {
 					"type": "string",
-					"description": "Text to display when file support is missing in the browser."
+					"description": "Text to display when file support is missing"
 				},
 				"placeholder": {
 					"type": "string",
@@ -1105,22 +1062,15 @@
 				},
 				"showDropTarget": {
 					"type": "boolean",
-					"description": "Whether to show a drop target. Requires droppable to be true."
+					"description": "Whether to show a drop target"
 				},
-				"text": {
-					"type": "string",
-					"description": "Text to insert"
-				},
+				"text": { "type": "string", "description": "Text to insert" },
 				"thumbnailSizeLimit": {
 					"type": "number",
-					"description": "File size limit in MiB above which to not try and show a preview (for performance)"
+					"description": "File size limit in MiB"
 				},
-				"title": {
-					"type": "string",
-					"description": "The title text."
-				}
+				"title": { "type": "string", "description": "The title text" }
 			}
 		}
 	}
 }
-

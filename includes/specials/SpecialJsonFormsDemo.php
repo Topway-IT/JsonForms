@@ -71,7 +71,9 @@ class SpecialJsonFormsDemo extends SpecialPage {
 
 		$formData = \JsonForms::prepareFormData( $out, $formData );
 
-		$res_ = \JsonForms::getJsonFormHtml( $formData );
+		$res_ = \JsonForms::getJsonFormHtml( $formData, [
+			'width' => '800px'
+		] );
 
 		if ( !$res_->ok ) {
 			return $this->printError( $out, $res_->error );

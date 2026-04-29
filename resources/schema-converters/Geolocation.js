@@ -2,10 +2,8 @@
 
 (function () {
 	function Geolocation() {
-		JsonForms.UISchemaConverters.call(this);
 	}
 
-	OO.inheritClass(Geolocation, JsonForms.UISchemaConverters);
 
 	const GeolocationSchema = {
 		$schema: 'https://json-schema.org/draft/2020-12/schema',

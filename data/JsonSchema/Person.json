@@ -48,7 +48,7 @@
 					"fixed": {
 						"type": "boolean",
 						"title": "spayed / neutered",
-						"x-input": "checkbox"
+						"x-input": "OO.ui.CheckboxInputWidget"
 					}
 				}
 			}

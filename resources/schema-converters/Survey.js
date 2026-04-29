@@ -2,10 +2,7 @@
 
 (function () {
 	function Survey(el, data) {
-		JsonForms.UISchemaConverters.call(this);
 	}
-
-	OO.inheritClass(Survey, JsonForms.UISchemaConverters);
 
 	Survey.prototype.onBeforeCreateItem = function (uiSchemaValue, UISchema) {
 		return { key: uiSchemaValue.name, schema: UISchema, value: uiSchemaValue};

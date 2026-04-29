@@ -39,7 +39,7 @@
 			"type": "string",
 			"format": "date",
 			"title": "Due date",
-			"x-input": "DateInputWidget"
+			"x-input": "mw.widgets.DateInputWidget"
 		},
 		"priority": {
 			"type": "string",
@@ -51,7 +51,7 @@
 				"normal",
 				"low"
 			],
-			"x-input": "RadioSelect"
+			"x-input": "OO.ui.RadioSelectInputWidget"
 		},
 		"status": {
 			"type": "string",
@@ -63,7 +63,7 @@
 				"completed",
 				"discarded"
 			],
-			"x-input": "RadioSelect"
+			"x-input": "OO.ui.RadioSelectInputWidget"
 		},
 		"created by": {
 			"type": "string",

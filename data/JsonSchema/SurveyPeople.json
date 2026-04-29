@@ -20,10 +20,12 @@
 			"layout": "column",
 			"properties": {
 				"employed": {
-					"$ref": "#/definitions/input"
+					"$ref": "#/definitions/input",
+					"type": "object"
 				},
 				"unemployed": {
-					"$ref": "#/definitions/input"
+					"$ref": "#/definitions/input",
+					"type": "object"
 				}
 			},
 			"required": []
@@ -33,13 +35,16 @@
 			"layout": "row",
 			"properties": {
 				"male": {
-					"$ref": "#/definitions/rowSubgroup"
+					"$ref": "#/definitions/rowSubgroup",
+					"type": "object"
 				},
 				"female": {
-					"$ref": "#/definitions/rowSubgroup"
+					"$ref": "#/definitions/rowSubgroup",
+					"type": "object"
 				},
 				"diverse": {
-					"$ref": "#/definitions/rowSubgroup"
+					"$ref": "#/definitions/rowSubgroup",
+					"type": "object"
 				}
 			},
 			"required": [
@@ -53,10 +58,12 @@
 			"layout": "row",
 			"properties": {
 				"with university degree": {
-					"$ref": "#/definitions/columnGroup"
+					"$ref": "#/definitions/columnGroup",
+					"type": "object"
 				},
 				"without university degree": {
-					"$ref": "#/definitions/columnGroup"
+					"$ref": "#/definitions/columnGroup",
+					"type": "object"
 				}
 			},
 			"required": [
@@ -67,10 +74,12 @@
 	},
 	"properties": {
 		"District 1": {
-			"$ref": "#/definitions/rowGroup"
+			"$ref": "#/definitions/rowGroup",
+					"type": "object"
 		},
 		"District 2": {
-			"$ref": "#/definitions/rowGroup"
+			"$ref": "#/definitions/rowGroup",
+					"type": "object"
 		}
 	},
 	"required": [

@@ -32,6 +32,7 @@ function JsonForms(el, data) {
 }
 
 JsonForms.prototype.initialize = async function () {
+ 	// console.log('this.data.editorOptions',defaultOptions)
 	this.editorOptions = await this.getModule(this.data.editorOptions);
 	this.editorScript = await this.getModule(this.data.editorScript);
 
@@ -39,7 +40,6 @@ JsonForms.prototype.initialize = async function () {
 	this.autocompleteProviders = this.formatProviders(JsonForms.AutocompleteProviders);
 
 	const UISchemaConverters = new JsonForms.UISchemaConverters();
-	UISchemaConverters.initConverters();
 	
 	// console.log('defaultOptions',defaultOptions)
 
@@ -111,7 +111,7 @@ JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
 };
 
 JsonForms.prototype.isMWSchema = function (maybeUrl, fileBase) {
-console.log('config',mw.config)
+console.log('isMWSchema config',mw.config)
 
 	if (JsonForms.Utilities.hasProtocol(maybeUrl)) {
 		return false;
@@ -120,6 +120,7 @@ console.log('config',mw.config)
 		return true;
 	}
 
+	return true;
 	const mwBaseUrl = mw.config.get('wgServer') + mw.config.get('wgScript');
 	return (
 		fileBase.indexOf(mwBaseUrl) !== -1 || mwBaseUrl.indexOf(fileBase) !== -1
@@ -128,14 +129,14 @@ console.log('config',mw.config)
 };
 
 JsonForms.prototype.fetchSchema = function (schema) {
-	console.log('fetchSchema',schema)
+	// console.log('fetchSchema',schema)
 	const payload = {
 		action: 'jsonforms-fetch-schema',
 		format: 'json',
 		schema,
 	};
 
-	console.log('payload',payload)
+	// console.log('payload',payload)
 	return new Promise((resolve, reject) => {
 		new mw.Api().get(payload).done(function (thisRes) {
 			// console.log('thisRes', thisRes);

@@ -1,6 +1,6 @@
 {
 	"title": "Payment Method",
-	"x-input": "button-select",
+	"x-input": "OO.ui.ButtonSelectWidget",
 	"oneOf": [
 		{
 			"title": "None",

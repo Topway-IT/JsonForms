@@ -28,7 +28,7 @@
 				},
 				"bestFriend": {
 					"title": "best friend",
-					"x-input": "button-select",
+					"x-input": "OO.ui.ButtonSelectWidget",
 					"oneOf": [
 						{
 							"title": "none",

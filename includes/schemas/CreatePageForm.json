@@ -131,16 +131,6 @@
 			"enum": ["inline", "popup"],
 			"default": "inline"
 		},
-		"lazy_properties_layout": {
-			"type": "string",
-			"title": "lazy properties layout",
-			"description": "set the layout of non required and non-default properties",
-			"enum": [
-				"buttons",
-				"toolbar"
-			],
-			"default": "buttons"
-		},
 		"popup_button_label": {
 			"type": "string",
 			"title": "popup button label",

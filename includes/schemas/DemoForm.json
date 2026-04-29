@@ -1,6 +1,9 @@
 {
 	"type": "object",
 	"title": "Demo",
+	"x-message": {
+		"label": "abc"
+	},
 	"properties": {
 		"schema": {
 			"type": "string",

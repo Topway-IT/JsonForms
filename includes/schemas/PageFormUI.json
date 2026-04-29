@@ -3,6 +3,7 @@
 	"x-compact": true,
 	"x-css-class": "jsonforms-outerform",
 	"required": [],
+	"type": "object",
 	"properties": {
 		"form": {
 			"type": "object",
@@ -52,7 +53,7 @@
 									"source": "contentModelsSource"
 								}
 							],
-							"x-visibility": {
+							"x-dependency": {
 								"data_slot": {
 									"op": "!=",
 									"value": "main"
@@ -62,7 +63,7 @@
 						"main_slot_content": {
 							"type": "string",
 							"format": "textarea",
-							"x-visibility": {
+							"x-dependency": {
 								"data_slot": {
 									"op": "!=",
 									"value": "main"
@@ -78,7 +79,7 @@
 						},
 						"summary": {
 							"type": "string",
-							"x-visibility": {
+							"x-dependency": {
 								"data_slot": {
 									"op": "!=",
 									"value": "main"
@@ -90,7 +91,7 @@
 							"description": "",
 							"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
 							"x-input": "checkbox",
-							"x-visibility": {
+							"x-dependency": {
 								"data_slot": {
 									"op": "!=",
 									"value": "main"

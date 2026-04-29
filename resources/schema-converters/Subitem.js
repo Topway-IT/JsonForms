@@ -2,10 +2,8 @@
 
 (function () {
 	function Subitem(el, data) {
-		JsonForms.UISchemaConverters.call(this);
 	}
 
-	OO.inheritClass(Subitem, JsonForms.UISchemaConverters);
 
 	Subitem.prototype.onBeforeCreateItem = function (uiSchemaValue, UISchema) {
 		return { key: uiSchemaValue.name, schema: UISchema, value: uiSchemaValue};

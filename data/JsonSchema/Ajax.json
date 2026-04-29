@@ -8,11 +8,13 @@
 		"anyOf": [
 			{
 				"$ref": "JsonSchema:BasicPerson",
-				"title": "Basic Person"
+				"title": "Basic Person",
+				"type": "object"
 			},
 			{
 				"$ref": "JsonSchema:Person",
-				"title": "Complex Person"
+				"title": "Complex Person",
+				"type": "object"
 			}
 		]
 	}

@@ -1,24 +1,34 @@
 // use IIFE, this ensure name is scoped
 (function () {
-	function NewPropertyNoSchema(el, data) {
-		JsonForms.UISchemaConverters.call(this);
+	function NewProperty(el, data) {
+		// JsonForms.UISchemaConverters.call(this);
 	}
 
-	OO.inheritClass(NewPropertyNoSchema, JsonForms.UISchemaConverters);
+	// OO.inheritClass(NewProperty, JsonForms.UISchemaConverters);
 
-	NewPropertyNoSchema.prototype.onBeforeCreateItem = function (uiSchemaValue, UISchema) {
-		return { key: uiSchemaValue.name, schema: UISchema, value: uiSchemaValue};
+	NewProperty.prototype.onBeforeCreateItem = function (
+		uiSchemaValue,
+		UISchema,
+	) {
+		return {
+			key: uiSchemaValue.name,
+			schema: this.schemaFromPseudoType(
+				uiSchemaValue.type,
+				uiSchemaValue.multiple,
+			),
+			value: uiSchemaValue,
+		};
 	};
 
-	NewPropertyNoSchema.prototype.convertFrom = function (key, value) {
+	NewProperty.prototype.convertFrom = function (key, value) {
 		return value;
 	};
-	
-	NewPropertyNoSchema.prototype.convertTo = function (key, value) {
+
+	NewProperty.prototype.convertTo = function (key, value) {
 		return value;
 	};
 
-	NewPropertyNoSchema.prototype.schemaFromPseudoType = function (
+	NewProperty.prototype.schemaFromPseudoType = function (
 		type,
 		multiple,
 		options,
@@ -73,5 +83,6 @@
 	};
 
 	// attach to constructor
-	JsonForms.UISchemaConverters.NewPropertyNoSchema = NewPropertyNoSchema;
+	JsonForms.UISchemaConverters.NewProperty = NewProperty;
 })();
+
