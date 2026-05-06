@@ -38,8 +38,7 @@
 			],
 			"properties": {
 				"Age": {
-					"type": "string",
-					"x-format": "number"
+					"type": "integer"
 				},
 				"Sex": {
 					"enum": [
@@ -359,17 +358,13 @@
 					"default": ""
 				},
 				"Num driver casualties": {
-					"type": "string",
-					"x-format": "number",
-					"isSearchable": true
+					"type": "integer"
 				},
 				"Num passenger casualties": {
-					"type": "string",
-					"x-format": "number"
+					"type": "integer"
 				},
 				"Num pedestrian casualties": {
-					"type": "string",
-					"x-format": "number"
+					"type": "integer"
 				}
 			},
 			"description": "Details for Accident"

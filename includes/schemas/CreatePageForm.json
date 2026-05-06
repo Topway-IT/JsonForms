@@ -61,9 +61,9 @@
 			"description": "Is the user allowed to edit the content model of the main slot ?",
 			"default": false,
 			"x-dependency": {
-				"default_data_slot": {
-					"!=": "main"
-				}
+				"path": "default_data_slot",
+				"op": "!=",
+				"value": "main"
 			}
 		},
 		"edit_main_slot_content": {
@@ -72,9 +72,9 @@
 			"description": "Is the user allowed to edit the content of main slot ? (usually wikitext)",
 			"default": false,
 			"x-dependency": {
-				"default_data_slot": {
-					"!=": "main"
-				}
+				"path": "default_data_slot",
+				"op": "!=",
+				"value": "main"
 			}
 		},
 		"default_main_slot_content_model": {
@@ -85,9 +85,9 @@
 				"source": "contentModelsSource"
 			},
 			"x-dependency": {
-				"default_data_slot": {
-					"!=": "main"
-				}
+				"path": "default_data_slot",
+				"op": "!=",
+				"value": "main"
 			}
 		},
 		"edit_page": {
@@ -116,7 +116,9 @@
 			},
 			"x-input": "tagmultiselect",
 			"x-dependency": {
-				"edit_page": ""
+				"path": "edit_page",
+				"op": "==",
+				"value": ""
 			}
 		},
 		"overwrite_existing_article_on_create": {

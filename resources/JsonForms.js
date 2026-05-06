@@ -44,6 +44,8 @@ JsonForms.prototype.initialize = async function () {
 	// console.log('defaultOptions',defaultOptions)
 
 	const defaultOptions = this.editorOptions;
+	
+	// const defaultOptions = JSON.parse(JSON.stringify(this.editorOptions));
 
 	// console.log('defaultOptions',defaultOptions)
 
@@ -67,7 +69,7 @@ JsonForms.prototype.initialize = async function () {
 
 JsonForms.prototype.createDefaultEditor = function (config = {}) {
 	this.createEditor(this.el, {
-		JsonForms: this,
+		jsonFormsInstance: this,
 		schema: this.schema,
 		schemaName: this.schemaName,
 		startval: this.startval,
@@ -160,7 +162,7 @@ JsonForms.prototype.createEditor = function (el, config) {
 		schemaSelector: null,
 		...config,
 		ajax: true,
-		JsonForms: this,
+		jsonFormsInstance: this,
 	});
 
 	if (typeof this.editorScript === 'function') {

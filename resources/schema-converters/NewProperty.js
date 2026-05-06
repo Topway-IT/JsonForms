@@ -61,17 +61,13 @@
 			case 'color':
 			case 'datetime-local':
 			case 'json':
+			case 'range':
 				return { type: 'string', 'x-format': type, ...options };
 
 			case 'number':
-			case 'range':
-				return { type: 'number' };
-
 			case 'integer':
-				return { type: 'integer' };
-
 			case 'boolean':
-				return { type: 'boolean' };
+				return { type };
 
 			case 'object':
 			case 'subitem':

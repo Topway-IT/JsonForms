@@ -27,15 +27,18 @@ function JsonFormsPageForm(el, data) {
 	// console.log('this.schema', this.schema);
 
 	this.isPopup = this.formDescriptor.view === 'popup';
+	
+	this.editor = null;
 }
 
 OO.inheritClass(JsonFormsPageForm, JsonForms);
 
 // ***redefine enum provider and callbacks
 JsonFormsPageForm.prototype.initialize = async function () {
-	await JsonFormsPageForm.super.prototype.initialize.call(this);
-
+    await JsonFormsPageForm.super.prototype.initialize.call(this);
+    
 	const defaultOptions = this.defaultOptions || {};
+	//  const defaultOptions = JSON.parse(JSON.stringify(this.defaultOptions || {}));
 
 	this.defaultOptions = {
 		...defaultOptions,
@@ -43,9 +46,9 @@ JsonFormsPageForm.prototype.initialize = async function () {
 			...(defaultOptions.callbacks || {}),
 			button: {
 				...(defaultOptions.callbacks?.button || {}),
-				outerFormNavButton: (editor) => {
-					this.onNavButton(editor);
-				},
+				outerFormNavButton: function(editor) {
+                this.onNavButton(editor);
+            }.bind(this),
 			},
 		},
 	};
@@ -366,6 +369,7 @@ JsonForms.prototype.createPopup = async function (config) {
 // inline form only
 JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	// console.log('editor',editor)
+	// console.log('this.editor',this.editor)
 
 	// @TODO @ATTENTION
 	// this.editor is wrong when there are more than 2 forms

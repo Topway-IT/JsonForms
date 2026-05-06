@@ -170,13 +170,14 @@ class SpecialJsonFormsManage extends SpecialPage {
 				break;
 
 			case 'schemas':
+/*
 				$message = new \OOUI\MessageWidget( [
 					'type' => 'error',
 					'label' =>  new \OOUI\HtmlSnippet( 'This feature is under development! Create/edit <b><a target="_blank" href="https://json-schema.org/draft-07">draft-07 (2018)</a></b> schemas manually or via an IA assistant until it\'s completed!' )
 				] );
 				$out->addHTML( $message );
 				$out->addHTML( '<br />' );
-
+*/
 				$item = 'schema';
 				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';				
 				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');

@@ -8,12 +8,10 @@
 			"properties": {
 				"method": {
 					"type": "string",
+					"x-hidden": true,
 					"enum": [
 						"none"
-					],
-					"options": {
-						"hidden": true
-					}
+					]
 				}
 			},
 			"required": [
@@ -33,9 +31,7 @@
 					"enum": [
 						"eft"
 					],
-					"options": {
-						"hidden": true
-					}
+					"x-hidden": true
 				},
 				"bankName": {
 					"title": "Bank name",
@@ -67,12 +63,10 @@
 			"properties": {
 				"method": {
 					"type": "string",
+					"x-hidden": true,
 					"enum": [
 						"creditCard"
-					],
-					"options": {
-						"hidden": true
-					}
+					]
 				},
 				"cardType": {
 					"title": "Card type",
@@ -82,19 +76,13 @@
 						"Discover",
 						"MasterCard",
 						"Visa"
-					],
-					"options": {
-						"grid_columns": 3
-					}
+					]
 				},
 				"cardNumber": {
 					"title": "Card number",
 					"type": "string",
 					"minLength": 15,
-					"maxLength": 16,
-					"options": {
-						"grid_columns": 4
-					}
+					"maxLength": 16
 				},
 				"expiration": {
 					"title": "Expiration month",
@@ -114,8 +102,7 @@
 				"cardNumber",
 				"expiration",
 				"CCV"
-			],
-			"additionalProperties": false
+			]
 		}
 	]
 }

@@ -477,26 +477,44 @@ class JsonForms {
 	 * @return array
 	 */
 	public static function processSchema( $output, $schema ) {
-		if ( !class_exists( 'Opis\JsonSchema\Validator' ) ) {
-			return $schema;
-		}
-		$ret = $schema;
-		$schemaEditor = new \MediaWiki\Extension\JsonForms\JsonSchemaEditor();
 		$wikitextKeys = [
 			'x-wikitext-title' => 'title',
-			'x-wikitext-description' => 'description'
+			'x-wikitext-description' => 'description',
+			'x-wikitext-label' => 'label'
 		];
-		$schemaEditor->traverse( $ret, static function ( &$subSchema ) use ( $output, $wikitextKeys ) {
-			foreach ( $wikitextKeys as $key => $value ) {
-   				if ( isset( $subSchema[$key] ) ) {  
-					$subSchema[$value] = self::parseWikitext(
+		$callback = static function ( &$parent, $key, &$value, $pathArr ) use ( $output, $wikitextKeys ) {
+			if ( !is_array( $value ) ) {
+				return;
+			}
+			foreach ( $wikitextKeys as $k => $v ) {
+   				if ( isset( $value[$k] ) && is_string( $value[$k] ) ) {
+					$value[$v] = self::parseWikitext(
 						$output,
-						$subSchema[$key]
+						$value[$k]
 					);
 				}
 			}
-		} );
-		return $ret;
+		};
+
+		return self::traverseSchema( $schema, $callback );
+
+		// *** this does not traverse definitions
+		// if ( !class_exists( 'Opis\JsonSchema\Validator' ) ) {
+		// 	return $schema;
+		// }
+		// $ret = $schema;
+		// $schemaEditor = new \MediaWiki\Extension\JsonForms\JsonSchemaEditor();
+		// $schemaEditor->traverse( $ret, static function ( &$subSchema ) use ( $output, $wikitextKeys ) {
+		// 	foreach ( $wikitextKeys as $key => $value ) {
+   		// 		if ( isset( $subSchema[$key] ) ) {  
+		// 			$subSchema[$value] = self::parseWikitext(
+		// 				$output,
+		// 				$subSchema[$key]
+		// 			);
+		// 		}
+		// 	}
+		// } );
+		// return $ret;
 	}
 
 	/**
@@ -1123,6 +1141,11 @@ class JsonForms {
 	 * @return
 	 */
 	public static function traverseSchema( array $schema, callable $callback ): array {
+		// Process root
+		$rootRef = &$schema;
+		$emptyParent = [];
+		$callback( $emptyParent, '', $rootRef, [] );
+
 		$it = new RecursiveIteratorIterator(
 			new RecursiveArrayIterator( $schema ),
 			RecursiveIteratorIterator::SELF_FIRST
@@ -1139,7 +1162,9 @@ class JsonForms {
 				$parent =& $parent[ $it->getSubIterator( $depth )->key() ];
 			}
 
-			$callback( $parent, $key, $value, $path );
+			$valueRef =& $parent[$key];
+        
+			$callback( $parent, $key, $valueRef, $path );
 		}
 
 		return $schema;

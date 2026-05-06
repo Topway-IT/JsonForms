@@ -13,22 +13,96 @@
 				"type": {
 					"type": "string",
 					"enum": [
-						"integer",
 						"number",
-						"string"
+						"string",
+						"boolean"
 					],
 					"default": "number"
 				},
 				"input": {
-					"type": "string",
-					"description": "Input widget type"
+					"type": "string"
 				},
-				"inputConfig": {
+				"x-input-config": {
 					"type": "object",
-					"description": "Input configuration options",
-					"x-watch": "input"
+					"compact": true,
+					"x-collapsible": true,
+					"description": "Configuration options passed to the selected input widget",
+					"x-watch": "input",
+					"links": [
+						{
+							"rel": "describedBy",
+							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{input}}"
+						}
+					]
 				}
-			}
+			},
+			"allOf": [
+				{
+					"if": {
+						"properties": {
+							"type": {
+								"const": "number"
+							}
+						},
+						"required": [
+							"type"
+						]
+					},
+					"then": {
+						"properties": {
+							"input": {
+								"enum": [
+									"OO.ui.NumberInputWidget",
+									"RangeWidget"
+								]
+							}
+						}
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"type": {
+								"const": "string"
+							}
+						},
+						"required": [
+							"type"
+						]
+					},
+					"then": {
+						"properties": {
+							"input": {
+								"enum": [
+									"OO.ui.TextInputWidget"
+								]
+							}
+						}
+					}
+				},
+				{
+					"if": {
+						"properties": {
+							"type": {
+								"const": "boolean"
+							}
+						},
+						"required": [
+							"type"
+						]
+					},
+					"then": {
+						"properties": {
+							"input": {
+								"enum": [
+									"OO.ui.CheckboxInputWidget",
+									"OO.ui.ToggleSwitchWidget"
+								]
+							}
+						}
+					}
+				}
+			]
 		},
 		"row": {
 			"title": "Row Definition",
@@ -82,7 +156,8 @@
 					"description": "Array of row definitions for this item",
 					"type": "array",
 					"items": {
-						"$ref": "#/definitions/row"
+						"$ref": "#/definitions/row",
+						"type": "object"
 					},
 					"minItems": 1
 				},
@@ -91,7 +166,8 @@
 					"description": "Array of column definitions for this item",
 					"type": "array",
 					"items": {
-						"$ref": "#/definitions/column"
+						"$ref": "#/definitions/column",
+						"type": "object"
 					},
 					"minItems": 1
 				},
@@ -100,7 +176,8 @@
 					"description": "Nested child items",
 					"type": "array",
 					"items": {
-						"$ref": "#/definitions/item"
+						"$ref": "#/definitions/item",
+						"type": "object"
 					}
 				}
 			},
@@ -112,10 +189,12 @@
 	},
 	"properties": {
 		"items": {
-			"$ref": "#/definitions/item"
+			"$ref": "#/definitions/item",
+			"type": "object"
 		},
 		"cell": {
-			"$ref": "#/definitions/cell"
+			"$ref": "#/definitions/cell",
+			"type": "object"
 		}
 	},
 	"required": [

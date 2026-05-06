@@ -1,267 +1,267 @@
 {
-	"$id": "https://example.com/dependency.schema.json",
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$comment": "Version 1.0.0",
-	"title": "Dependency Condition",
-	"description": "Declarative condition DSL supporting logical operators and comparisons.",
-	"examples": [
+	"title": "DependencyCondition",
+	"oneOf": [
 		{
-			"and": [
-				{
-					"op": "==",
-					"value": 10
-				},
-				{
-					"path": "other",
-					"op": "!=",
-					"value": 5
-				}
-			]
+			"title": "Simple Value",
+			"type": "object",
+			"additionalProperties": {
+				"type": [
+					"string",
+					"number",
+					"boolean",
+					"null"
+				]
+			},
+			"minProperties": 1,
+			"maxProperties": 1
 		},
 		{
-			"or": [
-				{
-					"op": "exists",
-					"path": "field"
-				},
-				{
-					"op": "matches",
-					"value": "^foo"
-				}
-			]
+			"title": "Atomic Condition",
+			"$ref": "#/definitions/atomicCondition"
 		},
 		{
-			"not": {
-				"path": "status",
-				"op": "==",
-				"value": "inactive"
-			}
+			"title": "AND Condition",
+			"$ref": "#/definitions/andCondition"
 		},
 		{
-			"op": "in",
-			"value": [
-				1,
-				2,
-				3
-			]
+			"title": "OR Condition",
+			"$ref": "#/definitions/orCondition"
 		},
 		{
-			"path": "tags",
-			"op": "contains",
-			"value": "urgent"
+			"title": "NOT Condition",
+			"$ref": "#/definitions/notCondition"
 		}
 	],
 	"definitions": {
-		"primitive": {
-			"title": "Primitive value",
-			"description": "A literal value used in comparisons.",
-			"type": [
-				"string",
-				"number",
-				"boolean",
-				"null"
-			]
-		},
-		"op": {
-			"title": "Operator",
-			"description": "Comparison operator.",
+		"operator": {
 			"type": "string",
 			"enum": [
 				"==",
 				"!=",
 				"\u003E",
-				"\u003E=",
 				"\u003C",
-				"\u003C=",
-				"exists",
-				"matches",
-				"in",
-				"contains"
+				"\u003E=",
+				"\u003C="
 			]
 		},
-		"value": {
-			"title": "Value",
-			"description": "Any valid value: primitive, array, or plain object (not a condition).",
-			"anyOf": [
+		"atomicCondition": {
+			"title": "Atomic Condition",
+			"type": "object",
+			"x-input": "OO.ui.DropdownInputWidget",
+			"oneOf": [
 				{
-					"$ref": "#/definitions/primitive"
-				},
-				{
-					"type": "array",
-					"title": "Array value",
-					"items": {
-						"$ref": "#/definitions/value"
-					}
-				},
-				{
+					"title": "Compare Current Field to Constant",
 					"type": "object",
-					"title": "Object value",
-					"not": {
-						"anyOf": [
-							{
-								"required": [
-									"and"
-								]
-							},
-							{
-								"required": [
-									"or"
-								]
-							},
-							{
-								"required": [
-									"not"
-								]
-							},
-							{
-								"required": [
-									"op"
-								]
-							}
-						]
-					},
-					"additionalProperties": {
-						"$ref": "#/definitions/value"
-					}
-				}
-			]
-		},
-		"condition": {
-			"title": "Condition",
-			"description": "A logical or comparison condition, or a shorthand value.",
-			"anyOf": [
-				{
-					"$ref": "#/definitions/comparison"
-				},
-				{
-					"$ref": "#/definitions/logical"
-				},
-				{
-					"$ref": "#/definitions/value"
-				}
-			]
-		},
-		"logical": {
-			"title": "Logical condition",
-			"description": "Combines multiple conditions using AND, OR, or NOT.",
-			"type": "object",
-			"oneOf": [
-				{
-					"title": "AND",
-					"required": [
-						"and"
-					],
-					"properties": {
-						"and": {
-							"description": "All subconditions must be true.",
-							"type": "array",
-							"items": {
-								"$ref": "#/definitions/condition"
-							},
-							"minItems": 1
-						}
-					},
-					"additionalProperties": false
-				},
-				{
-					"title": "OR",
-					"required": [
-						"or"
-					],
-					"properties": {
-						"or": {
-							"description": "At least one subcondition must be true.",
-							"type": "array",
-							"items": {
-								"$ref": "#/definitions/condition"
-							},
-							"minItems": 1
-						}
-					},
-					"additionalProperties": false
-				},
-				{
-					"title": "NOT",
-					"required": [
-						"not"
-					],
-					"properties": {
-						"not": {
-							"description": "Negates a condition.",
-							"$ref": "#/definitions/condition"
-						}
-					},
-					"additionalProperties": false
-				}
-			]
-		},
-		"comparison": {
-			"title": "Comparison condition",
-			"description": "Compares values using an operator.",
-			"type": "object",
-			"oneOf": [
-				{
-					"title": "Compare another field",
-					"description": "Compare a field (by path) to a value or check its existence.",
-					"required": [
-						"op",
-						"path"
-					],
 					"properties": {
 						"op": {
-							"$ref": "#/definitions/op"
+							"$ref": "#/definitions/operator"
 						},
-						"path": {
-							"title": "Field path",
-							"description": "Path to another field.",
-							"type": "string"
+						"value": {
+							"type": [
+								"string",
+								"number",
+								"boolean",
+								"null"
+							]
 						}
 					},
-					"additionalProperties": false
-				},
-				{
-					"title": "Compare current field to value",
-					"description": "Compare the current field to a literal value.",
 					"required": [
 						"op",
 						"value"
 					],
-					"properties": {
-						"op": {
-							"$ref": "#/definitions/op"
-						},
-						"value": {
-							"$ref": "#/definitions/value"
-						}
-					},
 					"additionalProperties": false
 				},
 				{
-					"title": "Explicit operands",
-					"description": "Compare two explicit values.",
-					"required": [
-						"op",
-						"left",
-						"right"
-					],
+					"title": "Compare Another Field to Constant",
+					"type": "object",
 					"properties": {
+						"path": {
+							"type": "string"
+						},
 						"op": {
-							"$ref": "#/definitions/op"
+							"$ref": "#/definitions/operator"
 						},
-						"left": {
-							"title": "Left operand",
-							"$ref": "#/definitions/value"
-						},
-						"right": {
-							"title": "Right operand",
-							"$ref": "#/definitions/value"
+						"value": {
+							"type": [
+								"string",
+								"number",
+								"boolean",
+								"null"
+							]
 						}
 					},
+					"required": [
+						"path",
+						"op",
+						"value"
+					],
+					"additionalProperties": false
+				},
+				{
+					"title": "Compare Current Field to Another Field",
+					"type": "object",
+					"properties": {
+						"path": {
+							"type": "string"
+						},
+						"op": {
+							"type": "string",
+							"enum": [
+								"==",
+								"!=",
+								"\u003E",
+								"\u003C",
+								"\u003E=",
+								"\u003C="
+							]
+						}
+					},
+					"required": [
+						"path",
+						"op"
+					],
+					"additionalProperties": false
+				},
+				{
+					"title": "Exists Check",
+					"type": "object",
+					"properties": {
+						"op": {
+							"type": "string",
+							"const": "exists"
+						},
+						"path": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"op",
+						"path"
+					],
+					"additionalProperties": false
+				},
+				{
+					"title": "Matches Regex",
+					"type": "object",
+					"properties": {
+						"op": {
+							"type": "string",
+							"const": "matches"
+						},
+						"value": {
+							"type": "string"
+						},
+						"path": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"op",
+						"value"
+					],
 					"additionalProperties": false
 				}
 			]
+		},
+		"andCondition": {
+			"title": "AND Condition",
+			"type": "object",
+			"properties": {
+				"and": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"title": "Atomic Condition",
+								"$ref": "#/definitions/atomicCondition"
+							},
+							{
+								"title": "Nested AND",
+								"$ref": "#/definitions/andCondition"
+							},
+							{
+								"title": "Nested OR",
+								"$ref": "#/definitions/orCondition"
+							},
+							{
+								"title": "Nested NOT",
+								"$ref": "#/definitions/notCondition"
+							}
+						]
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"and"
+			],
+			"additionalProperties": false
+		},
+		"orCondition": {
+			"title": "OR Condition",
+			"type": "object",
+			"properties": {
+				"or": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"title": "Atomic Condition",
+								"$ref": "#/definitions/atomicCondition"
+							},
+							{
+								"title": "Nested AND",
+								"$ref": "#/definitions/andCondition"
+							},
+							{
+								"title": "Nested OR",
+								"$ref": "#/definitions/orCondition"
+							},
+							{
+								"title": "Nested NOT",
+								"$ref": "#/definitions/notCondition"
+							}
+						]
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"or"
+			],
+			"additionalProperties": false
+		},
+		"notCondition": {
+			"title": "NOT Condition",
+			"type": "object",
+			"properties": {
+				"not": {
+					"oneOf": [
+						{
+							"title": "Atomic Condition",
+							"$ref": "#/definitions/atomicCondition"
+						},
+						{
+							"title": "Nested AND",
+							"$ref": "#/definitions/andCondition"
+						},
+						{
+							"title": "Nested OR",
+							"$ref": "#/definitions/orCondition"
+						},
+						{
+							"title": "Nested NOT",
+							"$ref": "#/definitions/notCondition"
+						}
+					]
+				}
+			},
+			"required": [
+				"not"
+			],
+			"additionalProperties": false
 		}
-	},
-	"$ref": "#/definitions/condition"
+	}
 }
 

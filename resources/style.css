@@ -124,6 +124,8 @@
 	display: none;
 }
 
+
+/*
 .jsonforms-switcher {
 	float: right;
 	width: auto;
@@ -131,6 +133,7 @@
 	margin-left: 0 !important;
 	z-index: 100;
 }
+*/
 
 .oo-ui-menuSelectWidget {
 }
@@ -590,11 +593,7 @@
 	margin: 0;
 	overflow: hidden;
 	cursor: pointer;
-	background: url(
-			data:image/svg + xml,
-			%3C%3Fxmlversion='1.0'%3F%3E%3Csvgxmlns='http://www.w3.org/2000/svg'width='144'height='48'%3E%3Cpathfill='%23000'd='m24 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3Cpathfill='%23ddd'd='m72 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3Cpathfill='%23696'd='m120 4-6 13-14 1 11 10-3 14 12-7 12 7-3-14 11-10-14-1z'/%3E%3C/svg%3E
-		)
-		no-repeat top left;
+	background: url( ./rating-stars.svg ) no-repeat top left;
 }
 
 .jsonforms-editor .jsonforms-rating:not(:hover) input:indeterminate + label,

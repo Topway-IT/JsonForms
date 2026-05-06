@@ -2,6 +2,7 @@
 	"definitions": {
 		"commonProperties": {
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"classes": {
 					"type": "string",
@@ -27,6 +28,7 @@
 		},
 		"textInputProperties": {
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accessKey": {
 					"type": "string",
@@ -47,7 +49,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -88,7 +93,10 @@
 				"labelPosition": {
 					"type": "string",
 					"description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
-					"enum": ["before", "after"]
+					"enum": [
+						"before",
+						"after"
+					]
 				},
 				"maxLength": {
 					"type": "integer",
@@ -127,15 +135,25 @@
 				"type": {
 					"type": "string",
 					"description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
-					"enum": ["text", "password", "email", "url", "number"]
+					"enum": [
+						"text",
+						"password",
+						"email",
+						"url",
+						"number"
+					]
 				},
 				"validate": {
 					"type": "string",
-					"description": "A regular expression that must match the value for it to be considered valid. See <a target=\"_blank\" href=\"https://json-schema.org/understanding-json-schema/reference/regular_expressions\">Regular Expressions</a>"
+					"description": "A regular expression that must match the value for it to be considered valid. See \u003Ca target=\"_blank\" href=\"https://json-schema.org/understanding-json-schema/reference/regular_expressions\"\u003ERegular Expressions\u003C/a\u003E"
 				}
 			}
 		},
 		"OO.ui.TextInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TextInputWidget OO.ui.TextInputWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/textInputProperties"
@@ -148,11 +166,15 @@
 					"$ref": "#/definitions/textInputProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"precision": {
 							"type": "string",
 							"description": "Date precision to use, 'day' or 'month'",
-							"enum": ["day", "month"]
+							"enum": [
+								"day",
+								"month"
+							]
 						},
 						"inputFormat": {
 							"type": "string",
@@ -194,6 +216,7 @@
 					"$ref": "#/definitions/textInputProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"limit": {
 							"type": "integer",
@@ -286,14 +309,29 @@
 			]
 		},
 		"OO.ui.ToggleSwitchWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ToggleSwitchWidget OO.ui.ToggleSwitchWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/commonProperties"
+				},
+				{
+					"flags": {
+						"type": "string",
+						"description": "The name or names of the flags (e.g., 'progressive' or 'primary') to apply."
+					}
 				}
 			]
 		},
 		"OO.ui.RadioSelectInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.RadioSelectInputWidget OO.ui.RadioSelectInputWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"classes": {
 					"type": "string",
@@ -302,7 +340,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -336,6 +377,7 @@
 		},
 		"numberInputProperties": {
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accessKey": {
 					"type": "string",
@@ -360,7 +402,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -401,7 +446,10 @@
 				"labelPosition": {
 					"type": "string",
 					"description": "The position of the inline label relative to that of the value or placeholder text: 'before' or 'after'",
-					"enum": ["before", "after"]
+					"enum": [
+						"before",
+						"after"
+					]
 				},
 				"max": {
 					"type": "number",
@@ -460,7 +508,13 @@
 				"type": {
 					"type": "string",
 					"description": "The value of the HTML type attribute: 'text', 'password', 'email', 'url' or 'number'.",
-					"enum": ["text", "password", "email", "url", "number"]
+					"enum": [
+						"text",
+						"password",
+						"email",
+						"url",
+						"number"
+					]
 				},
 				"validate": {
 					"type": "string",
@@ -469,6 +523,10 @@
 			}
 		},
 		"OO.ui.NumberInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.NumberInputWidget OO.ui.NumberInputWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/numberInputProperties"
@@ -477,6 +535,7 @@
 		},
 		"multiselectWidgetProperties": {
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"allowArbitrary": {
 					"type": "boolean",
@@ -533,12 +592,19 @@
 				"inputPosition": {
 					"type": "string",
 					"description": "Position of the input. Options are: - inline: The input is invisible, but exists inside the tag list, so the user types into the tag groups to add tags. - outline: The input is underneath the tag area. - none: No input supplied",
-					"enum": ["inline", "outline", "none"]
+					"enum": [
+						"inline",
+						"outline",
+						"none"
+					]
 				},
 				"orientation": {
 					"type": "string",
 					"description": "Item orientation: 'horizontal' or 'vertical'.",
-					"enum": ["horizontal", "vertical"]
+					"enum": [
+						"horizontal",
+						"vertical"
+					]
 				},
 				"placeholder": {
 					"type": "string",
@@ -565,6 +631,7 @@
 					"$ref": "#/definitions/multiselectWidgetProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"limit": {
 							"type": "integer",
@@ -598,6 +665,7 @@
 					"$ref": "#/definitions/multiselectWidgetProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"clearInputOnChoose": {
 							"type": "boolean",
@@ -621,6 +689,7 @@
 					"$ref": "#/definitions/multiselectWidgetProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"limit": {
 							"type": "integer",
@@ -632,11 +701,16 @@
 			]
 		},
 		"OO.ui.MenuTagMultiselectWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MenuTagMultiselectWidget OO.ui.MenuTagMultiselectWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/multiselectWidgetProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"clearInputOnChoose": {
 							"type": "boolean",
@@ -647,6 +721,10 @@
 			]
 		},
 		"OO.ui.ComboBoxInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ComboBoxInputWidget OO.ui.ComboBoxInputWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/textInputProperties"
@@ -654,11 +732,16 @@
 			]
 		},
 		"OO.ui.MultilineTextInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MultilineTextInputWidget OO.ui.MultilineTextInputWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/textInputProperties"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"autosize": {
 							"type": "boolean",
@@ -679,6 +762,10 @@
 			]
 		},
 		"OO.ui.MultiselectWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/commonProperties"
@@ -686,7 +773,12 @@
 			]
 		},
 		"OO.ui.ButtonSelectWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"classes": {
 					"type": "string",
@@ -700,10 +792,6 @@
 					"type": "string",
 					"description": "The HTML id attribute used in the rendered tag."
 				},
-				"items": {
-					"type": "array",
-					"description": "An array of options to add to the multiselect"
-				},
 				"multiselect": {
 					"type": "boolean",
 					"description": "Allow for multiple selections"
@@ -714,8 +802,33 @@
 				}
 			}
 		},
+		"OO.ui.CheckboxInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxInputWidget OO.ui.CheckboxInputWidget]"
+			},
+			"allOf": [
+				{
+					"$ref": "#/definitions/commonProperties"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"indeterminate": {
+							"type": "boolean",
+							"description": "Whether the checkbox is in the indeterminate state"
+						}
+					}
+				}
+			]
+		},
 		"OO.ui.CheckboxMultiselectInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxMultiselectInputWidget OO.ui.CheckboxMultiselectInputWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accessKey": {
 					"type": "string",
@@ -728,7 +841,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -761,7 +877,12 @@
 			}
 		},
 		"OO.ui.DropdownInputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.DropdownInputWidget OO.ui.DropdownInputWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accessKey": {
 					"type": "string",
@@ -774,7 +895,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -807,7 +931,12 @@
 			}
 		},
 		"OO.ui.InputWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.InputWidget OO.ui.InputWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accessKey": {
 					"type": "string",
@@ -820,7 +949,10 @@
 				"dir": {
 					"type": "string",
 					"description": "The directionality of the input (ltr/rtl).",
-					"enum": ["ltr", "rtl"]
+					"enum": [
+						"ltr",
+						"rtl"
+					]
 				},
 				"disabled": {
 					"type": "boolean",
@@ -858,6 +990,7 @@
 					"$ref": "#/definitions/OO.ui.InputWidget"
 				},
 				{
+					"x-default-properties": [],
 					"properties": {
 						"type": {
 							"type": "string",
@@ -883,15 +1016,13 @@
 				}
 			]
 		},
-		"ButtonMultiselectWidget": {
-			"allOf": [
-				{
-					"$ref": "#/definitions/commonProperties"
-				}
-			]
-		},
 		"intl-tel-input": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://github.com/jackocnr/intl-tel-input intl-tel-input]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"allowDropdown": {
 					"type": "boolean",
@@ -980,6 +1111,10 @@
 			]
 		},
 		"OO.ui.TagMultiselectWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TagMultiselectWidget OO.ui.TagMultiselectWidget]"
+			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/multiselectWidgetProperties"
@@ -997,11 +1132,49 @@
 			"allOf": [
 				{
 					"$ref": "#/definitions/commonProperties"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"ratingLength": {
+							"type": "integer",
+							"description": "length (only for integer type)"
+						}
+					}
+				}
+			]
+		},
+		"button": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/commonProperties"
+				}
+			]
+		},
+		"RangeWidget": {
+			"allOf": [
+				{
+					"$ref": "#/definitions/commonProperties"
+				},
+				{
+					"type": "object",
+					"x-default-properties": [],
+					"properties": {
+						"step": {
+							"type": "number",
+							"description": "step"
+						},
+						"valueMask": {
+							"type": "string",
+							"default": "%v"
+						}
+					}
 				}
 			]
 		},
 		"VisualEditor": {
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"classes": {
 					"type": "string",
@@ -1010,17 +1183,30 @@
 			}
 		},
 		"OO.ui.SelectFileWidget": {
+			"x-message": {
+				"label": "",
+				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.SelectFileWidget OO.ui.SelectFileWidget]"
+			},
 			"type": "object",
+			"x-default-properties": [],
 			"properties": {
 				"accept": {
 					"type": "array",
-					"items": { "type": "string" },
+					"items": {
+						"type": "string"
+					},
 					"description": "MIME types to accept."
 				},
-				"accessKey": { "type": "string", "description": "The access key" },
+				"accessKey": {
+					"type": "string",
+					"description": "The access key"
+				},
 				"dir": {
 					"type": "string",
-					"enum": ["ltr", "rtl"],
+					"enum": [
+						"ltr",
+						"rtl"
+					],
 					"description": "The directionality of the input (ltr/rtl)."
 				},
 				"disabled": {
@@ -1035,7 +1221,10 @@
 					"type": "string",
 					"description": "The symbolic name of the icon"
 				},
-				"id": { "type": "string", "description": "The HTML id attribute" },
+				"id": {
+					"type": "string",
+					"description": "The HTML id attribute"
+				},
 				"inputFilter": {
 					"type": "string",
 					"description": "The name of an input filter function"
@@ -1064,13 +1253,20 @@
 					"type": "boolean",
 					"description": "Whether to show a drop target"
 				},
-				"text": { "type": "string", "description": "Text to insert" },
+				"text": {
+					"type": "string",
+					"description": "Text to insert"
+				},
 				"thumbnailSizeLimit": {
 					"type": "number",
 					"description": "File size limit in MiB"
 				},
-				"title": { "type": "string", "description": "The title text" }
+				"title": {
+					"type": "string",
+					"description": "The title text"
+				}
 			}
 		}
 	}
 }
+
