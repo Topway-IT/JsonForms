@@ -3,12 +3,12 @@
 	"oneOf": [
 		{
 			"title": "Provider Source",
-			"description": "Reference to a watched field or registered function that provides options",
+			"description": "Reference to a watched field that provides options",
 			"type": "object",
 			"properties": {
 				"source": {
 					"type": "string",
-					"description": "Name of the watched field or registered function"
+					"description": "Name of the watched field"
 				},
 				"title": {
 					"type": "string",
@@ -20,7 +20,7 @@
 				},
 				"filter": {
 					"type": "string",
-					"description": "Filter function name or expression"
+					"description": "Filter expression"
 				}
 			},
 			"required": [

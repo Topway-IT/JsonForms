@@ -39,9 +39,10 @@ JsonFormsSlotManager.prototype.onFormButton = function (action, editor) {
 				'innerEditor.validation_results',
 				innerEditor.validation_results,
 			);
-			
+
 			if (innerEditor.validation_results.length) {
-				alert('there are errors');
+				JsonForms.Alert('there are errors');
+				return;
 			} else {
 				this.submitForm().catch((err) => console.error('API error:', err));
 			}
@@ -84,7 +85,7 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 			options = { wikieditor: 'WikiEditor', visualeditor: 'VisualEditor' };
 			break;
 
-/*
+		/*
 		case 'css':
 		case 'javascript':
 				options = { codeeditor: 'codeEditor' };
@@ -97,14 +98,13 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 */
 		default:
 			if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
-				// , 'JsonForms',  codeeditor: 'codeEditor', 
+				// , 'JsonForms',  codeeditor: 'codeEditor',
 				options = { jsoneditor: 'JSON Editor' };
 			}
 	}
-	
-	
+
 	// @TODO complete codeEditor widget
-	delete options.codeeditor
+	delete options.codeeditor;
 
 	// console.log('options', options);
 	return options;
@@ -118,25 +118,31 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 	roles = JsonForms.Utilities.removeArrayItem(roles, 'main');
 	roles = JsonForms.Utilities.removeArrayItem(roles, 'jsonforms-metadata');
 
-	this.enumProviders['slotRolesSource'] = () => roles;
+	this.enumProviders.slotRoles = () => {
+		return {
+			source: () => roles,
+		};
+	};
 
-	this.enumProviders['editorByContentModelSource'] =
-		this.editorByContentModelSource;
+	this.enumProviders.editorByContent = () => {
+		return {
+			source: this.editorByContentModelSource,
+		};
+	};
 
 	this.defaultOptions.callbacks.button = {
 		...(this.defaultOptions?.callbacks?.button ?? {}),
-
 		...{
 			submitButton: (editor) => {
-				this.onFormButton('submit',editor);
+				this.onFormButton('submit', editor);
 			},
 		},
 	};
 
-	this.defaultOptions.callbacks.template = {
-		...this.defaultOptions.callbacks.template,
-		...this.enumProviders,
-	};
+	// this.defaultOptions.callbacks.template = {
+	// 	...this.defaultOptions.callbacks.template,
+	// 	...this.enumProviders,
+	// };
 };
 
 JsonFormsSlotManager.prototype.submitForm = function () {
@@ -307,4 +313,3 @@ $(function () {
 		// editor.on('change', editorOnChange);
 	});
 });
-

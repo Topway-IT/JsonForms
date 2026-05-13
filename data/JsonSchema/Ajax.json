@@ -4,7 +4,7 @@
 	"x-layout": "tabs",
 	"items": {
 		"title": "Person",
-		"headerTemplate": "{{i}} - {{self.name}}",
+		"x-title-template": "{{i}} - {{self.name}}",
 		"anyOf": [
 			{
 				"$ref": "JsonSchema:BasicPerson",

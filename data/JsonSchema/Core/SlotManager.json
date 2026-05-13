@@ -55,18 +55,14 @@
 					"title": "Content model",
 					"default": "wikitext",
 					"x-watch": "role",
-					"x-enum-source": {
-						"source": "contentModelByRoleSource"
-					}
+					"x-enum-provider": "contentModelByRole"
 				},
 				"editor": {
 					"type": "string",
 					"title": "Editor",
 					"default": "source",
 					"x-watch": "content_model",
-					"x-enum-source": {
-						"source": "editorByContentModelSource"
-					}
+					"x-enum-provider": "editorByContentModel"
 				},
 				"content": {
 					"type": "string",
@@ -122,9 +118,7 @@
 					"name": {
 						"title": "slot name",
 						"type": "string",
-						"x-enum-source": {
-							"source": "slotRolesSource"
-						}
+						"x-enum-provider": "slotRoles"
 					}
 				}
 			},

@@ -46,7 +46,8 @@
 
 	ColorPickerPopup.prototype.setPickerValue = function ( value ) {
 		this.embeddable.setValue( value );
-		this.emit( 'valueSet', value );
+		// this.emit( 'valueSet', value );
+		this.emit('change', value.code);
 	};
 
 	ColorPickerPopup.prototype.getPickerValue = function () {

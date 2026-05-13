@@ -5,7 +5,7 @@
 		"status"
 	],
 	"type": "object",
-	"title": "Task ddfd",
+	"title": "Task",
 	"properties": {
 		"belongs to": {
 			"type": "string",

@@ -7,6 +7,8 @@ export default {
 	remove_empty_properties: true,
 	remove_false_properties: false,
 	callbacks: {
+		enum_providers: {		
+		},
 		autocomplete: {
 		},
 		template: {

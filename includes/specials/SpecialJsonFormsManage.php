@@ -115,12 +115,15 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$action = $this->getRequest()->getVal( 'action' );
 
-		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
-		$jsonForm = json_decode( $jsonForm, true );
+		// $jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
+		// $jsonForm = json_decode( $jsonForm, true );
+		$jsonForm = \JsonForms::getSourceSchema( 'SimpleFormUI', 'JsonSchema/Core' );
 
-		// $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
-		$formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
-		$formDescriptor = json_decode( $formDescriptor, true );
+		// // $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
+		// $formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
+		// $formDescriptor = json_decode( $formDescriptor, true );
+		$formDescriptor = \JsonForms::getSourceSchema( 'Default', 'JsonForm' );
+
 		$formDescriptor['edit_categories'] = false;
 		// $formDescriptor['width'] = '800px';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
@@ -157,8 +160,9 @@ class SpecialJsonFormsManage extends SpecialPage {
 			case 'forms':
 				$item = 'form';
 				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
-				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
-				$innerSchema = json_decode( $innerSchema, true );
+				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
+				// $innerSchema = json_decode( $innerSchema, true );
+				$innerSchema = \JsonForms::getSourceSchema( 'CreatePageForm', 'JsonSchema/Core' );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 				// ***important, encode schema otherwise $refs can mess with
@@ -180,8 +184,9 @@ class SpecialJsonFormsManage extends SpecialPage {
 */
 				$item = 'schema';
 				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';				
-				$innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
-				$innerSchema = json_decode( $innerSchema, true );
+				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
+				// $innerSchema = json_decode( $innerSchema, true );
+				$innerSchema = \JsonForms::getSourceSchema( 'MetaSchema', 'JsonSchema/SchemaBuilder' );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 				// ***important, encode schema otherwise $refs can mess with

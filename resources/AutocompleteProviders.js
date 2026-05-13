@@ -169,6 +169,6 @@
 	};
 
 	// attach instance
-	JsonForms.AutocompleteProviders = new AutocompleteProviders();
+	JsonForms.autocompleteProviders = new AutocompleteProviders();
 })();
 

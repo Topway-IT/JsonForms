@@ -47,10 +47,10 @@ JsonFormsManageSchemas.prototype.initialize = async function () {
 		},
 	};
 
-	this.defaultOptions.callbacks.template = {
-		...this.defaultOptions.callbacks.template,
-		...this.enumProviders,
-	};
+	// this.defaultOptions.callbacks.template = {
+	// 	...this.defaultOptions.callbacks.template,
+	// 	...this.enumProviders,
+	// };
 
 	// console.log('this.defaultOptions', this.defaultOptions);
 
@@ -63,21 +63,28 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 
 	switch (action) {
 		case 'submit':
-	/*
 			console.log(
 				'innerEditor.validation_results',
 				innerEditor.validation_results,
 			);
-	*/
+
 			if (innerEditor.validation_results.length) {
-				alert('there are errors');
+				JsonForms.Alert('there are errors');
+				return;
 			}
 
-			const schemaName = innerEditor.getSchemaName()
-			if ( schemaName && innerEditor.getValue()['x-name'] !== schemaName ) {
-				if ( !confirm('This will rename the schema, ok ? (not yet implemented)' ) ) {
-					return
-				}			
+			const schemaName = innerEditor.getSchemaName();
+			if (schemaName && innerEditor.getValue()['x-name'] !== schemaName) {
+				JsonForms.Alert(
+					'This will rename the schema, ok ?',
+					{ size: 'small' },
+					() => {
+						this.submitForm(innerEditor).catch((err) =>
+							console.error('API error:', err),
+						);
+					},
+				);
+				return;
 			}
 			this.submitForm(innerEditor).catch((err) =>
 				console.error('API error:', err),
@@ -85,7 +92,7 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 			break;
 
 		case 'cancel':
-			alert('cancel');
+			// alert('cancel');
 			break;
 	}
 };
@@ -116,29 +123,36 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 		vars[path] = structuredValue[path].value;
 	}
 
+	// Create a shallow copy to avoid mutating the original
+	const formDescriptor = { ...this.formDescriptor };
+
 	// console.log('vars', vars);
 
-	if (this.formDescriptor.pagename_formula) {
-		const template = this.editor.compileTemplate(
-			this.formDescriptor.pagename_formula,
+	if (!formDescriptor.pagename_formula) {
+		console.error(
+			'JsonFormsManageSchemas formDescriptor.pagename_formula not set',
 		);
-
-		this.formDescriptor.pagename_formula = this.editor.getTemplateResult(
-			template,
-			vars,
-		);
+		return;
 	}
+
+	// $formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';
+	// or $formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';
+	// server-side
+	const template = this.editor.compileTemplate(formDescriptor.pagename_formula);
+	const title = this.editor.getTemplateResult(template, vars);
 
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
 	const data = {
 		value: innerEditor.getValue(),
-		// *** not necessary, but add more options here if needed
-		// options: {
-		// 	main_slot_content_model: 'json'
-		// },
+		// edit_page is set via $formDescriptor['edit_page']
+		// so on move 'edit_page' will be the source and options.tite
+		// the target
+		options: {
+			title,
+		},
 		structuredValue,
-		formDescriptor: this.formDescriptor,
+		formDescriptor,
 		config: mw.config.get('jsonforms'),
 
 		//submit processor
@@ -147,7 +161,7 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 
 	console.log('data', data);
 
-	var payload = {
+	const payload = {
 		data: JSON.stringify(data),
 		action: 'jsonforms-submit-form',
 	};
@@ -258,3 +272,4 @@ $(function () {
 		});
 	});
 });
+

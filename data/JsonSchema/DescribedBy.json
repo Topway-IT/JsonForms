@@ -24,7 +24,8 @@
 			"links": [
 				{
 					"rel": "describedBy",
-					"href": "#/definitions/{{propertyType}}"
+					"href": "#/definitions/{{propertyType}}",
+					"x-destroy-values-on-switch": true
 				}
 			]
 		}

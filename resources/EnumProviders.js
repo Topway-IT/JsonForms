@@ -1,13 +1,17 @@
 // use IIFE, this ensure name is scoped
 (function () {
 	function EnumProviders() {
+	
+/*
 		this.providers = {
 			jsonSchemas: this.jsonSchemas,
 			contentModels: this.contentModels,
 			jsonSlots: this.jsonSlots,
 			slotRoles: this.slotRoles,
 			contentModelByRole: this.contentModelByRole,
+			metaSchemaFormatToInput: this.metaSchemaFormatToInput
 		};
+*/
 	}
 
 	EnumProviders.prototype.getTitlesInNamespace = function (nsId) {
@@ -42,6 +46,102 @@
 				});
 
 			return pending;
+		};
+	};
+
+	EnumProviders.prototype.metaSchemaFormatToInput = function () {
+		return {
+			source: (jseditor, { item, watched }) => {
+				const format = watched['x-format'] || watched['format'];
+				// console.log('watched', watched);
+
+				switch (format) {
+					case 'autocomplete':
+						return ['autocomplete', 'LookupElement'];
+
+					case 'captcha':
+						return ['captcha'];
+
+					case 'color':
+						return ['ColorPicker'];
+
+					case 'date-time':
+						return ['mw.widgets.DateTimeInputWidget'];
+
+					case 'time':
+						return ['mw.widgets.DateTimeInputWidget'];
+
+					case 'date':
+						return ['mw.widgets.DateInputWidget'];
+
+					case 'json':
+						return ['JsonEditor', 'jsonForms'];
+
+					case 'hidden':
+						return ['OO.ui.HiddenInputWidget'];
+
+					case 'month':
+						return ['month'];
+
+					case 'rating':
+						return ['RatingWidget'];
+
+					case 'stripe':
+						return ['stripe'];
+
+					case 'tel':
+						return ['intl-tel-input'];
+
+					case 'text':
+						return [
+							'mw.widgets.TitleInputWidget',
+							'mw.widgets.UserInputWidget',
+							'OO.ui.ButtonSelectWidget',
+							'OO.ui.ComboBoxInputWidget',
+							'OO.ui.DropdownInputWidget',
+							'OO.ui.RadioSelectInputWidget',
+							'OO.ui.TextInputWidget',
+						];
+	
+					case 'email':
+					case 'idn-email':
+					case 'hostname':
+					case 'idn-hostname':
+					case 'ipv4':
+					case 'ipv6':
+					case 'uri':
+					case 'uri-reference':
+					case 'iri':
+					case 'uri-template':
+					case 'json-pointer':
+					case 'relative-json-pointer':
+					case 'regex':
+						return [
+							'OO.ui.TextInputWidget',
+						];
+
+					case 'textarea':
+						return ['OO.ui.MultilineTextInputWidget'];
+
+					case 'url':
+						return ['OO.ui.TextInputWidget'];
+
+					case 'textarea':
+						return ['OO.ui.MultilineTextInputWidget'];
+					case 'uuid':
+						return ['uuid'];
+					case 'week':
+						return ['week'];
+
+					case 'wikitext':
+						return ['VisualEditor', 'WikiEditor'];
+				}
+			},
+			filter: (jseditor, { item, watched }) => {
+				return true;
+			},
+			title: (jseditor, { item, watched }) => item.text,
+			value: (jseditor, { item, watched }) => item.value,
 		};
 	};
 
@@ -110,5 +210,6 @@
 	};
 
 	// attach instance
-	JsonForms.EnumProviders = new EnumProviders();
+	JsonForms.enumProviders = new EnumProviders();
 })();
+

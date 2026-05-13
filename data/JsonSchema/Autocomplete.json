@@ -4,6 +4,7 @@
 	"properties": {
 		"text": {
 			"type": "string",
+			"x-format": "autocomplete",
 			"x-input": "LookupElement",
 			"title": "Wikipedia lookup (Page titles)",
 			"description": "Enter a text of minimum 3 characters.",
@@ -16,6 +17,7 @@
 		},
 		"text2": {
 			"type": "string",
+			"x-format": "autocomplete",
 			"x-input": "LookupElement",
 			"title": "DAWA lookup (Danish streetnames)",
 			"description": "Enter a text of minimum 3 characters.",
@@ -27,6 +29,7 @@
 		},
 		"text3": {
 			"type": "string",
+			"x-format": "hidden",
 			"x-input": "LookupElement",
 			"title": "Local form lookup (Font names from 'possibleFonts' array)",
 			"description": "Enter a text of minimum 1 characters. (Try 'a')",
@@ -36,6 +39,7 @@
 			}
 		},
 		"possibleFonts": {
+			"x-format": "hidden",
 			"type": "array",
 			"x-layout": "table",
 			"items": {

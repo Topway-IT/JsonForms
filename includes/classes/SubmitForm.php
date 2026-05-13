@@ -255,6 +255,20 @@ class SubmitForm {
 
 		[ $processedData, $returnData ] = $res_->value;
 
+		// move page
+		if ( $processedData['movePage'] ) {
+			[ $oldTitle, $newTitle ] = $processedData['movePage'];
+			$reason = 'JsonForms move';
+			$createRedirect = false;
+			if ( !\JsonForms::movePage( $this->user, $oldTitle, $newTitle, $reason, $createRedirect ) ) {
+				return [
+					'errors' => [ 
+						$this->context->msg( 'jsonforms-special-submit-move-error', $oldTitle->getFullText(), $newTitle->getFullText(),  )->text() 
+					]
+				];
+			}
+		}
+
 		$services->getHookContainer()->run( 'JsonForms::FormSubmitBeforeSave', [
 			$this->user,
 			&$data,
@@ -269,9 +283,6 @@ class SubmitForm {
 		}
 
 		$slotEditor = new SlotEditor();
-		
-		// @TODO move page
-		// 'movePage' => $movePage,
 
 		$summary = $data['options']['summary'] ?? '';
 		$minor = $data['options']['minor'] ?? false;

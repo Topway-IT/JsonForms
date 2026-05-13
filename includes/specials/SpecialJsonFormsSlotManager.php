@@ -86,12 +86,14 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$out->enableOOUI();
 
-		$jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
-		$jsonForm = json_decode( $jsonForm, true );
+		// $jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
+		// $jsonForm = json_decode( $jsonForm, true );
+		$jsonForm = \JsonForms::getSourceSchema( 'SimpleFormUI', 'JsonSchema/Core' );
 		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		$innerSchema = file_get_contents(  __DIR__ . '/../schemas/SlotManager.json');
-		$innerSchema = json_decode( $innerSchema, true );
+		// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/SlotManager.json');
+		// $innerSchema = json_decode( $innerSchema, true );
+		$innerSchema = \JsonForms::getSourceSchema( 'SlotManager', 'JsonSchema/Core' );
 		$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 		// ***important, encode schema otherwise $refs can mess with

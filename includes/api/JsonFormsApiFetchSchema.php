@@ -53,7 +53,9 @@ class JsonFormsApiFetchSchema extends ApiBase {
 		$output = $this->getContext()->getOutput();
 
 		$schemaName = $params['schema'];
-		$schema = \JsonForms::getJsonSchema( $schemaName );
+		// $schema = \JsonForms::getJsonSchema( $schemaName );
+
+		$schema = \JsonForms::getSourceSchema( $schemaName );
 		$result_ = \JsonForms::processSchema( $output, $schema );
 
 		$result->addValue( [ $this->getModuleName() ], 'result', json_encode( $result_ ) );

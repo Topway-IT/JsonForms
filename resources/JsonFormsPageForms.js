@@ -22,7 +22,7 @@
 function JsonFormsPageForm(el, data) {
 	JsonFormsPageForm.super.call(this, el, data);
 
-	this.pageFormUI = mw.config.get('jsonforms').pageFormUI;
+	// this.pageFormUI = mw.config.get('jsonforms').pageFormUI;
 	this.formDescriptor = data.formDescriptor;
 	// console.log('this.schema', this.schema);
 
@@ -307,7 +307,8 @@ JsonForms.prototype.createPopup = async function (config) {
 						const innerEditor = innerformEditor.input.editor;
 
 						if (innerEditor.validation_results.length) {
-							alert('there are errors');
+							JsonForms.Alert('there are errors');
+							return;
 						} else {
 							dialog.layout.setItem(panels[1]);
 							dialog.setSize('medium');
@@ -325,7 +326,8 @@ JsonForms.prototype.createPopup = async function (config) {
 					const innerEditor = innerformEditor.input.editor;
 
 					if (innerEditor.validation_results.length) {
-						alert('there are errors');
+						JsonForms.Alert('there are errors');
+						return;
 					} else {
 						return getActionProcess.call(this, action).next(() => {
 							// return promise
@@ -398,7 +400,8 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				innerEditor.validation_results.length
 			) {
 
-				alert('there are errors');
+				JsonForms.Alert('there are errors');
+				return;
 			} else {
 				const optionsEditor = jsonEditor.getEditor('root.form.options');
 				this.submitForm(innerEditor, optionsEditor).catch((err) =>
@@ -423,7 +426,8 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				submitButton.theme.toggle(submitButton.container, true);
 				gobackButton.theme.toggle(gobackButton.container, true);
 			} else {
-				alert('there are errors');
+				JsonForms.Alert('there are errors');
+				return;
 			}
 		}
 	}
@@ -467,7 +471,7 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 
 	console.log('data', data);
 
-	var payload = {
+	const payload = {
 		data: JSON.stringify(data),
 		action: 'jsonforms-submit-form',
 	};

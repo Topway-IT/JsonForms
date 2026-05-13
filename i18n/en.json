@@ -36,6 +36,7 @@
 	"jsonforms-special-submit-article-exists": "article exists",
 	"jsonforms-special-submit-cannot-create-wikipage": "create wikipage error",
 	"jsonforms-special-submit-return-url-error": "url error",
+	"jsonforms-special-submit-move-error": "move error (from '$1' to $2')",
 
 	"jsonforms-parserfunction-error-no-form-name": "no form name",
 	"jsonforms-parserfunction-error-no-form": "no form",

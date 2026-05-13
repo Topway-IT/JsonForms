@@ -54,12 +54,12 @@
 				},
 				"title": {
 					"type": "string",
-					"description": "The title text or a function that returns text."
+					"description": "The title text"
 				}
 			}
 		},
 		"uiSchemaItem": {
-			"description": "Defines a UI schema configuration for adding dynamic properties to objects. Used with x-additional-properties-ui to allow users to add new properties at runtime.",
+			"description": "Defines a UI schema configuration for adding dynamic properties to objects.",
 			"type": "object",
 			"required": ["label", "schema", "name"],
 			"properties": {
@@ -70,11 +70,10 @@
 				},
 				"schema": {
 					"type": "string",
-					"description": "Reference to the JSON schema definition - must start with 'JsonSchema:MetaSchema/'",
-					"pattern": "^JsonSchema:MetaSchema/",
+					"description": "Reference to the JSON schema definition",
 					"examples": [
-						"JsonSchema:MetaSchema/Field",
-						"JsonSchema:MetaSchema/Subitem"
+						"JsonSchema:SchemaBuilder/Field",
+						"JsonSchema:SchemaBuilder/Subitem"
 					]
 				},
 				"name": {
@@ -94,10 +93,10 @@
 				},
 				"x-css-class": {
 					"type": "string",
-					"description": "Custom CSS class name to apply to the field container"
+					"description": "Custom CSS class name to apply to the container"
 				},
 				"x-dependency": {
-					"$ref": "JsonSchema:MetaSchema/Dependencies",
+					"$ref": "JsonSchema:SchemaBuilder/Dependencies",
 					"description": "Conditional display logic - field only shown when dependencies are met"
 				}
 			}
@@ -116,21 +115,31 @@
 				},
 				"title": {
 					"type": "string",
-					"description": "Human-readable title for the field"
+					"description": "Field title"
 				},
 				"description": {
 					"type": "string",
 					"x-format": "textarea",
-					"description": "Human-readable description or help text for the field"
+					"description": "Description or help text for the field"
 				},
 				"x-wikitext-title": {
 					"type": "string",
-					"description": "Wikitext-formatted title for MediaWiki environments"
+					"description": "Wikitext-formatted title (overrides title)"
 				},
 				"x-wikitext-description": {
 					"type": "string",
 					"x-format": "textarea",
-					"description": "Wikitext-formatted description for MediaWiki environments"
+					"description": "description template (overrides description)"
+				},
+				"x-title-template": {
+					"type": "string",
+					"x-format": "text",
+					"description": "title template (overrides title, usually used in conjunction with x-watch)"
+				},
+				"x-description-template": {
+					"type": "string",
+					"x-format": "textarea",
+					"description": "description template (overrides description, usually used in conjunction with x-watch)"
 				},
 				"$comment": {
 					"type": "string",
@@ -143,7 +152,8 @@
 				},
 				"$ref": {
 					"x-message": {
-						"label": "Attention, the type of object containing the reference must be undefined, or the type of the referenced object !!",
+						"label": "main text for the message",
+						"x-label-tempate": "label template (overrides label, usually used in conjunction with x-watch)",
 						"type": "warning"
 					},
 					"format": "uri-reference",
@@ -184,6 +194,10 @@
 					"type": "boolean",
 					"description": "Field can be written but not read (e.g., password fields)"
 				},
+				"x-runtime-only": {
+					"type": "boolean",
+					"description": "Field only used at runtime (e.g., pagename formula)"
+				},
 				"x-watch": {
 					"description": "Watched fields for reactive updates. Can be an array of fields, or key/value pairs mapping alias to field name.",
 					"oneOf": [
@@ -215,12 +229,12 @@
 			"properties": {
 				"title": {
 					"type": "string",
-					"description": "Human-readable title for the field"
+					"description": "Field title"
 				},
 				"description": {
 					"type": "string",
 					"x-format": "textarea",
-					"description": "Human-readable description or help text for the field"
+					"description": "Description or help text for the field"
 				},
 				"oneOf": {
 					"description": "Schema must be valid against exactly one of the subschemas (logical XOR)",
@@ -298,7 +312,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				}
@@ -345,9 +359,13 @@
 						"x-input": "OO.ui.TagMultiselectWidget"
 					}
 				},
-				"x-enum-source": {
-					"$ref": "JsonSchema:MetaSchema/EnumProvider",
-					"description": "Dynamic source for enum"
+				"x-enum-template": {
+					"$ref": "JsonSchema:SchemaBuilder/EnumTemplate",
+					"description": "Dynamic source for enum using templates"
+				},
+				"x-enum-provider": {
+					"type": "text",
+					"description": "Name of the registered enum provider to be used in selects. Must be registered in EnumProviders.providers and provide at least a \"source\" method"
 				},
 				"maxLength": {
 					"minimum": 0,
@@ -389,7 +407,7 @@
 					"enum": ["custom", "default"],
 					"default": "custom",
 					"writeOnly": true,
-					"description": "Selects whether to use standard JSON Schema formats ('default') or custom MediaWiki formats ('custom')"
+					"description": "Selects whether to use standard JSON Schema formats or custom formats"
 				},
 				"format": {
 					"type": "string",
@@ -424,6 +442,7 @@
 						"captcha",
 						"color",
 						"json",
+						"hidden",
 						"month",
 						"rating",
 						"stripe",
@@ -439,10 +458,12 @@
 					"x-dependency": {
 						"x-format-type": "custom"
 					},
-					"description": "Custom MediaWiki format type"
+					"description": "Custom format type"
 				},
 				"x-input": {
-					"enum": [
+					"x-watch": ["format", "x-format"],
+					"x-enum-provider": "metaSchemaFormatToInput",
+					"enum_": [
 						"autocomplete",
 						"ColorPicker",
 						"intl-tel-input",
@@ -459,21 +480,39 @@
 						"OO.ui.DropdownInputWidget",
 						"OO.ui.MultilineTextInputWidget",
 						"OO.ui.TextInputWidget",
-						"RadioSelectInputWidget",
+						"OO.ui.RadioSelectInputWidget",
 						"RatingWidget",
+						"uuid",
 						"VisualEditor",
 						"WikiEditor"
 					],
 					"x-dependency": {
-						"and": [
+						"or": [
 							{
-								"path": "x-format",
-								"op": "exists"
+								"and": [
+									{
+										"path": "x-format",
+										"op": "exists"
+									},
+									{
+										"path": "x-format",
+										"op": "!=",
+										"value": ""
+									}
+								]
 							},
 							{
-								"path": "x-format",
-								"op": "!=",
-								"value": ""
+								"and": [
+									{
+										"path": "format",
+										"op": "exists"
+									},
+									{
+										"path": "format",
+										"op": "!=",
+										"value": ""
+									}
+								]
 							}
 						]
 					},
@@ -492,7 +531,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				},
@@ -606,7 +645,7 @@
 					"type": "string",
 					"enum": ["number", "range"],
 					"default": "number",
-					"description": "Custom MediaWiki format type"
+					"description": "Custom format type"
 				},
 				"x-input": {
 					"enum": ["OO.ui.NumberInputWidget", "RangeWidget"],
@@ -628,7 +667,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				},
@@ -705,7 +744,7 @@
 					"type": "string",
 					"enum": ["number", "range", "rating"],
 					"default": "number",
-					"description": "Custom MediaWiki format type"
+					"description": "Custom format type"
 				},
 				"x-input": {
 					"enum": ["OO.ui.NumberInputWidget", "RangeWidget", "RatingWidget"],
@@ -727,7 +766,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				},
@@ -791,7 +830,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				},
@@ -836,7 +875,7 @@
 					"type": "string",
 					"enum": ["null", "info", "button"],
 					"default": "null",
-					"description": "Custom MediaWiki format type"
+					"description": "Custom format type"
 				},
 				"x-input-config": {
 					"type": "object",
@@ -847,7 +886,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/button"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/button"
 						}
 					]
 				},
@@ -984,7 +1023,7 @@
 					"links": [
 						{
 							"rel": "describedBy",
-							"href": "JsonSchema:MetaSchema/InputOptions#/definitions/{{x-input}}"
+							"href": "JsonSchema:SchemaBuilder/InputOptions#/definitions/{{x-input}}"
 						}
 					]
 				},
@@ -1097,22 +1136,22 @@
 					"x-additional-properties-ui_": [
 						{
 							"label": "field",
-							"schema": "JsonSchema:MetaSchema/Field",
+							"schema": "JsonSchema:SchemaBuilder/Field",
 							"name": "field"
 						},
 						{
 							"label": "subitem",
-							"schema": "JsonSchema:MetaSchema/Subitem",
+							"schema": "JsonSchema:SchemaBuilder/Subitem",
 							"name": "subitem"
 						},
 						{
 							"label": "geolocation",
-							"schema": "JsonSchema:MetaSchema/Geolocation",
+							"schema": "JsonSchema:SchemaBuilder/Geolocation",
 							"name": "geolocation"
 						},
 						{
 							"label": "survey",
-							"schema": "JsonSchema:MetaSchema/Survey",
+							"schema": "JsonSchema:SchemaBuilder/Survey",
 							"name": "survey"
 						}
 					]

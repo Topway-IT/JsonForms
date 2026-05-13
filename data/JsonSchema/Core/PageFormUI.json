@@ -38,21 +38,13 @@
 							"title": "data slot's role",
 							"description": "Target slot role for form data",
 							"default": "",
-							"x-enum-source": [
-								{
-									"source": "jsonSlotsSource"
-								}
-							]
+							"x-enum-provider": "jsonSlots"
 						},
 						"main_slot_content_model": {
 							"title": "content model of main slot",
 							"type": "string",
 							"default": "wikitext",
-							"x-enum-source": [
-								{
-									"source": "contentModelsSource"
-								}
-							],
+							"x-enum-provider": "contentModels",
 							"x-dependency": {
 								"data_slot": {
 									"op": "!=",

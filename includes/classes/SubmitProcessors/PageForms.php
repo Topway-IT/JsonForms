@@ -252,6 +252,16 @@ metadata can be stored:
 			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-permission-error' )->text() );
 		}
 
+		$previousPage = null;
+		if (
+			!empty( $data['options']['title'] ) &&
+			!empty( $data['formDescriptor']['edit_page'] )
+		) {
+			$previousPage = TitleClass::newFromText( $data['formDescriptor']['edit_page'] );
+		}
+
+		$refTargetTitle = ( !$previousPage ? $targetTitle : $previousPage );
+
 		// if ( $data['options']['action'] === 'delete' ) {
 			
 		// }
@@ -264,42 +274,39 @@ metadata can be stored:
 			$contentModel = $data['formDescriptor']['default_main_slot_content_model'];
 
 		// $contentModel = $data['config']['contentModel'];
-		} else if ( $targetTitle->isKnown() ) {
-			$contentModel = $targetTitle->getContentModel();
+		} else if ( $refTargetTitle->isKnown() ) {
+			$contentModel = $refTargetTitle->getContentModel();
 		}
 
 		$main_slot_content = $data['options']['main_slot_content'] ?? null;
 		
-		if ( $targetTitle->isKnown() ) {
-			if ( empty( $data['formDescriptor']['edit_page'] ) ) {
-				if ( $data['formDescriptor']['overwrite_existing_article_on_create'] !== true ) {
-					return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
-						$targetTitle->getDBKey() )->parse() );
-				}
-			// page edit through $data['formDescriptor']['edit_page']
-			} else {
-			}
-		} else {
+		if ( !$targetTitle->isKnown() && !$previousPage) {
 			$isNewPage = true;
-			// *** create new revision if necessary
-			// if ( !$this->createInitialRevision( $targetTitle, $main_slot_content, $contentModel, $errors ) ) {
-			//	return ResultWrapper::failure(  $this->context->msg( 'jsonforms-special-submit-cannot-initialize-new-revision',
-			// 		$targetTitle->getDBKey(), $contentModel )->parse() );
-			// }
+		}
+
+		// action create, but target title exists
+		if (
+			$targetTitle->isKnown() &&
+			empty( $data['formDescriptor']['edit_page'] ) &&
+			$data['formDescriptor']['overwrite_existing_article_on_create'] !== true
+		) {
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
+				$targetTitle->getDBKey() )->parse() );
 		}
 
 		$movePage = false;
 		if (
-			!empty( $data['formDescriptor']['edit_page'] ) &&
-			$data['formDescriptor']['edit_page'] !== $targetTitle->getFullText()
+			$previousPage &&
+			$previousPage->getFullText() !== $targetTitle->getFullText()
 		) {
 			$movePage = [
-				$data['formDescriptor']['edit_page'],
-				$targetTitle->getFullText()
+				$previousPage,
+				$targetTitle
 			];
 		}
 
 		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
+		$refWikiPage = \JsonForms::getWikiPage( $refTargetTitle );
 		
 		if ( !$wikiPage ) {
 			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' )->text() );
@@ -331,12 +338,11 @@ metadata can be stored:
 
 		// update content model if necessary
 		if (
-			$targetTitle &&
 			!$isNewPage &&
 			$contentModel &&
-			$contentModel !== $targetTitle->getContentModel()
+			$contentModel !== $refTargetTitle->getContentModel()
 		) {
-			$this->updateContentModel( $targetTitle, $wikiPage, $contentModel, $errors );
+			$this->updateContentModel( $refTargetTitle, $wikiPage, $contentModel, $errors );
 		}
 
 		if ( count( $errors ) ) {
@@ -353,7 +359,7 @@ metadata can be stored:
 			$targetSlot = 'main';
 
 		} else {
-			$targetSlot = \JsonForms::getFirstJsonSlot( $wikiPage );		
+			$targetSlot = \JsonForms::getFirstJsonSlot( $refWikiPage );		
 		}
 
 		if ( !$targetSlot ) {

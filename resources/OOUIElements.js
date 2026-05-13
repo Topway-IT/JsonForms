@@ -21,6 +21,17 @@
 
 // use IIFE, this ensure name is scoped
 (function () {
+	function createWindowManager() {
+		const windowManager = new OO.ui.WindowManager({
+			classes: ['jsonforms-ooui-window'],
+		});
+		$(document.body).append(windowManager.$element);
+
+		return windowManager;
+	}
+
+	// STANDARD DIALOG
+
 	function Dialog(config, callbacks, editor) {
 		config = Object.assign(
 			{ size: 'large', classes: ['jsonforms-form-dialog'] },
@@ -130,9 +141,7 @@
 	};
 
 	Dialog.prototype.open = function () {
-		// const windowManager = createWindowManager();
-		const windowManager = new OO.ui.WindowManager();
-		$(document.body).append(windowManager.$element);
+		const windowManager = createWindowManager();
 
 		const myDialog = this;
 		const title = this.title;
@@ -142,6 +151,119 @@
 		});
 	};
 
+	// NON-MODAL DIALOG
+
+	SimpleDialog = function (config) {
+		this.config = config;
+		SimpleDialog.super.call(this, config);
+	};
+
+	OO.inheritClass(SimpleDialog, OO.ui.Dialog);
+	SimpleDialog.static.title = 'Non modal dialog';
+
+	SimpleDialog.prototype.initialize = function () {
+		SimpleDialog.super.prototype.initialize.apply(this, arguments);
+		this.content = new OO.ui.PanelLayout({ padded: false, expanded: false });
+
+		const messageWidget = new OO.ui.MessageWidget({
+			type: this.config.type,
+			label: new OO.ui.HtmlSnippet(this.config.htmlMessage),
+			classes: [],
+			showClose: true,
+		});
+
+		this.content.$element.append(messageWidget.$element);
+
+		messageWidget.on('toggle', (visible) => {
+			if (!visible) {
+				this.close();
+			}
+		});
+
+		// this.content.$element.append($('<p>').html(this.config.htmlMessage));
+
+		// const closeButton = new OO.ui.ButtonWidget({
+		// 	label: OO.ui.msg('ooui-dialog-process-dismiss'),
+		// });
+
+		// closeButton.on('click', () => {
+		// 	this.close();
+		// });
+
+		// this.content.$element.append($('<p>'));
+		// this.content.$element.append(closeButton.$element);
+		this.$body.append(this.content.$element);
+	};
+
+	/*
+SimpleDialog.prototype.getSetupProcess = function (data) {
+	
+	return SimpleDialog.super.prototype.getSetupProcess.call( this, data )
+		.next( () => {
+			// this.content.$element.empty();
+			this.content.$element.append( data.html );
+		} );
+};
+*/
+
+	SimpleDialog.prototype.getBodyHeight = function () {
+		return this.content.$element.outerHeight(true);
+	};
+
+	NonModalDialog = function (config) {};
+
+	NonModalDialog.prototype.open = function (dialogConfig) {
+		const manager = new OO.ui.WindowManager({
+			modal: false,
+			forceTrapFocus: true,
+			classes: ['jsonforms-dialogs-non-modal'],
+		});
+
+		$(document.body).append(manager.$element);
+
+		// const dialogConfig = {
+		//	size: 'large'
+		// };
+
+		const name = 'window_nonmodaldialog';
+		const windows = {};
+		windows[name] = new SimpleDialog(dialogConfig);
+
+		manager.addWindows(windows);
+
+		manager.openWindow(name);
+	};
+
+	// ALERT
+
+	function Alert(text, options, callback) {
+		const windowManager = createWindowManager();
+
+		const dialog = new OO.ui.MessageDialog({ padded: false });
+		windowManager.addWindows([dialog]);
+
+		const obj = { message: text };
+
+		// do not pass a callback to show only the accept button
+		if (!callback) {
+			obj.actions = [OO.ui.MessageDialog.static.actions[0]];
+		}
+
+		return (
+			windowManager
+				.openWindow('message', $.extend(obj, options))
+				// closed.then((action) => action.action === 'accept');
+				.closed.then(function (action) {
+					return action.action === 'accept' && callback
+						? callback.apply(this)
+						: undefined;
+				})
+		);
+	}
+
+
 	// attach to constructor
 	JsonForms.Dialog = Dialog;
+	JsonForms.Alert = Alert;
+	JsonForms.NonModalDialog = NonModalDialog;
 })();

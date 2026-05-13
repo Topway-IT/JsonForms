@@ -75,9 +75,9 @@ class JsonForms {
 		$data = [];
 		$errorMessage = null;
 
-		$formSchema = file_get_contents(  __DIR__ . '/schemas/CreatePageForm.json');
-		$formSchema = json_decode( $formSchema, true );
-
+		// $formSchema = file_get_contents(  __DIR__ . '/schemas/CreatePageForm.json');
+		// $formSchema = json_decode( $formSchema, true );
+		$formSchema = self::getSourceSchema( 'CreatePageForm', 'JsonSchema/Core' );
 		$parameters = new FormParameters($argv, $formSchema );
 
 		$named = $parameters->getOptions();
@@ -93,7 +93,8 @@ class JsonForms {
 			return $functionReturn(self::printError( $parserOutput, 'jsonforms-parserfunction-error-no-form-name' ) );
 		}
 
-		$formDescriptor = self::getJsonSchema( 'JsonForm:' . $formName  );
+		// $formDescriptor = self::getJsonSchema( 'JsonForm:' . $formName  );
+		$formDescriptor = self::getSourceSchema( $formName, 'JsonForm' );
 		if ( empty( $formDescriptor ) ) {
 			return $functionReturn(self::printError( $parserOutput, 'jsonforms-parserfunction-error-no-form' ) );
 		}
@@ -111,8 +112,9 @@ class JsonForms {
 
 		// @TODO pass it separately and manage client-side since the popup
 		// form doesn't need this
-		$jsonForm = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
-		$jsonForm = json_decode( $jsonForm, true );
+		// $jsonForm = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
+		// $jsonForm = json_decode( $jsonForm, true );		
+		$jsonForm = self::getSourceSchema( 'PageFormUI', 'JsonSchema/Core' );
 
 		$startVal = [];
 		// or ParserOptions::newFromAnon()
@@ -157,7 +159,8 @@ class JsonForms {
 		$schemaName = null;
 		$schema = [];
 		if ( !empty( $formDescriptor['schema'] ) ) {
-			$schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
+			// $schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
+			$schema = self::getSourceSchema( $formDescriptor['schema'], 'JsonSchema' );
 
 			$schemaName = $formDescriptor['schema'];
 			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = 'JsonSchema:' . $schemaName;
@@ -633,6 +636,77 @@ class JsonForms {
 	}
 
 	/**
+	 * @param string $name
+	 * @param string|null $path
+	 * @return void
+	 */
+	public static function getSourceSchema( $name, $path = null ) {
+	// JsonSchema:SchemaBuilder/EnumProvider
+		// from the api
+		if ( !$path ) {
+			$title = TitleClass::newFromText( $name );
+			if ( $title && $title->isKnown() ) {
+				$name = $title->getText();
+				$ns = $title->getNamespace();
+				$formattedNamespaces = MediaWikiServices::getInstance()
+					->getContentLanguage()->getFormattedNamespaces();
+				$path = $formattedNamespaces[$ns];
+
+			} else {
+				// Fallback: extract path from the name or use default
+				[ $path, $name ] = explode( ':', $name, 2 );
+			}
+		}
+
+		$pathArr = explode( '/', $path );
+		$namespace = array_shift( $pathArr );
+		$titleText = $namespace . ':' . ( count( $pathArr ) ? implode( '/', $pathArr ) . '/' : '' ) . $name;
+
+		$pageTimestamp = (int)self::getPageLastRevisionTimestamp( $titleText, TS_UNIX);
+		$filePath =  __DIR__ . '/../data/' . $path . '/' . $name . '.json';
+
+		$fileTimestamp = file_exists( $filePath) ? filemtime( $filePath ) : 0;
+		if ( !$pageTimestamp && !$fileTimestamp ) {
+			throw new MWException( "no json '$name' ('$path')");
+		}
+
+		if ( $pageTimestamp === null || $fileTimestamp > $pageTimestamp ) {
+			$contents = file_get_contents( $filePath );
+			return json_decode( $contents, true );
+		}
+
+		return self::getJsonArticle( $titleText );
+	}
+
+	/**
+	 * Get the last revision timestamp of a page
+	 *
+	 * @param string $titleText
+	 * @param string $format Output format
+	 * @return string|null
+	 */
+	public static function getPageLastRevisionTimestamp( $titleText, $format = TS_MW ) {
+		$title = TitleClass::newFromText( $titleText );
+
+		if ( !$title || !$title->exists() ) {
+			return null;
+		}
+
+		$wikiPage = MediaWikiServices::getInstance()
+			->getWikiPageFactory()
+			->newFromTitle( $title );
+
+		$revisionRecord = $wikiPage->getRevisionRecord();
+		if ( !$revisionRecord ) {
+			return null;
+		}
+
+		$timestamp = $revisionRecord->getTimestamp();
+		// convert format
+		return wfTimestamp( $format, $timestamp );
+	}
+
+	/**
 	 * @param OutputPage $output
 	 * @param array $out
 	 * @return void
@@ -680,11 +754,11 @@ class JsonForms {
 			'jsonforms-show-notice-outdated-version' => $showOutdatedVersion,
 		], $config );
 
-		if ( isset( $config['context'] ) && $config['context'] === 'parserfunction' ) {
-			$pageFormUI = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
-			$config['pageFormUI'] = json_decode( $pageFormUI, true );
-			$config['pageFormUI'] = self::processSchema( $output, $config['pageFormUI'] );
-		}
+		// if ( isset( $config['context'] ) && $config['context'] === 'parserfunction' ) {
+		// 	$pageFormUI = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
+		// 	$config['pageFormUI'] = json_decode( $pageFormUI, true );
+		// 	$config['pageFormUI'] = self::processSchema( $output, $config['pageFormUI'] );
+		// }
 
 		$output->addJsConfigVars( [
 			// @see VEForAll ext.veforall.target.js -> getPageName
@@ -894,7 +968,7 @@ class JsonForms {
 	 * @param string $titleText
 	 * @return array
 	 */
-	public static function getJsonSchema( $titleText ) {
+	public static function getJsonArticle( $titleText ) {
 		$title = TitleClass::newFromText( $titleText );
 
 		if ( !$title || !$title->isKnown() ) {
@@ -1168,6 +1242,42 @@ class JsonForms {
 		}
 
 		return $schema;
+	}
+
+	/**
+	 * @see api/ApiMove.php => MovePage
+	 * @param User $user
+	 * @param Title|MediaWiki\Title\Title $from
+	 * @param Title|MediaWiki\Title\Title $to
+	 * @param string|null $reason
+	 * @param bool $createRedirect
+	 * @param array $changeTags
+	 * @return bool
+	 */
+	public static function movePage( $user, $from, $to, $reason = null, $createRedirect = false, $changeTags = [] ) {
+		// Validate inputs
+		if ( !$from || !$to ) {
+			return false;
+		}
+
+		$services = MediaWikiServices::getInstance();
+		$movePageFactory = $services->getMovePageFactory();
+		$mp = $movePageFactory->newMovePage( $from, $to );
+
+		$validStatus = $mp->isValidMove();
+		if ( !$validStatus->isOK() ) {
+			return false;
+		}
+
+		// Check permissions
+		$permStatus = $mp->authorizeMove( $user, $reason ?? '' );
+		if ( !$permStatus->isOK() ) {
+			return false;
+		}
+
+		$status = $mp->move( $user, $reason ?? '', $createRedirect, $changeTags );
+
+		return $status->isOK();
 	}
 
 	/**

@@ -71,7 +71,7 @@
 					"x-watch": {
 						"target": "vehicles"
 					},
-					"x-enum-source": {
+					"x-enum-template": {
 						"title": "{{item.Vehicle type}} {{item.Make}} {{item.Model}}",
 						"value": "{{item._localId}}",
 						"source": "target"
@@ -296,8 +296,7 @@
 					"x-format": "textarea"
 				},
 				"Num vehicles": {
-					"type": "string",
-					"x-format": "number"
+					"type": "integer"
 				},
 				"Surface type": {
 					"enum": [

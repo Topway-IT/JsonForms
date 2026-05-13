@@ -18,12 +18,7 @@
 			"description": "",
 			"default": "",
 			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
-			"x-enum-source": {
-				"source": "jsonSchemasSource",
-				"filter": "jsonSchemasFilter",
-				"title": "jsonSchemasTitle",
-				"value": "jsonSchemasValue"
-			}
+			"x-enum-provider": "jsonSchemas"
 		},
 		"edit_categories": {
 			"type": "boolean",
@@ -45,9 +40,7 @@
 			"title": "Default slot",
 			"description": "Default slot for form data: if different than main the related article will be saved as a Multi-Content-Revision",
 			"default": "main",
-			"x-enum-source": {
-				"source": "jsonSlotsSource"
-			}
+			"x-enum-provider": "jsonSlots"
 		},
 		"edit_data_slot_role": {
 			"type": "boolean",
@@ -81,9 +74,7 @@
 			"type": "string",
 			"title": "Default content model of main slot",
 			"default": "wikitext",
-			"x-enum-source": {
-				"source": "contentModelsSource"
-			},
+			"x-enum-provider": "contentModels",
 			"x-dependency": {
 				"path": "default_data_slot",
 				"op": "!=",

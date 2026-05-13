@@ -36,8 +36,13 @@ JsonForms.prototype.initialize = async function () {
 	this.editorOptions = await this.getModule(this.data.editorOptions);
 	this.editorScript = await this.getModule(this.data.editorScript);
 
-	this.enumProviders = this.formatProviders(JsonForms.EnumProviders);
-	this.autocompleteProviders = this.formatProviders(JsonForms.AutocompleteProviders);
+	// this.enumProviders = this.formatProviders(JsonForms.enumProviders);
+	this.enumProviders = JsonForms.enumProviders;
+
+	// console.log('this.enumProviders',this.enumProviders)
+
+	// @TODO simplify as in emumProviders
+	this.autocompleteProviders = this.formatProviders(JsonForms.autocompleteProviders);
 
 	const UISchemaConverters = new JsonForms.UISchemaConverters();
 	
@@ -50,10 +55,16 @@ JsonForms.prototype.initialize = async function () {
 	// console.log('defaultOptions',defaultOptions)
 
 	defaultOptions.callbacks ??= {};
-	defaultOptions.callbacks.template = {
+	// defaultOptions.callbacks.template = {
+	// 	...this.enumProviders,
+	// 	...(defaultOptions?.callbacks?.template ?? {}),
+	// };
+
+	defaultOptions.callbacks.enum_providers = {
 		...this.enumProviders,
-		...(defaultOptions?.callbacks?.template ?? {}),
+		...(defaultOptions?.callbacks?.enum_providers ?? {}),
 	};
+
 	defaultOptions.callbacks.autocomplete = {
 		...this.autocompleteProviders,
 		...(defaultOptions?.callbacks?.autocomplete ?? {}),
@@ -131,7 +142,7 @@ console.log('isMWSchema config',mw.config)
 };
 
 JsonForms.prototype.fetchSchema = function (schema) {
-	// console.log('fetchSchema',schema)
+	//  console.log('fetchSchema',schema)
 	const payload = {
 		action: 'jsonforms-fetch-schema',
 		format: 'json',
@@ -144,6 +155,7 @@ JsonForms.prototype.fetchSchema = function (schema) {
 			// console.log('thisRes', thisRes);
 			let result = thisRes[payload.action].result;
 			result = JSON.parse(result);
+			// console.log('result', result);
 			resolve(result);
 		});
 	}).catch((err) => {
