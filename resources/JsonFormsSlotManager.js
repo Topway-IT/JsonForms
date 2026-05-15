@@ -65,20 +65,6 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 
 	const contentModel = watched?.content_model || 'wikitext';
 
-	// @ATTENTION, before that that content model is updated
-	// with the default or initial value, it will be CSS
-	// therefore these options will be 'source'
-	// and this will set the value to source instead
-	// of VisualEditor (since the options don't contain
-	// it anymore
-
-	// console.log('editor', editor);
-
-	if (editor.jsoneditor.pendingPostBuild > 0) {
-		// return;
-	}
-	// console.log('contentModel', contentModel);
-
 	let options = ['source'];
 	switch (contentModel) {
 		case 'wikitext':
@@ -104,9 +90,9 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 	}
 
 	// @TODO complete codeEditor widget
-	delete options.codeeditor;
+	//delete options.codeeditor;
 
-	// console.log('options', options);
+	console.log('options', options);
 	return options;
 };
 
@@ -124,7 +110,7 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 		};
 	};
 
-	this.enumProviders.editorByContent = () => {
+	this.enumProviders.editorByContentModel = () => {
 		return {
 			source: this.editorByContentModelSource,
 		};

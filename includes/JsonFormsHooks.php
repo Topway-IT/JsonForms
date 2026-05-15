@@ -44,6 +44,7 @@ class JsonFormsHooks {
 	 */
 	public static function onParserFirstCallInit( Parser $parser ) {
 		$parser->setFunctionHook( 'jsonforms', [ \JsonForms::class, 'parserFunctionForm' ] );
+		$parser->setFunctionHook( 'jsonformsrender', [ \JsonForms::class, 'parserFunctionRender' ] );
 		$parser->setFunctionHook( 'jsonformsquerylink', [ \JsonForms::class, 'parserFunctionQueryLink' ] );
 	}
 

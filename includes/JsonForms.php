@@ -27,8 +27,10 @@ use MediaWiki\Extension\JsonForms\Aliases\Linker as LinkerClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Extension\JsonForms\FormParameters;
 use MediaWiki\Extension\JsonForms\QueryLinkParameters;
+use MediaWiki\Extension\JsonForms\RecursiveObjectIterator;
 use MediaWiki\Extension\JsonForms\ResultWrapper;
 use MediaWiki\Extension\JsonForms\SlotHelper;
+use MediaWiki\Extension\JsonForms\TemplateRender;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
@@ -46,6 +48,57 @@ class JsonForms {
 	public static $queryLimit = 500;
 
 	public static function initialize() {
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param mixed ...$argv
+	 * @return array
+	 */
+	public static function parserFunctionRender( Parser $parser, ...$argv ) {
+		// @TODO, create separate schema or merge with parserFunctionForm
+		// (action = render)
+		$formSchema = [
+			'type' =>'object',
+			'properties' => [
+				'schema' => [
+					'type' => 'string',
+				],
+				'slot' => [
+					'type' => 'string',
+				]
+			]
+		];
+
+		$titleText = $argv[0];
+		
+		$parameters = new FormParameters($argv, $formSchema );
+
+		$named = $parameters->getOptions();
+
+		$title = TitleClass::newFromText( $titleText );
+			
+		$wikiPage = self::getWikiPage( $title );
+				
+		$content = self::getSlotContent( $wikiPage, $named['slot'] );
+		// echo $content;
+		
+		$obj = json_decode( $content, false );
+		
+		// print_r($obj);
+		
+		$templateRender = new TemplateRender( $parser );
+
+        $templatePrefix = 'Template:' . $named['schema'];
+		$ret = $templateRender->render(  $obj, $templatePrefix );
+
+		// echo $ret;
+		// exit;
+		return [
+			$ret,
+			'noparse' => false,
+			'isHTML' => false
+		];
 	}
 
 	/**
@@ -130,11 +183,16 @@ class JsonForms {
 						// *** or use $renderedRevision->getSlotParserOutput( $role )
 						foreach ( $metadata['slots'] as $role => $slotData ) {
 							// $slotData : model, editor, schema
-							if ( !array_key_exists( 'schema', $slotData ) ) {
-								continue;
-							}
+							// if ( !array_key_exists( 'schema', $slotData ) ) {
+							// 	continue;
+							// }
 
-							if ( $slotData['schema'] === self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . $formDescriptor['schema'] ) {
+							// @TODO use the heuristic method as in SubmitForm -> PageForm
+							if ( $role === $formDescriptor['default_data_slot'] ) {
+
+			// var_dump(self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . $formDescriptor['schema']);
+			// self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . 
+							// if ( $slotData['schema'] === $formDescriptor['schema'] ) {
 								$content = self::getSlotContent( $wikiPage, $role );
 								if ( $content ) {
 									$startVal['form']['editor'] = $content;
@@ -197,7 +255,7 @@ class JsonForms {
 		// this will be converted to an empty js arrany and the
 		// editor won't work anymore
 		if ( !empty( $startVal ) ) {
-			$formData['startVal'] = $startVal;
+			$formData['startval'] = $startVal;
 		}
 
 		$formData = \JsonForms::prepareFormData( $output, $formData );

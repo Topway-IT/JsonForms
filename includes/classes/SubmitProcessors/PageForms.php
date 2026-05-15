@@ -367,11 +367,11 @@ metadata can be stored:
 		}
 
 		$dataToSave = $data['value'];
-		if ( !empty( $data['formDescriptor']['start_path'] ) ) {
-			$dataToSave = \JsonForms::getSlotContent( $wikiPage, $targetSlot );
-			$dataToSave = SlotEditor::parseMaybeJSON( $dataToSave );
-			$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
-		}
+		// if ( !empty( $data['formDescriptor']['start_path'] ) ) {
+		// 	$dataToSave = \JsonForms::getSlotContent( $wikiPage, $targetSlot );
+		// 	$dataToSave = SlotEditor::parseMaybeJSON( $dataToSave );
+		// 	$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
+		// }
 
 		$slots = [
 			$targetSlot => [
@@ -383,7 +383,7 @@ metadata can be stored:
 
 		// determine freetext
 		if ( $isNewPage &&
-			!array_key_exists( 'main_slot_content', $data['options'] ) &&
+			$main_slot_content === null &&
 			!empty( $data['formDescriptor']['preload'] )
 		) {
 			$title_ = \JsonForms::getTitleIfKnown( $data['formDescriptor']['preload'] );
@@ -392,28 +392,40 @@ metadata can be stored:
 			}
 		}
 
+		if ( $main_slot_content === null && !$isNewPage ) {
+			$main_slot_content = \JsonForms::getWikipageContent( $targetTitle );
+		}
+
 		// trigger_error('$targetSlot ' . print_r($slots,1));
 
 		// @ATTENTION !! if freetext is NULL the slot content
 		// must not be edited in order to keep it unchanged
-		if ( $targetSlot !== 'main' && $main_slot_content !== null ) {
+		if ( $targetSlot !== 'main' ) {
 			$slots[SlotRecord::MAIN] = [
 				'model' => $contentModel,
-				'content' => $freetext
+				'content' => $main_slot_content
 			];
 		}
-		
+
 		// set metadata
 		// JsonFormsHooks::$PageUpdate[$targetTitle->getFullText()] = $metadata;
 		$metadata = [
 			'slots' => [
-				$targetSlot => [
-					'editor' => 'JsonForms',
-					'model' => 'json',
-					'schema' => $data['formDescriptor']['schema']
+				SlotRecord::MAIN => [
+					'model' => $contentModel,
+					'editor' => ( $contentModel === 'wikitext' ? 'WikiEditor' :
+						( $contentModel === 'json' ? 'JsonEditor' : 'source' ) ) 
 				]
 			]
 		];
+
+		if ( $targetSlot !== 'main' ) {
+			$metadata['slots'][$targetSlot] = [
+				'editor' => 'JsonEditor',
+				'model' => 'json',
+				'schema' => $data['formDescriptor']['schema']
+			];
+		}
 
 		if (
 			!empty( $data['options']['categories'] ) &&

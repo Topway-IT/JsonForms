@@ -29,5 +29,6 @@ $magicWords = [];
 
 $magicWords['en'] = [
 	'jsonforms' => [ 0, 'jsonform', 'jsonforms' ],
+	'jsonformsrender' => [ 0, 'jsonformsrender', 'jsonformrender' ],
 	'jsonformsquerylink' => [ 0, 'jsonformsquerylink', 'querylink' ],
 ];

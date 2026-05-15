@@ -152,7 +152,7 @@
 				},
 				"$ref": {
 					"x-message": {
-						"label": "main text for the message",
+						"label": "Reference to another schema (eg. #definitions/subschema, or JsonSchema:SubSchema, or JsonSchema:SubSchema#definitions/sub-subschema)",
 						"x-label-tempate": "label template (overrides label, usually used in conjunction with x-watch)",
 						"type": "warning"
 					},

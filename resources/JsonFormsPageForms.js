@@ -230,7 +230,8 @@ JsonForms.prototype.createPopup = async function (config) {
 			);
 			const editor = this.createEditor(el, {
 				...config,
-				startval: hasData ? this.startval.form.editor : undefined,
+				/// startval: hasData ? this.startval.form.editor : undefined,
+				startval: this.startval,
 				start_path: 'form.editor',
 			});
 			

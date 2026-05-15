@@ -286,7 +286,7 @@ class SlotManager extends SubmitForm {
 		if ( !empty( $titleStr ) ) {
 			$targetTitle = TitleClass::newFromText( $titleStr );
 		}
-	
+
 		if ( empty( $targetTitle ) ) {
 			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-notitle' )->text() );
 		}
@@ -330,6 +330,8 @@ class SlotManager extends SubmitForm {
 			]
 		];
 
+		$metadataPrevious = \JsonForms::getMetadata( $wikiPage );
+
 		$metadata = [
 			'slots' => [
 				SlotRecord::MAIN => [
@@ -339,9 +341,13 @@ class SlotManager extends SubmitForm {
 			]
 		];
 
-		if ( $data['value']['editor'] === 'JsonForms' ) {
-			$metadata['slots'][SlotRecord::MAIN]['schema'] = $data['structuredValue']['content']['schemaName'];
+		if ( $contentModel === 'json' && !empty( $metadataPrevious['slots'][SlotRecord::MAIN]['schema'] ) ) {
+			$metadata['slots'][SlotRecord::MAIN]['schema'] = $metadataPrevious['slots'][SlotRecord::MAIN]['schema'];
 		}
+
+		// if ( $data['value']['editor'] === 'JsonForms' ) {
+		// 	$metadata['slots'][SlotRecord::MAIN]['schema'] = $data['structuredValue']['content']['schemaName'];
+		// }
 
 		if ( !empty( $data['value']['categories'] ) &&
 			is_array( $data['value']['categories'] )
@@ -369,8 +375,11 @@ class SlotManager extends SubmitForm {
 					'editor' => $value['editor'],			
 				];
 
-				if ( $value['editor'] === 'JsonForms' ) {
-					$metadata['slots'][$key]['schema'] = $data['structuredValue']["$key.content"]['schemaName'];
+				// if ( $value['editor'] === 'JsonForms' ) {
+				// 	$metadata['slots'][$key]['schema'] = $data['structuredValue']["$key.content"]['schemaName'];
+				// }
+				if ( $value['content_model'] === 'json' && !empty( $metadataPrevious['slots'][$key]['schema'] ) ) {
+					$metadata['slots'][$key]['schema'] = $metadataPrevious['slots'][$key]['schema'];
 				}
 			}
 		}
