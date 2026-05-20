@@ -43,6 +43,8 @@ class SpecialJsonForms extends SpecialPage {
 		$out->setRobotPolicy( $this->getRobotPolicy() );
 
 		$user = $this->getUser();
+		$this->setHeaders();
+		$this->outputHeader();
 
 		$securityLevel = $this->getLoginSecurityLevel();
 
@@ -51,25 +53,47 @@ class SpecialJsonForms extends SpecialPage {
 			return;
 		}
 
+		if ( !$user->isAllowed( 'edit' ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
+
 		$this->addHelpLink( 'Extension:JsonForms' );
 
-		$out->addModules( 'ext.JsonForms.editor' );
-		$context = RequestContext::getMain();
+		$out->addModules( 'ext.JsonForms.newArticle' );
+		// $context = RequestContext::getMain();
 
-		// form descriptor
-		$formName = $par ?? 'CreateArticle';
+		$jsonForm = \JsonForms::getSourceSchema( 'NewArticle', 'JsonSchema/Core' );
+		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		$errorMessage = null;
-		$data = [];
-		$res_ = \JsonForms::getJsonForm( $out, $formName, $data );
+		$formData = [
+			'schema' => $jsonForm,
+			'name' => 'SlotManager',
+			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+			'editorScript'=> 'MediaWiki:DefaultEditorScript',
+		];
+
+		if ( !empty( $startValInnerForm ) ) {
+			$formData['startval'] = [
+				'editor' => json_encode( $startValInnerForm )
+			];
+		}
+
+		$formData = \JsonForms::prepareFormData( $out, $formData );
+
+		$res_ = \JsonForms::getJsonFormHtml( $formData, [
+			'width' => '100%'
+		] );
 
 		if ( !$res_->ok ) {
 			return $this->printError( $out, $res_->error );
 		}
 
+		$html = $res_->value;
+
 		\JsonForms::addJsConfigVars( $out );
 		
-		$out->addHTML( $res_->value );
+		$out->addHTML( $html );
 	}
 
 	/**

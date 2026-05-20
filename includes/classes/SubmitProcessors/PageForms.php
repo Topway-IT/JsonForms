@@ -117,7 +117,7 @@ class PageForms extends SubmitForm {
     "edit_main_slot_content_model": false,
     "edit_main_slot_content": false,
     "default_main_slot_content_model": "wikitext",
-    "edit_page": "",
+    "edit": "",
     "pagename_formula": "JsonData:Person/#count",
     "create_only_fields": [],
     "overwrite_existing_article_on_create": false,
@@ -227,8 +227,8 @@ metadata can be stored:
 		if ( !empty( $data['options']['title'] ) ) {
 			$titleStr = $data['options']['title'];
 
-		} elseif ( !empty( $data['formDescriptor']['edit_page'] ) ) {
-			$titleStr = $data['formDescriptor']['edit_page'];
+		} elseif ( !empty( $data['formDescriptor']['edit'] ) ) {
+			$titleStr = $data['formDescriptor']['edit'];
 
 		} elseif ( !empty( $data['formDescriptor']['pagename_formula'] ) ) {
 			$targetTitle = $data['formDescriptor']['pagename_formula'];
@@ -255,9 +255,9 @@ metadata can be stored:
 		$previousPage = null;
 		if (
 			!empty( $data['options']['title'] ) &&
-			!empty( $data['formDescriptor']['edit_page'] )
+			!empty( $data['formDescriptor']['edit'] )
 		) {
-			$previousPage = TitleClass::newFromText( $data['formDescriptor']['edit_page'] );
+			$previousPage = TitleClass::newFromText( $data['formDescriptor']['edit'] );
 		}
 
 		$refTargetTitle = ( !$previousPage ? $targetTitle : $previousPage );
@@ -266,20 +266,22 @@ metadata can be stored:
 			
 		// }
 
-		$contentModel = 'wikitext';
-		if ( !empty( $data['options']['main_slot_content_model'] ) ) {
-			$contentModel = $data['options']['main_slot_content_model'];
-			
-		} else if ( !empty( $data['formDescriptor']['default_main_slot_content_model'] ) ) {
-			$contentModel = $data['formDescriptor']['default_main_slot_content_model'];
+		$contentModelMainSlot = 'wikitext';
+
+		// user defined, not set if is a new page or target slot is main
+		if ( !empty( $data['options']['freetext_content_model'] ) ) {
+			$contentModelMainSlot = $data['options']['freetext_content_model'];
+
+		// } else if ( !empty( $data['formDescriptor']['default_main_slot_content_model'] ) ) {
+		// 	$contentModel = $data['formDescriptor']['default_main_slot_content_model'];
 
 		// $contentModel = $data['config']['contentModel'];
 		} else if ( $refTargetTitle->isKnown() ) {
-			$contentModel = $refTargetTitle->getContentModel();
+			$contentModelMainSlot = $refTargetTitle->getContentModel();
 		}
 
-		$main_slot_content = $data['options']['main_slot_content'] ?? null;
-		
+		$main_slot_content = $data['options']['freetext'] ?? null;
+
 		if ( !$targetTitle->isKnown() && !$previousPage) {
 			$isNewPage = true;
 		}
@@ -287,7 +289,7 @@ metadata can be stored:
 		// action create, but target title exists
 		if (
 			$targetTitle->isKnown() &&
-			empty( $data['formDescriptor']['edit_page'] ) &&
+			empty( $data['formDescriptor']['edit'] ) &&
 			$data['formDescriptor']['overwrite_existing_article_on_create'] !== true
 		) {
 			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
@@ -339,21 +341,21 @@ metadata can be stored:
 		// update content model if necessary
 		if (
 			!$isNewPage &&
-			$contentModel &&
-			$contentModel !== $refTargetTitle->getContentModel()
+			$contentModelMainSlot &&
+			$contentModelMainSlot !== $refTargetTitle->getContentModel()
 		) {
-			$this->updateContentModel( $refTargetTitle, $wikiPage, $contentModel, $errors );
+			$this->updateContentModel( $refTargetTitle, $wikiPage, $contentModelMainSlot, $errors );
 		}
 
 		if ( count( $errors ) ) {
 			return ResultWrapper::failure( $errors[0] );
 		}
-		
-		if ( !empty( $data['options']['data_slot'] ) ) {
-			$targetSlot = $data['options']['data_slot'];
-			
-		} else if ( !empty( $data['formDescriptor']['default_data_slot'] ) ) {
-			 $targetSlot = $data['formDescriptor']['default_data_slot'];
+
+		// if ( !empty( $data['options']['data_slot'] ) ) {
+		//	$targetSlot = $data['options']['data_slot'];	
+		//} else
+		if ( !empty( $data['formDescriptor']['slot'] ) ) {
+			 $targetSlot = $data['formDescriptor']['slot'];
 
 		} else if ( $isNewPage && $main_slot_content === null ) {
 			$targetSlot = 'main';
@@ -366,18 +368,25 @@ metadata can be stored:
 			$targetSlot = SLOT_ROLE_JSONFORMS_DATA;
 		}
 
-		$dataToSave = $data['value'];
+		$dataToSave = $this->postProcessJsonData( $data['value'], $data['structuredValue'] );
+
 		// if ( !empty( $data['formDescriptor']['start_path'] ) ) {
 		// 	$dataToSave = \JsonForms::getSlotContent( $wikiPage, $targetSlot );
 		// 	$dataToSave = SlotEditor::parseMaybeJSON( $dataToSave );
 		// 	$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
 		// }
 
+		if ( !empty( $formDescriptor['edit_path'] ) ) {
+			$wholeData = \JsonForms::getSlotContent( $refWikiPage, $targetSlot );
+			\JsonForms::setValueByPath( $wholeData, $formDescriptor['edit_path'], $dataToSave );
+			$dataToSave = $wholeData;
+		}
+
 		$slots = [
 			$targetSlot => [
 				'model' => 'json',
 				// this will strip writeOnly and other post-processing
-				'content' => json_encode( $this->postProcessJsonData( $dataToSave, $data['structuredValue'] ) )
+				'content' => json_encode( $dataToSave )
 			]
 		];
 
@@ -402,7 +411,7 @@ metadata can be stored:
 		// must not be edited in order to keep it unchanged
 		if ( $targetSlot !== 'main' ) {
 			$slots[SlotRecord::MAIN] = [
-				'model' => $contentModel,
+				'model' => $contentModelMainSlot,
 				'content' => $main_slot_content
 			];
 		}
@@ -412,9 +421,9 @@ metadata can be stored:
 		$metadata = [
 			'slots' => [
 				SlotRecord::MAIN => [
-					'model' => $contentModel,
+					'model' => $contentModelMainSlot,
 					'editor' => ( $contentModel === 'wikitext' ? 'WikiEditor' :
-						( $contentModel === 'json' ? 'JsonEditor' : 'source' ) ) 
+						( $contentModelMainSlot === 'json' ? 'JsonEditor' : 'source' ) ) 
 				]
 			]
 		];
@@ -423,9 +432,13 @@ metadata can be stored:
 			$metadata['slots'][$targetSlot] = [
 				'editor' => 'JsonEditor',
 				'model' => 'json',
-				'schema' => $data['formDescriptor']['schema']
+				'schema' => $data['formDescriptor']['schema'],
+				// 'show_infobox' => $data['formDescriptor']['show_infobox'],
+				// 'infobox_template' => $data['formDescriptor']['infobox_template']
 			];
 		}
+
+		// 'ugroups' => $data['formDescriptor']['ugroups'],
 
 		if (
 			!empty( $data['options']['categories'] ) &&

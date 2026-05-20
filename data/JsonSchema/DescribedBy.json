@@ -68,7 +68,7 @@
 					"x-format": "color"
 				},
 				"year": {
-					"type": "string",
+					"type": "integer",
 					"title": "Build Year"
 				}
 			}

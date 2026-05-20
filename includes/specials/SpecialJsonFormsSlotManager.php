@@ -69,11 +69,11 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$user = $this->getUser();
 
-		// if ( !$user->isAllowed( 'jsonforms-canmanageschemas' )
-		// 	&& !$user->isAllowed( 'jsonforms-caneditschema' ) ) {
-		// 	$this->displayRestrictionError();
-		// 	return;
-		// }
+		$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
+		if ( !count( array_intersect( $groups, \JsonForms::getUserGroups( $user ) ) ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
 
 		$out = $this->getOutput();
 
@@ -129,7 +129,17 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 					if ( isset( $metadata['slots'][$role]['editor'] ) ) {
 						$val['editor'] = $metadata['slots'][$role]['editor'];
 					}
-					$val['content'] = \JsonForms::getSlotContent( $wikiPage, $role );
+					$content = \JsonForms::getSlotContent( $wikiPage, $role );
+					if ( strtolower( $val['editor'] ) !== 'jsonforms' ) {
+						$val['content'] = $content;
+
+					} else {
+						$content = json_decode( $content, true );
+						$val['content'] = json_encode( [
+							'schema' => $metadata['slots'][$role]['schema'] ?? '',
+							'editor' => $content						
+						]);
+					}
 				};
 
 				if ( array_key_exists( SlotRecord::MAIN, $slots ) ) {
@@ -147,21 +157,22 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 				}
 			}
 		}
-		
-		$startVal = [
-			'editor' => json_encode( $startValInnerForm )
-		];
 
 		$formData = [
 			'schema' => $jsonForm,
 			'name' => 'SlotManager',
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',
-			'startval'=> $startVal,
 			'metadata'=> $metadata,
 			'editPage' => $editPage,
 		];
 
+		if ( !empty( $startValInnerForm ) ) {
+			$formData['startval'] = [
+				'editor' => json_encode( $startValInnerForm )
+			];
+		}
+// print_r($startValInnerForm);
 		$formData = \JsonForms::prepareFormData( $out, $formData );
 
 		$res_ = \JsonForms::getJsonFormHtml( $formData, [

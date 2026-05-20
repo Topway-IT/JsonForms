@@ -1,5 +1,6 @@
 {
 	"title": "JSON Schema builder",
+	"$id": "MetaSchema",
 	"description": "Meta-schema for defining editable JSON schemas with UI layout controls, custom input widgets, and conditional display logic. Extends standard JSON Schema with MediaWiki-specific widget configurations and layout options.",
 	"x-layout": "paged",
 	"x-layout-config": {
@@ -69,17 +70,32 @@
 					"examples": ["field", "subitem"]
 				},
 				"schema": {
-					"type": "string",
-					"description": "Reference to the JSON schema definition",
-					"examples": [
-						"JsonSchema:SchemaBuilder/Field",
-						"JsonSchema:SchemaBuilder/Subitem"
+					"oneOf": [
+						{
+							"type": "string",
+							"title": "reference",
+							"description": "Internal or external reference to the JSON schema definition",
+							"examples": [
+								"JsonSchema:SchemaBuilder/Field",
+								"#/definitions/UISchema"
+							]
+						},
+						{
+							"$ref": "#/definitions/schema",
+							"title": "schema",
+							"description": "Inline schema"
+						}
 					]
 				},
 				"name": {
 					"type": "string",
 					"description": "Property name identifier used when adding this item to an object",
 					"examples": ["field", "subitem"]
+				},
+				"popup_size": {
+					"type": "string",
+					"default": "medium",
+					"enum": ["medium", "large", "small"]
 				}
 			}
 		},
@@ -144,11 +160,6 @@
 				"$comment": {
 					"type": "string",
 					"description": "Developer comment - ignored by validation, for documentation purposes"
-				},
-				"$id": {
-					"format": "uri",
-					"type": "string",
-					"description": "Unique identifier URI for this schema"
 				},
 				"$ref": {
 					"x-message": {
@@ -299,9 +310,9 @@
 					"type": "string",
 					"description": "Widget for switch",
 					"enum": [
+						"OO.ui.ButtonMenuSelectWidget",
 						"OO.ui.ButtonSelectWidget",
-						"OO.ui.DropdownInputWidget",
-						"OO.ui.ButtonMenuSelectWidget"
+						"OO.ui.DropdownInputWidget"
 					],
 					"default": "OO.ui.ButtonSelectWidget"
 				},
@@ -523,8 +534,8 @@
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-input"
+						"path": "x-input",
+						"op": "exists"
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -540,41 +551,22 @@
 					"description": "Additional control configuration for the string field",
 					"$ref": "#/definitions/controlConfig"
 				},
-				"x-autocomplete": {
-					"type": "object",
+				"x-autocomplete-provider": {
+					"type": "string",
+					"description": "Autocomplete configuration for text inputs",
 					"x-dependency": {
 						"or": [
 							{
-								"op": "matches",
 								"path": "x-input",
+								"op": "matches",
 								"value": "LookupElement"
 							},
 							{
-								"op": "matches",
 								"path": "x-input",
+								"op": "matches",
 								"value": "autocomplete"
 							}
 						]
-					},
-					"description": "Autocomplete configuration for text inputs",
-					"properties": {
-						"search": {
-							"type": "string",
-							"description": "API endpoint or function name for autocomplete suggestions"
-						},
-						"getResultValue": {
-							"type": "string",
-							"description": "Function name to extract value from selected result"
-						},
-						"renderResult": {
-							"type": "string",
-							"description": "Function name to format how results are displayed"
-						},
-						"autoSelect": {
-							"type": "boolean",
-							"default": true,
-							"description": "Automatically select the first matching suggestion"
-						}
 					}
 				}
 			}
@@ -651,16 +643,16 @@
 					"enum": ["OO.ui.NumberInputWidget", "RangeWidget"],
 					"type": "string",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-format"
+						"path": "x-format",
+						"op": "exists"
 					},
 					"description": "Widget type for number input"
 				},
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-input"
+						"path": "x-input",
+						"op": "exists"
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -750,16 +742,16 @@
 					"enum": ["OO.ui.NumberInputWidget", "RangeWidget", "RatingWidget"],
 					"type": "string",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-format"
+						"path": "x-format",
+						"op": "exists"
 					},
 					"description": "Widget type for integer input"
 				},
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-input"
+						"path": "x-input",
+						"op": "exists"
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -815,15 +807,16 @@
 			],
 			"properties": {
 				"x-input": {
-					"enum": ["OO.ui.ToggleSwitchWidget", "OO.ui.CheckboxInputWidget"],
+					"enum": ["OO.ui.CheckboxInputWidget", "OO.ui.ToggleSwitchWidget"],
+					"default": "OO.ui.ToggleSwitchWidget",
 					"type": "string",
 					"description": "Widget type for boolean input"
 				},
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"op": "exists",
-						"path": "x-input"
+						"path": "x-input",
+						"op": "exists"
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -1001,12 +994,14 @@
 				"x-input": {
 					"type": "string",
 					"enum": [
-						"OO.ui.TagMultiselectWidget",
-						"mw.widgets.UsersMultiselectWidget",
-						"mw.widgets.TitlesMultiselectWidget",
+						"ButtonMultiselectWidget",
+						"GroupMultiSelectWidget",
 						"mw.widgets.CategoryMultiselectWidget",
+						"mw.widgets.TitlesMultiselectWidget",
+						"mw.widgets.UsersMultiselectWidget",
+						"OO.ui.CheckboxMultiselectInputWidget",
 						"OO.ui.MenuTagMultiselectWidget",
-						"OO.ui.CheckboxMultiselectInputWidget"
+						"OO.ui.TagMultiselectWidget"
 					],
 					"default": "",
 					"description": "Widget type for array input"
@@ -1088,8 +1083,8 @@
 					"description": "List of property names that should be included by default"
 				},
 				"x-ui-schema": {
-					"$ref": "#/definitions/schema",
-					"description": "Alternative schema used for pattern properties when editing"
+					"$ref": "#/definitions/uiSchemaItem",
+					"description": "UI schema used for pattern properties when editing"
 				},
 				"x-ui-name": {
 					"type": "string",
@@ -1278,6 +1273,11 @@
 					"description": "Unique identifier for this schema definition",
 					"minLength": 1,
 					"writeOnly": true
+				},
+				"$id": {
+					"format": "uri",
+					"type": "string",
+					"description": "Unique identifier URI for this schema"
 				},
 				"x-layout": {
 					"type": "string",

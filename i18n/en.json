@@ -9,6 +9,20 @@
 	"jsonformsmanage": "JsonForms Manage",
 	"jsonformsslotmanager": "JsonForms Slot Manager",
 	"jsonforms-slotedit-label": "Edit slots",
+	"jsonforms": "Create article",
+
+	"right-jsonforms-caneditdata": "Edit data (JsonForms)",
+	"right-jsonforms-canmanageschemas": "Manage schemas (JsonForms)",
+	"right-jsonforms-canmanageforms": "Manage forms (JsonForms)",
+	
+	"jsonforms-sidepanel-section": "JsonForms",
+	"jsonforms-new-article": "New article",
+	"jsonforms-sidepanel-managesforms": "Manage Forms",
+	"jsonforms-sidepanel-manageschemas": "Manage Schemas",
+	"jsonforms-sidepanel-slotmanager": "Slot Manager",
+
+	"group-jsonforms-admin": "JsonForms admin",
+	"group-jsonforms-editor": "JsonForms editor",
 
 	"jsonformsbrowse": "JsonForms",
 	"jsonformsbrowsedata": "Manage data",
@@ -28,6 +42,7 @@
 	"jsonformsmanageschemas": "Manage Schemas",
 
 	"jsonforms-special-manage-schemas-schemaname": "'''Editing [[$1]]'''",
+	"jsonforms-special-manage-forms-alert": "A form is a wrapper for a schema ! To a create a new schema go [[Special:JsonFormsManage/Schemas|here]]",
 	
 	"jsonforms-special-submit-captcha-error": "cannot verify captcha",
 	"jsonforms-special-submit-computed-target-title-error": "computed title error",
@@ -43,7 +58,7 @@
 	"jsonforms-parserfunction-error-invalid-data": "invalid data",
 	"jsonforms-special-submit-processor-not-found": "cannot process form's data",
 
-	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and form schemas. Each schema must be wrapped in a form descriptor to determine its use.",
+	"jsonforms-special-browse-forms-description": "Here you can create/edit form descriptors and schemas. A form, in the context of JsonForms, is a wrapper for a schema containing parameters used to define the article editing or creation. A form can be used both as a parser function (in the format <code><nowiki>{{#jsonforms: <form name>}}</nowiki></code>) to display it anywhere on the wiki, or as a parameter of the special page [[Special:JsonForms]] (e.g. [[Special:JsonForms/NewContact|New contact]]).",
 	"jsonforms-manage-form-button-add-form": "New form",
 	"jsonforms-manage-form-button-add-schema": "New schema",
 	"jsonforms-special-browse-form-search-legend": "search",
@@ -57,5 +72,5 @@
 	"jsonforms-special-browse-error-invalid-schema-in-form-descriptor": "invalid schema in form descriptor",
 	"jsonforms-special-browse-error-invalid-article": "invalid article",
 
-	"jsonforms-special-browse-schemas-description": "Here you can create/edit json-schemas to be used inside form descriptors."
+	"jsonforms-special-browse-schemas-description": "Here you can create/edit [https://json-schema.org/specification json-schema]'s compliant schemas for the use inside form descriptors, manually or through the Schema builder. The Schema builder is created using this [[JsonSchema:SchemaBuilder/MetaSchema|meta-schema]] and AI agents can be prompted to create draft-schemas using it as a reference."
 }

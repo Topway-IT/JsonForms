@@ -29,6 +29,7 @@ use MediaWiki\Extension\JsonForms\FormParameters;
 use MediaWiki\Extension\JsonForms\QueryLinkParameters;
 use MediaWiki\Extension\JsonForms\RecursiveObjectIterator;
 use MediaWiki\Extension\JsonForms\ResultWrapper;
+use MediaWiki\Extension\JsonForms\SlotEditor;
 use MediaWiki\Extension\JsonForms\SlotHelper;
 use MediaWiki\Extension\JsonForms\TemplateRender;
 use MediaWiki\MediaWikiServices;
@@ -47,7 +48,14 @@ class JsonForms {
 	/** @var int */
 	public static $queryLimit = 500;
 
+	/** @var array */
+	public static $UserGroupsCache = [];
+
+	/** @var UserGroupManager */
+	public static $userGroupManager;
+
 	public static function initialize() {
+		self::$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
 	}
 
 	/**
@@ -83,7 +91,7 @@ class JsonForms {
 		$content = self::getSlotContent( $wikiPage, $named['slot'] );
 		// echo $content;
 		
-		$obj = json_decode( $content, false );
+		$obj = $content ? json_decode( $content, false ) : [];
 		
 		// print_r($obj);
 		
@@ -163,117 +171,13 @@ class JsonForms {
 			}
 		}
 
-		// @TODO pass it separately and manage client-side since the popup
-		// form doesn't need this
-		// $jsonForm = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
-		// $jsonForm = json_decode( $jsonForm, true );		
-		$jsonForm = self::getSourceSchema( 'PageFormUI', 'JsonSchema/Core' );
+		$result = self::getPageForm( $output, $formDescriptor );
 
-		$startVal = [];
-		// or ParserOptions::newFromAnon()
-		if ( !empty( $formDescriptor['edit_page'] ) ) {
-			$editTitle = TitleClass::newFromText( $formDescriptor['edit_page'] );
-			
-			if ( $editTitle && $editTitle->isKnown() ) {
-				$wikiPage = self::getWikiPage( $editTitle );
-
-				if ( !empty( $formDescriptor['schema'] ) ) {
-					$metadata = self::getMetadata( $wikiPage );
-					if ( $metadata && is_array( $metadata['slots'] ) ) {
-						// *** or use $renderedRevision->getSlotParserOutput( $role )
-						foreach ( $metadata['slots'] as $role => $slotData ) {
-							// $slotData : model, editor, schema
-							// if ( !array_key_exists( 'schema', $slotData ) ) {
-							// 	continue;
-							// }
-
-							// @TODO use the heuristic method as in SubmitForm -> PageForm
-							if ( $role === $formDescriptor['default_data_slot'] ) {
-
-			// var_dump(self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . $formDescriptor['schema']);
-			// self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . 
-							// if ( $slotData['schema'] === $formDescriptor['schema'] ) {
-								$content = self::getSlotContent( $wikiPage, $role );
-								if ( $content ) {
-									$startVal['form']['editor'] = $content;
-									// $startVal = $content;
-								}
-								break;
-							}
-						}
-					}
-				}
-
-				if ( $formDescriptor['edit_categories'] === true ) {
-					$categories = self::getNonAnnotatedCategories( $editTitle );
-					$startVal['form']['options']['categories'] = $categories;
-				}
-
-				// @TODO add page content
-				// if ( $formDescriptor['edit_main_slot_content'] === true ) {
-			}
-		}
-
-		$schemaName = null;
-		$schema = [];
-		if ( !empty( $formDescriptor['schema'] ) ) {
-			// $schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
-			$schema = self::getSourceSchema( $formDescriptor['schema'], 'JsonSchema' );
-
-			$schemaName = $formDescriptor['schema'];
-			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = 'JsonSchema:' . $schemaName;
-
-			// ***important, encode schema otherwise $refs can mess with
-			// those of the host schema
-			$schema = self::processSchema( $output, $schema );
-			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $schema );
-
-			if ( !empty( $formDescriptor['start_path'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['start_path'] = $formDescriptor['start_path'];
-			}
-
-			// if ( !empty( $formDescriptor['lazy_properties_layout'] ) ) {
-			// 	$jsonForm['properties']['form']['properties']['editor']['x-input-config']['lazyPropertiesLayout'] = $formDescriptor['lazy_properties_layout'];
-			// }
-
-			if ( !empty( $formDescriptor['edit_page'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
-				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
-			}
-		}
-
-		$formData = [
-			// *** alternatively pass only the schema and build the form client-side
-			// 'schema' => $schema,
-			'schema' => $jsonForm,
-			'schemaName' => 'PageForm',
-			'editorOptions' => $formDescriptor['editor_options'] ?? 'MediaWiki:DefaultEditorOptions',
-			'editorScript'=> $formDescriptor['editor_script'] ?? 'MediaWiki:DefaultEditorScript',
-			'formDescriptor' => $formDescriptor
+		return [
+			$result,
+			'noparse' => true,
+			'isHTML' => true
 		];
-
-		// @ATTENTION, if an empty PHP object will be passed
-		// this will be converted to an empty js arrany and the
-		// editor won't work anymore
-		if ( !empty( $startVal ) ) {
-			$formData['startval'] = $startVal;
-		}
-
-		$formData = \JsonForms::prepareFormData( $output, $formData );
-
-		$attr = [];
-		if ( isset( $formDescriptor['width'] ) ) {
-			$attr['width'] = $formDescriptor['width'];
-		}
-		
-		// print_r($formData);
-		// exit;
-		$res_ = \JsonForms::getJsonFormHtml( $formData, $attr );
-
-		if ( !$res_->ok ) {
-			return $functionReturn(self::printError( $parserOutput, $res_->error ),);
-		}
-
-		return $functionReturn($res_->value );
 		
 /*
 		$parser->addTrackingCategory( "jsonforms-trackingcategory-parserfunction-$function" );
@@ -304,6 +208,135 @@ class JsonForms {
 */
 	}
 
+	/**
+	 * @param Output $output
+	 * @param array $formDescriptor
+	 * @return string
+	 */
+	public static function getPageForm( $output, $formDescriptor ) {
+		// @TODO pass it separately and manage client-side since the popup
+		// form doesn't need this
+		// $jsonForm = file_get_contents(  __DIR__ . '/schemas/PageFormUI.json');
+		// $jsonForm = json_decode( $jsonForm, true );		
+		$jsonForm = self::getSourceSchema( 'PageFormUI', 'JsonSchema/Core' );
+
+		$startVal = [];
+		// or ParserOptions::newFromAnon()
+		if ( !empty( $formDescriptor['edit'] ) ) {
+			$editTitle = TitleClass::newFromText( $formDescriptor['edit'] );
+			
+			if ( $editTitle && $editTitle->isKnown() ) {
+				$wikiPage = self::getWikiPage( $editTitle );
+
+				if ( !empty( $formDescriptor['schema'] ) ) {
+					$metadata = self::getMetadata( $wikiPage );
+					if ( $metadata && is_array( $metadata['slots'] ) ) {
+						// *** or use $renderedRevision->getSlotParserOutput( $role )
+						foreach ( $metadata['slots'] as $role => $slotData ) {
+							// $slotData : model, editor, schema
+							// if ( !array_key_exists( 'schema', $slotData ) ) {
+							// 	continue;
+							// }
+
+							// @TODO use the heuristic method as in SubmitForm -> PageForm
+							if ( $role === $formDescriptor['slot'] ) {
+
+			// var_dump(self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . $formDescriptor['schema']);
+			// self::getFormattedNamespace( NS_JSONSCHEMA ) . ':' . 
+							// if ( $slotData['schema'] === $formDescriptor['schema'] ) {
+								$content = self::getSlotContent( $wikiPage, $role );
+								if ( $content ) {
+									if ( empty( $formDescriptor['edit_path'] ) ) {
+										$startVal['form']['editor'] = $content;
+
+									} else {
+										$json = SlotEditor::parseMaybeJSON( $content );
+										$json = self::getValueByPath( $json, $formDescriptor['edit_path'] );
+										$startVal['form']['editor'] = SlotEditor::stringifyMaybeJSON( $json );
+									}
+								}
+								break;
+							}
+						}
+					}
+				}
+
+				if ( $formDescriptor['edit_categories'] === true ) {
+					$categories = self::getNonAnnotatedCategories( $editTitle );
+					$startVal['form']['options']['categories'] = $categories;
+				}
+
+				if (
+					$formDescriptor['slot'] !== SlotRecord::MAIN &&
+					$formDescriptor['edit_freetext'] === true
+				) {
+					$startVal['form']['options']['freetext_content_model'] = $editTitle->getContentModel();
+				}
+			}
+		}
+
+		$schemaName = null;
+		$schema = [];
+		if ( !empty( $formDescriptor['schema'] ) ) {
+			// $schema = self::getJsonSchema( 'JsonSchema:' . $formDescriptor['schema']  );
+			$schema = self::getSourceSchema( $formDescriptor['schema'], 'JsonSchema' );
+
+			$schemaName = $formDescriptor['schema'];
+			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = 'JsonSchema:' . $schemaName;
+
+			// ***important, encode schema otherwise $refs can mess with
+			// those of the host schema
+			$schema = self::processSchema( $output, $schema );
+			$jsonForm['properties']['form']['properties']['editor']['x-input-config']['schema'] = json_encode( $schema );
+
+			if ( !empty( $formDescriptor['edit_path'] ) ) {
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['edit_path'] = $formDescriptor['edit_path'];
+			}
+
+			// if ( !empty( $formDescriptor['lazy_properties_layout'] ) ) {
+			// 	$jsonForm['properties']['form']['properties']['editor']['x-input-config']['lazyPropertiesLayout'] = $formDescriptor['lazy_properties_layout'];
+			// }
+
+			if ( !empty( $formDescriptor['edit'] ) && is_array( $formDescriptor['create_only_fields'] ) ) {
+				$jsonForm['properties']['form']['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
+			}
+		}
+
+		$formData = [
+			// *** alternatively pass only the schema and build the form client-side
+			// 'schema' => $schema,
+			'schema' => $jsonForm,
+			'schemaName' => 'PageForm',
+			'editorOptions' => $formDescriptor['editor_options'] ?? 'MediaWiki:DefaultEditorOptions',
+			// 'editorScript'=> $formDescriptor['editor_script'] ?? 'MediaWiki:DefaultEditorScript',
+			'formDescriptor' => $formDescriptor
+		];
+
+		// @ATTENTION, if an empty PHP object will be passed
+		// this will be converted to an empty js arrany and the
+		// editor won't work anymore
+		if ( !empty( $startVal ) ) {
+			$formData['startval'] = $startVal;
+		}
+
+		$formData = \JsonForms::prepareFormData( $output, $formData );
+
+		$attr = [];
+		if ( isset( $formDescriptor['width'] ) ) {
+			$attr['width'] = $formDescriptor['width'];
+		}
+
+		// print_r($formData);
+		// exit;
+		$res_ = \JsonForms::getJsonFormHtml( $formData, $attr );
+
+		if ( !$res_->ok ) {
+			return $$res_->error;
+		}
+
+		return $res_->value;
+	}		
+		
 	/**
 	 * @param Context $context
 	 * @param string $titleStr
@@ -538,6 +571,10 @@ class JsonForms {
 	 * @return array
 	 */
 	public static function processSchema( $output, $schema ) {
+		if ( empty( $schema ) ) {
+			return [];
+		}
+	
 		$wikitextKeys = [
 			'x-wikitext-title' => 'title',
 			'x-wikitext-description' => 'description',
@@ -725,7 +762,8 @@ class JsonForms {
 
 		$fileTimestamp = file_exists( $filePath) ? filemtime( $filePath ) : 0;
 		if ( !$pageTimestamp && !$fileTimestamp ) {
-			throw new MWException( "no json '$name' ('$path')");
+			// throw new MWException( "no json '$name' ('$path')");
+			return [];
 		}
 
 		if ( $pageTimestamp === null || $fileTimestamp > $pageTimestamp ) {
@@ -788,7 +826,7 @@ class JsonForms {
 		$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
 		$showOutdatedVersion = empty( $GLOBALS['wgJsonFormsDisableVersionCheck'] )
 			&& (
-				$user->isAllowed( 'canmanageschemas' )
+				$user->isAllowed( 'jsonforms-canmanageschemas' )
 				|| count( array_intersect( $groups, self::getUserGroups( $user ) ) )
 			);
 
@@ -805,9 +843,12 @@ class JsonForms {
 			'contentModel' => $title->getContentModel(),
 			'VEForAll' => $VEForAll,
 			'captchaSiteKey' => $GLOBALS['wgJsonFormsReCaptchaSiteKey'],
+			
+			// @TODO or move to api
 			'jsonSlots' => SlotHelper::getJsonSlots(),
 			'slotRoles' => SlotHelper::getSlotRoles(),
 			'jsonContentModels' => SlotHelper::getJsonContentModels(),
+
 			// 'maptiler-apikey' => $GLOBALS['wgJsonFormsMaptilerApiKey']
 			'jsonforms-show-notice-outdated-version' => $showOutdatedVersion,
 		], $config );
@@ -902,22 +943,6 @@ class JsonForms {
 	}
 
 	/**
-	 * @param User $user
-	 * @return array
-	 */
-	public static function getUserGroups( $user ) {
-		$UserGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
-
-		$user_groups = array_unique( array_merge(
-			$UserGroupManager->getUserEffectiveGroups( $user ),
-			$UserGroupManager->getUserImplicitGroups( $user )
-		) );
-		// $key = array_search( '*', $user_groups );
-		// $user_groups[ $key ] = 'all';
-		return $user_groups;
-	}
-
-	/**
 	 * @see includes/specials/SpecialChangeContentModel.php
 	 * @return array
 	 */
@@ -987,7 +1012,7 @@ class JsonForms {
 		foreach ( $slots as $role_ => $slot ) {
 			if ( $role_ === $role ) {
 				$content = $slot->getContent();
-				return $content->getNativeData();
+				return $content->getText();
 				// $ret = $content->getNativeData();
 				// if ( $content instanceof JsonContent) {
 				// 	$ret = json_decode( $ret, true );
@@ -1070,7 +1095,7 @@ class JsonForms {
 		if ( !$content ) {
 			return null;
 		}
-		return $content->getNativeData();
+		return $content->getText();
 	}
 
 	/**
@@ -1251,7 +1276,7 @@ class JsonForms {
 		if ( !$content ) {
 			return null;
 		}
-		return $content->getNativeData();
+		return $content->getText();
 	}
 
 	/**
@@ -1264,6 +1289,111 @@ class JsonForms {
 			return $title;
 		}
 		return null;
+	}
+
+	/**
+	 * Get value from an array by dot notation path
+	 *
+	 * @param array|null $obj Source array
+	 * @param string|null $path Dot notation path (e.g., "a.b.1.c")
+	 * @param mixed $default Default value to return if path not found
+	 * @return mixed Value at path or default
+	 */
+	public static function getValueByPath( $obj, $path, $default = null ) {
+		if ( $obj === null ) {
+			return $default;
+		}
+
+		if ( !is_array( $obj ) ) {
+			return empty( $path ) ? $obj : $default;
+		}
+
+		if ( empty( $path ) ) {
+			return $obj;
+		}
+
+		// Convert bracket notation to dot notation: a[1].b -> a.1.b
+		$normalizedPath = preg_replace( '/\[(\d+)\]/', '.$1', $path );
+		$keys = explode( '.', $normalizedPath );
+		$current = $obj;
+		
+		foreach ( $keys as $key ) {
+			if ( $current === null ) {
+				return $default;
+			}
+
+			if ( !is_array( $current ) ) {
+				return $default;
+			}
+
+			if ( !array_key_exists( $key, $current ) ) {
+				return $default;
+			}
+
+			$current = $current[ $key ];
+		}
+
+		return $current !== null ? $current : $default;
+	}
+
+	/**
+	 * Set a value in an array by dot notation path
+	 *
+	 * @param array|null $obj Source array (passed by reference)
+	 * @param string|null $path Dot notation path (e.g., "a.b.1.c")
+	 * @param mixed $value Value to set
+	 * @param bool $createMissing Whether to create missing intermediate arrays
+	 * @return bool True if value was set, false otherwise
+	 */
+	public static function setValueByPath( &$obj, $path, $value, $createMissing = true ) {
+		if ( $obj === null ) {
+			$obj = [];
+		}
+
+		if ( !is_array( $obj ) ) {
+			return false;
+		}
+
+		if ( empty( $path ) ) {
+			$obj = $value;
+			return true;
+		}
+
+		// Convert bracket notation to dot notation: a[1].b -> a.1.b
+		$normalizedPath = preg_replace( '/\[(\d+)\]/', '.$1', $path );
+		$keys = explode( '.', $normalizedPath );
+		$current = &$obj;
+		
+		foreach ( $keys as $i => $key ) {
+			$isLastKey = ( $i === count( $keys ) - 1 );
+			
+			if ( $isLastKey ) {
+				// Set the value at the final path
+				$current[ $key ] = $value;
+				return true;
+			}
+			
+			// next level
+			if ( !isset( $current[ $key ] ) ) {
+				if ( $createMissing ) {
+					$current[ $key ] = [];
+				} else {
+					return false;
+				}
+			}
+			
+			if ( !is_array( $current[ $key ] ) ) {
+				if ( $createMissing ) {
+					$current[ $key ] = [];
+				} else {
+					return false;
+				}
+			}
+			
+			$current = &$current[ $key ];
+		}
+		
+		return false;
 	}
 
 	/**
@@ -1300,6 +1430,103 @@ class JsonForms {
 		}
 
 		return $schema;
+	}
+
+	/**
+	 * @return MediaWiki\User\UserGroupManager|null
+	 */
+	public static function getUserGroupManager() {
+		if ( self::$userGroupManager instanceof MediaWiki\User\UserGroupManager ) {
+			return self::$userGroupManager;
+		}
+		return MediaWikiServices::getInstance()->getUserGroupManager();
+	}
+
+	/**
+	 * @param User $user
+	 * @return array
+	 */
+	public static function getUserGroups( $user ) {
+		$cacheKey = $user->getName();
+		if ( array_key_exists( $cacheKey, self::$UserGroupsCache ) ) {
+			return self::$UserGroupsCache[ $cacheKey ];
+		}
+
+		$userGroupManager = self::getUserGroupManager();
+		
+		$userGroups = array_unique( array_merge(
+			$userGroupManager->getUserEffectiveGroups( $user ),
+			$userGroupManager->getUserImplicitGroups( $user )
+		) );
+
+		if ( !in_array( '*', $userGroups ) ) {
+			$userGroups[] = '*';
+		}
+
+		self::$UserGroupsCache[ $cacheKey ] = $userGroups;
+		return self::$UserGroupsCache[ $cacheKey ];
+	}
+
+	/**
+	 * @param User $user
+	 * @param array $refGroups
+	 * @return bool
+	 */
+	public static function isAuthorized( $user, $refGroups ) {
+		$userGroups = self::getUserGroups( $user );
+		return count( array_intersect( $refGroups, $userGroups ) ) > 0;
+	}
+
+	/**
+	 * @see PageOwnership -> SpecialPageOwnershipPermissions
+	 * @param Context context
+	 * @return bool
+	 */
+	public static function groupsList( $context ) {
+		$ret = [];
+
+		$config = $context->getConfig();
+		$groupPermissions = $config->get( 'GroupPermissions' );
+		$revokePermissions = $config->get( 'RevokePermissions' );
+		$addGroups = $config->get( 'AddGroups' );
+		$removeGroups = $config->get( 'RemoveGroups' );
+		$groupsAddToSelf = $config->get( 'GroupsAddToSelf' );
+		$groupsRemoveFromSelf = $config->get( 'GroupsRemoveFromSelf' );
+		$allGroups = array_unique(
+			array_merge(
+				array_keys( $groupPermissions ),
+				array_keys( $revokePermissions ),
+				array_keys( $addGroups ),
+				array_keys( $removeGroups ),
+				array_keys( $groupsAddToSelf ),
+				array_keys( $groupsRemoveFromSelf )
+			)
+		);
+		asort( $allGroups );
+
+		$lang = method_exists( Language::class, 'getGroupName' ) ?
+			// MW 1.38+
+			$context->getLanguage() :
+			null;
+
+		foreach ( $allGroups as $groupname ) {
+			$permissions = $groupPermissions[ $group ] ?? [];
+
+			// Replace * with a more descriptive groupname
+
+			$groupnameLocalized = $lang !== null ?
+				// MW 1.38+
+				$lang->getGroupName( $groupname ) :
+				UserGroupMembership::getGroupName( $groupname );
+
+			$groupnameLocalized = ( $groupnameLocalized === '*' ) ? 'all' : $groupnameLocalized;
+
+			$ret[$groupname] = $groupnameLocalized;
+		}
+
+		ksort( $ret );
+
+		return $ret;
 	}
 
 	/**

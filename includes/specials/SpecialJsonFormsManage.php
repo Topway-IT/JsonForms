@@ -25,6 +25,7 @@
 use MediaWiki\Extension\JsonForms\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Parser\ParserOptions;
+use MediaWiki\Revision\SlotRecord;
 
 /**
  * A special page that lists protected pages
@@ -71,8 +72,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function execute( $par ) {
-		// $this->requireLogin();
-
+		// $this->requireLogin();		
 		$allowedItems = [ 'Forms', 'Schemas' ];
 
 		if ( !in_array( $par, $allowedItems ) ) {
@@ -81,11 +81,21 @@ class SpecialJsonFormsManage extends SpecialPage {
 		}
 
 		$this->par = strtolower( (string)$par );
+		$user = $this->getUser();
+
+		if ( $this->par === 'forms' && !$user->isAllowed( 'jsonforms-canmanageforms' ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
+
+		if ( $this->par === 'schemas' && !$user->isAllowed( 'jsonforms-canmanageschemas' ) ) {
+			$this->displayRestrictionError();
+			return;
+		}
 
 		$this->setHeaders();
 		$this->outputHeader();
 
-		$user = $this->getUser();
 
 		// if ( !$user->isAllowed( 'jsonforms-canmanageschemas' )
 		// 	&& !$user->isAllowed( 'jsonforms-caneditschema' ) ) {
@@ -124,6 +134,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 		// $formDescriptor = json_decode( $formDescriptor, true );
 		$formDescriptor = \JsonForms::getSourceSchema( 'Default', 'JsonForm' );
 
+		$formDescriptor['slot'] = SlotRecord::MAIN;
 		$formDescriptor['edit_categories'] = false;
 		// $formDescriptor['width'] = '800px';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
@@ -145,7 +156,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				return $this->printError( $out, 'jsonforms-special-browse-error-invalid-article' );
 			}
 
-			$formDescriptor['edit_page'] = $title->getFullText();
+			$formDescriptor['edit'] = $title->getFullText();
 			$articleContent = \JsonForms::getArticleContent( $title );
 			// if ( $text ) {
 			//	$startVal = json_decode( $articleContent, true );
@@ -158,6 +169,16 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$startVal = [];
 		switch( $this->par ) {
 			case 'forms':
+				$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsManage', 'Schemas' );
+				$message = new \OOUI\MessageWidget( [
+					'type' => 'info',
+					'label' =>  new \OOUI\HtmlSnippet(
+							$this->msg( 'jsonforms-special-manage-forms-alert' )->parse()
+						)
+				] );
+				$out->addHTML( $message );
+				$out->addHTML( '<br />' );
+				
 				$item = 'form';
 				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
 				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');

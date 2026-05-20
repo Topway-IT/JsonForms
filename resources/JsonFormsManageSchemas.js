@@ -63,12 +63,13 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 
 	switch (action) {
 		case 'submit':
+			const innerEditorValidationResults = innerEditor.validate();
 			console.log(
-				'innerEditor.validation_results',
-				innerEditor.validation_results,
+				'innerEditorValidationResults',
+				innerEditorValidationResults,
 			);
 
-			if (innerEditor.validation_results.length) {
+			if (innerEditorValidationResults.length) {
 				JsonForms.Alert('there are errors');
 				return;
 			}

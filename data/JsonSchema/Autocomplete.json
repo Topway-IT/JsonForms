@@ -8,12 +8,7 @@
 			"x-input": "LookupElement",
 			"title": "Wikipedia lookup (Page titles)",
 			"description": "Enter a text of minimum 3 characters.",
-			"x-autocomplete": {
-				"search": "wikipediaSearch",
-				"getResultValue": "wikipediaGetResultValue",
-				"renderResult": "wikipediaRenderResult",
-				"autoSelect": true
-			}
+			"x-autocomplete-provider": "wikipedia"
 		},
 		"text2": {
 			"type": "string",
@@ -21,11 +16,7 @@
 			"x-input": "LookupElement",
 			"title": "DAWA lookup (Danish streetnames)",
 			"description": "Enter a text of minimum 3 characters.",
-			"x-autocomplete": {
-				"search": "dawaSearch",
-				"getResultValue": "dawaGetResultValue",
-				"autoSelect": true
-			}
+			"x-autocomplete-provider": "dawa"
 		},
 		"text3": {
 			"type": "string",

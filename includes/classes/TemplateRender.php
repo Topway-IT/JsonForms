@@ -45,16 +45,21 @@ class TemplateRender
 			"path" => "",
 			"type" => gettype($data),
 			"hasChildren" => !empty($childrenHtml),
-			"params" =>
-				"<pre>" .
-				json_encode(
-					$data,
-					JSON_PRETTY_PRINT |
-						JSON_UNESCAPED_UNICODE |
-						JSON_UNESCAPED_SLASHES,
-				) .
-				"</pre>",
+			'templateName' => $templatePrefix
 		];
+		
+		$params_ = $params;
+		$params_['data'] = $data;
+		unset( $params_['children'] );				
+				
+		$params["params"] = "<pre>" .
+						json_encode(
+							$params_,
+							JSON_PRETTY_PRINT |
+								JSON_UNESCAPED_UNICODE |
+								JSON_UNESCAPED_SLASHES,
+						) .
+						"</pre>";
 
 		return $this->processTemplate($templatePrefix, $params);
 	}

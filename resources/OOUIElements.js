@@ -141,7 +141,8 @@
 	};
 
 	Dialog.prototype.open = function () {
-		const windowManager = createWindowManager();
+		const windowManager = new OO.ui.WindowManager();
+		$(document.body).append(windowManager.$element);
 
 		const myDialog = this;
 		const title = this.title;

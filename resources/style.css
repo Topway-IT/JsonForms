@@ -23,9 +23,10 @@
 /* stylelint-disable block-no-empty */
 /* stylelint-disable declaration-no-important */
 
-
 .jsonforms-form {
 	width: 600px;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.2),0 2px 2px rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12);
+	border-radius: 4px;
 }
 
 .jsonforms-form .jsonforms-outerform {
@@ -53,6 +54,14 @@
 	padding: 0;
 }
 
+/* @TODO find a better solution */
+.jsonforms-form
+	.oo-ui-menuLayout-content
+	> .oo-ui-bookletLayout-stackLayout
+	> .oo-ui-panelLayout:has(> .compact) {
+	/* padding-top: 0; */
+}
+
 .jsonforms-form .jsonforms-outerform-footer-buttons {
 	border: none;
 	padding-left: 0;
@@ -66,6 +75,33 @@
 	border: none;
 	padding-left: 0;
 	padding-right: 0;
+}
+
+.jsonforms-form .jsonforms-outerform-header {
+	background: #1976d2; /* cbdcff */
+	color: white;
+	font-weight: bold;
+	border-top: none;
+	padding: 0.8em;
+	border-radius: 6px 6px 0 0;
+}
+
+.jsonforms-form .jsonforms-outerform-header .jsonforms-header {
+	color: white;
+}
+
+.jsonforms-form .jsonforms-outerform-header .jsonforms-description {
+	color: black;
+	font-style: italic;
+}
+
+.jsonforms-form .jsonforms-outerform-header .jsonforms-description a {
+	color: black;
+	text-decoration: underline;
+}
+
+.jsonforms-button-white-color a {
+	color: white !important;
 }
 
 .jsonforms-form .jsonforms-outerform-footer {
@@ -99,7 +135,6 @@
 	display: none;
 }
 
-
 .jsonforms-editor .jsonforms-formcontrol {
 	padding: 10px 0;
 }
@@ -117,13 +152,13 @@
 }
 
 .jsonforms-editor .jsonforms-header {
-	margin-top: 0.5em !important;
+	margin: 0.5em 0 0.5em 0 !important;
+	padding: 0 !important;
 }
 
 .jsonforms-editor .compact > h2 {
 	display: none;
 }
-
 
 /*
 .jsonforms-switcher {
@@ -593,7 +628,7 @@
 	margin: 0;
 	overflow: hidden;
 	cursor: pointer;
-	background: url( ./rating-stars.svg ) no-repeat top left;
+	background: url(./rating-stars.svg) no-repeat top left;
 }
 
 .jsonforms-editor .jsonforms-rating:not(:hover) input:indeterminate + label,

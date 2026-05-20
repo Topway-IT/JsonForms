@@ -1,8 +1,7 @@
 // use IIFE, this ensure name is scoped
 (function () {
 	function EnumProviders() {
-	
-/*
+		/*
 		this.providers = {
 			jsonSchemas: this.jsonSchemas,
 			contentModels: this.contentModels,
@@ -13,41 +12,6 @@
 		};
 */
 	}
-
-	EnumProviders.prototype.getTitlesInNamespace = function (nsId) {
-		let cache = null;
-		let pending = null;
-
-		return async () => {
-			if (cache) return cache;
-			if (pending) return pending;
-
-			const api = new mw.Api();
-
-			pending = api
-				.get({
-					action: 'query',
-					list: 'allpages',
-					apnamespace: nsId,
-					aplimit: 'max',
-					formatversion: 2,
-				})
-				.then((res) => {
-					cache = res.query.allpages.map((page) => {
-						const titleObj = new mw.Title(page.title);
-						const baseTitle = titleObj.getMainText();
-						return {
-							text: baseTitle,
-							value: baseTitle,
-						};
-					});
-					pending = null;
-					return cache;
-				});
-
-			return pending;
-		};
-	};
 
 	EnumProviders.prototype.metaSchemaFormatToInput = function () {
 		return {
@@ -102,7 +66,7 @@
 							'OO.ui.RadioSelectInputWidget',
 							'OO.ui.TextInputWidget',
 						];
-	
+
 					case 'email':
 					case 'idn-email':
 					case 'hostname':
@@ -116,9 +80,7 @@
 					case 'json-pointer':
 					case 'relative-json-pointer':
 					case 'regex':
-						return [
-							'OO.ui.TextInputWidget',
-						];
+						return ['OO.ui.TextInputWidget'];
 
 					case 'textarea':
 						return ['OO.ui.MultilineTextInputWidget'];
@@ -145,17 +107,28 @@
 		};
 	};
 
-	EnumProviders.prototype.jsonSchemas = function () {
+	EnumProviders.prototype.uGroups = function () {
 		return {
 			source: async () => {
-				const fetchFn = this.getTitlesInNamespace(2100);
-				return await fetchFn();
+				const payload = {
+					action: 'jsonforms-groupnames',
+					format: 'json',
+				};
+
+				try {
+					const api = new mw.Api();
+					const response = await new Promise((resolve, reject) => {
+						api.get(payload).done(resolve).fail(reject);
+					});
+
+					const result = response[payload.action].result;
+
+					return JSON.parse(result);
+				} catch (error) {
+					console.error('Error fetching user groups:', error);
+					return {};
+				}
 			},
-			filter: (jseditor, { item, watched }) => {
-				return true;
-			},
-			title: (jseditor, { item, watched }) => item.text,
-			value: (jseditor, { item, watched }) => item.value,
 		};
 	};
 
@@ -212,4 +185,3 @@
 	// attach instance
 	JsonForms.enumProviders = new EnumProviders();
 })();
-

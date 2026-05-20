@@ -22,47 +22,54 @@
  * @copyright Copyright ©2026, https://wikisphere.org
  */
 
-class JsonFormsActionSlotManager extends Action {
+use MediaWiki\Extension\JsonForms\SubmitForm;
+
+class JsonFormsApiGroupNames extends ApiBase {
 
 	/**
-	 * inheritDoc
+	 * @inheritDoc
 	 */
-	public function getName() {
-		return 'slotedit';
-	}
-
-	/**
-	 * inheritDoc
-	 */
-	public function requiresWrite() {
-		return true;
-	}
-
-	/**
-	 * inheritDoc
-	 */
-	public function getRestriction() {
-		return 'edit';
-	}
-
-	/**
-	 * inheritDoc
-	 */
-	public function show() {
-		$article = $this->getArticle();
-		$title = $article->getTitle();
-
-		$specialEditData = new SpecialJsonFormsSlotManager();
-		$specialEditData->execute( $title->getFullText() );
-
+	public function isWriteMode() {
 		return false;
 	}
 
 	/**
-	 * inheritDoc
+	 * @inheritDoc
 	 */
-	public function execute() {
-		return true;
+	public function mustBePosted(): bool {
+		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function execute() {
+		$user = $this->getUser();
+
+		\JsonForms::initialize();
+		$result = $this->getResult();
+		// $params = $this->extractRequestParams();
+		$context = RequestContext::getMain();
+
+		$result_ = JsonForms::groupsList( $context );
+
+		$result->addValue( [ $this->getModuleName() ], 'result', json_encode( $result_ ) );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getAllowedParams() {
+		return [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getExamplesMessages() {
+		return [
+			'action=Jsonforms-groupnames'
+			=> 'apihelp-Jsonforms-groupnames-example-1'
+		];
+	}
 }

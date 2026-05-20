@@ -19,45 +19,18 @@
  * @copyright Copyright ©2026, https://wikisphere.org
  */
 
-function JsonFormsSlotManager(el, data) {
-	JsonFormsSlotManager.super.call(this, el, data);
+function JsonFormsNewArticle(el, data) {
+	JsonFormsNewArticle.super.call(this, el, data);
 
-	this.metadata = data.metadata;
 	this.jsonformsConfig = mw.config.get('jsonforms');
 	this.editPage = data.editPage;
 }
 
-OO.inheritClass(JsonFormsSlotManager, JsonForms);
+OO.inheritClass(JsonFormsNewArticle, JsonForms);
 
-JsonFormsSlotManager.prototype.onFormButton = function (action, editor) {
-	const innerformEditor = this.editor.getEditor('root.editor');
-	const innerEditor = innerformEditor.input.editor;
+JsonFormsNewArticle.prototype.onFormButton = function (action, editor) {};
 
-	switch (action) {
-		case 'cancel':
-			const url = mw.config
-				.get('wgArticlePath')
-				.replace('$1', mw.config.get('wgPageName'));
-
-			window.location.href = url;
-			break;
-
-		case 'submit':
-			const innerEditorValidationResults = innerEditor.validate();
-
-			console.log('innerEditorValidationResults', innerEditorValidationResults);
-
-			if (innerEditorValidationResults.length) {
-				JsonForms.Alert('there are errors');
-				return;
-			} else {
-				this.submitForm().catch((err) => console.error('API error:', err));
-			}
-			break;
-	}
-};
-
-JsonFormsSlotManager.prototype.editorByContentModelSource = function (
+JsonFormsNewArticle.prototype.editorByContentModelSource = function (
 	editor,
 	{ item, watched },
 ) {
@@ -79,21 +52,10 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 			options = { wikieditor: 'WikiEditor', visualeditor: 'VisualEditor' };
 			break;
 
-		/*
-		case 'css':
-		case 'javascript':
-				options = { codeeditor: 'codeEditor' };
-			break;
-
-		case 'json':
-			// , 'JsonForms'
-			options = { codeeditor: 'codeEditor', jsoneditor: 'JSON Editor' };
-			break;
-*/
 		default:
 			if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
 				// , 'JsonForms',  codeeditor: 'codeEditor',
-				options = { jsoneditor: 'JSON Editor', jsonforms: 'JsonForms' };
+				options = { jsoneditor: 'JSON Editor' };
 			}
 	}
 
@@ -105,8 +67,8 @@ JsonFormsSlotManager.prototype.editorByContentModelSource = function (
 };
 
 // ***redefine enum provider and callbacks
-JsonFormsSlotManager.prototype.initialize = async function () {
-	await JsonFormsSlotManager.super.prototype.initialize.call(this);
+JsonFormsNewArticle.prototype.initialize = async function () {
+	await JsonFormsNewArticle.super.prototype.initialize.call(this);
 
 	let roles = mw.config.get('jsonforms')['slotRoles'];
 	roles = JsonForms.Utilities.removeArrayItem(roles, 'main');
@@ -130,23 +92,14 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 			submitButton: (editor) => {
 				this.onFormButton('submit', editor);
 			},
-			cancelButton: (editor) => {
-				this.onFormButton('cancel', editor);
-			},
 		},
 	};
-
-	// this.defaultOptions.callbacks.template = {
-	// 	...this.defaultOptions.callbacks.template,
-	// 	...this.enumProviders,
-	// };
 };
 
-JsonFormsSlotManager.prototype.submitForm = function () {
+JsonFormsNewArticle.prototype.submitForm = function () {
 	const formEditor = this.editor.getEditor('root.editor');
-
 	const innerEditor = formEditor.input.editor;
-	console.log('innerEditor', innerEditor);
+	// console.log('innerEditor', innerEditor);
 
 	const vars = {};
 	const structuredValue = innerEditor.getStructuredValue();
@@ -165,7 +118,7 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 		structuredValue,
 		options: {
 			...this.editor.getEditor('root.footer').getValue(),
-			edit: this.editPage,
+			editPage: this.editPage,
 		},
 		config: mw.config.get('jsonforms'),
 		processor: 'SlotManager', //submit processor
@@ -214,15 +167,13 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 };
 
 $(function () {
-	// console.log(' mw.config', mw.config);
-
 	$('.jsonforms-form-wrapper').each(async function (index, el) {
 		this.el = el;
 		const data = $(el).data().formData;
 
 		// console.log('data', data);
 
-		const jsonForms = new JsonFormsSlotManager(el, data);
+		const jsonForms = new JsonFormsNewArticle(el, data);
 
 		await jsonForms.initialize();
 
@@ -240,75 +191,7 @@ $(function () {
 		editor.on('change', () => {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 		});
-
-		const editorOnChange = async (editor) => {
-			// console.log('editorOnChange');
-
-			const watching = [];
-			const formEditor = editor.getEditor('root.editor');
-			// console.log('formEditor', formEditor);
-
-			if (!formEditor) {
-				console.warn('formEditor not set');
-				return;
-			}
-
-			// *** do something with the child editor if needed
-			// await is necessary since the input is the JsonForms
-			// widget that needs to be loaded
-			const innerEditor = await formEditor.input.getEditor();
-
-			// console.log('innerEditor', innerEditor);
-
-			const slotRoles = mw.config.get('jsonforms')['slotRoles'];
-
-			const innerEditorOnChange = async (editor) => {
-				// console.log('innerEditorOnChange');
-
-				const editors = editor.getEditors();
-
-				// assign watchers to new slots
-				for (const path in editors) {
-					// console.log('path', path);
-					// maybe role
-					const role = path.replace(/^root\./, '');
-
-					// on slot creation
-					if (slotRoles.includes(role)) {
-						if (!watching.includes(path)) {
-							// set role to hidden property
-
-							// console.log('`${path}.role`', `${path}.role`);
-							const roleEditor = editor.getEditor(`${path}.role`);
-							// roleEditor.setValue(role);
-
-							// @TODO replace with setValue
-							// after updating the editor's setValue method
-							roleEditor.setStateValue(role);
-							roleEditor.input.setValue(role);
-
-							watching.push(path);
-						}
-					}
-				}
-			};
-
-			// inner editor is ready/changed before outer editor
-			// is ready, therefore this is necessary
-			// innerEditorOnChange(true);
-
-			// this is attached on ready, therefore is not fired
-			// immediately
-
-			innerEditor.on('ready', innerEditorOnChange);
-			innerEditor.on('addObjectProperty', innerEditorOnChange);
-		};
-
-		// editor.on('ready', async () => {
-		//	editor.on('change', editorOnChange);
-		// });
-		editor.on('ready', editorOnChange);
-		// editor.on('change', editorOnChange);
 	});
 });
+// console.log(' mw.config', mw.config);
 

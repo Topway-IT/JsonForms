@@ -32,24 +32,25 @@ function JsonForms(el, data) {
 }
 
 JsonForms.prototype.initialize = async function () {
- 	// console.log('this.data.editorOptions',defaultOptions)
+	// console.log('this.data.editorOptions',defaultOptions)
 	this.editorOptions = await this.getModule(this.data.editorOptions);
 	this.editorScript = await this.getModule(this.data.editorScript);
+
+	// console.log('this.editorOptions',this.editorOptions)
 
 	// this.enumProviders = this.formatProviders(JsonForms.enumProviders);
 	this.enumProviders = JsonForms.enumProviders;
 
 	// console.log('this.enumProviders',this.enumProviders)
 
-	// @TODO simplify as in emumProviders
-	this.autocompleteProviders = this.formatProviders(JsonForms.autocompleteProviders);
+	this.autocompleteProviders = JsonForms.autocompleteProviders;
 
 	const UISchemaConverters = new JsonForms.UISchemaConverters();
-	
+
 	// console.log('defaultOptions',defaultOptions)
 
 	const defaultOptions = this.editorOptions;
-	
+
 	// const defaultOptions = JSON.parse(JSON.stringify(this.editorOptions));
 
 	// console.log('defaultOptions',defaultOptions)
@@ -65,11 +66,11 @@ JsonForms.prototype.initialize = async function () {
 		...(defaultOptions?.callbacks?.enum_providers ?? {}),
 	};
 
-	defaultOptions.callbacks.autocomplete = {
+	defaultOptions.callbacks.autocomplete_providers = {
 		...this.autocompleteProviders,
-		...(defaultOptions?.callbacks?.autocomplete ?? {}),
+		...(defaultOptions?.callbacks?.autocomplete_providers ?? {}),
 	};
-	
+
 	defaultOptions.callbacks.ui_schema_converters = {
 		...UISchemaConverters.converters,
 		...(defaultOptions?.callbacks?.ui_schema_converters ?? {}),
@@ -90,18 +91,8 @@ JsonForms.prototype.createDefaultEditor = function (config = {}) {
 	return this.editor;
 };
 
-JsonForms.prototype.formatProviders = function (providersClass) {
-	const ret = {};
-	for (const provider in providersClass.providers) {
-		const obj = providersClass.providers[provider].bind(providersClass)();
-		for (const action in obj) {
-			ret[provider + JsonForms.Utilities.ucfirst(action)] = obj[action];
-		}
-	}
-	return ret;
-};
-
 // @see KnowledgeGraph.js
+/*
 JsonForms.prototype.getModule = async function (str) {
 	if (this.moduleCache.has(str)) {
 		return this.moduleCache.get(str);
@@ -116,6 +107,34 @@ JsonForms.prototype.getModule = async function (str) {
 		console.error('Failed to load module:', err);
 		return null;
 	}
+}
+*/
+
+JsonForms.prototype.getModule = async function (str) {
+	const cacheKey = typeof str === 'string' ? str.substring(0, 100) : str;
+
+	if (this.moduleCache.has(cacheKey)) {
+		return this.moduleCache.get(cacheKey);
+	}
+
+	if (typeof str !== 'string') {
+		return str;
+	}
+
+	let url = null;
+	try {
+		const blob = new Blob([str], { type: 'application/javascript' });
+		url = URL.createObjectURL(blob);
+		const module = await import(url);
+		const result = module.default ?? null;
+		this.moduleCache.set(cacheKey, result);
+		return result;
+	} catch (err) {
+		console.error('Failed to load module:', err);
+		return null;
+	} finally {
+		if (url) URL.revokeObjectURL(url);
+	}
 };
 
 JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
@@ -124,7 +143,7 @@ JsonForms.prototype.MWSchemaUrl = function (maybeUrl) {
 };
 
 JsonForms.prototype.isMWSchema = function (maybeUrl, fileBase) {
-console.log('isMWSchema config',mw.config)
+	console.log('isMWSchema config', mw.config);
 
 	if (JsonForms.Utilities.hasProtocol(maybeUrl)) {
 		return false;
@@ -138,7 +157,6 @@ console.log('isMWSchema config',mw.config)
 	return (
 		fileBase.indexOf(mwBaseUrl) !== -1 || mwBaseUrl.indexOf(fileBase) !== -1
 	);
-
 };
 
 JsonForms.prototype.fetchSchema = function (schema) {
@@ -186,6 +204,8 @@ JsonForms.prototype.createEditor = function (el, config) {
 
 	return this.editor;
 };
+
+window.JsonForms = JsonForms;
 
 $(function () {
 	function resizeTreeSidePanel() {

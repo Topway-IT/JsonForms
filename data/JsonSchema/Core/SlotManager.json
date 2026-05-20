@@ -1,5 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "SlotManager",
 	"type": "object",
 	"x-layout": "tabs",
 	"x-layout-config": {
@@ -31,6 +32,15 @@
 			"x-format": "textarea",
 			"x-input": "jsoneditor"
 		},
+		"editor_jsonforms": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "jsonforms",
+			"x-input-config": {
+				"schema": "JsonSchema:Core/SelectSchema"
+			}
+		},
 		"editor_source": {
 			"type": "string",
 			"x-compact": true,
@@ -42,6 +52,7 @@
 		},
 		"slotOptions": {
 			"type": "object",
+			"x-compact": true,
 			"required": ["content_model", "editor"],
 			"x-default-properties": ["content_model", "editor", "content"],
 			"properties": {
@@ -66,13 +77,25 @@
 				},
 				"content": {
 					"type": "string",
-					"x-watch" : "editor",
+					"x-watch": "editor",
 					"links": [
 						{
 							"rel": "describedBy",
 							"href": "#/definitions/editor_{{editor}}"
 						}
 					]
+				}
+			}
+		},
+		"newSlot": {
+			"title": "New slot",
+			"type": "object",
+			"required": ["name"],
+			"properties": {
+				"name": {
+					"title": "slot name",
+					"type": "string",
+					"x-enum-provider": "slotRoles"
 				}
 			}
 		}
@@ -107,21 +130,14 @@
 			}
 		}
 	],
+	"x-ui-schema": {
+		"label": "New slot",
+		"schema": "#/definitions/newSlot",
+		"name": "newSlot",
+		"popup_size": "medium"
+	},
 	"patternProperties": {
 		"^[a-zA-Z0-9_-]+$": {
-			"title": "Additional slot",
-			"x-ui-schema": {
-				"title": "New slot",
-				"type": "object",
-				"required": ["name"],
-				"properties": {
-					"name": {
-						"title": "slot name",
-						"type": "string",
-						"x-enum-provider": "slotRoles"
-					}
-				}
-			},
 			"allOf": [
 				{
 					"$ref": "#/definitions/slotOptions"
@@ -130,3 +146,4 @@
 		}
 	}
 }
+

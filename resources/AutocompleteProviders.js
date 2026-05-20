@@ -1,13 +1,40 @@
 // use IIFE, this ensure name is scoped
-(function () {
+(function ($, mw, srf) {
+	'use strict';
 	function AutocompleteProviders() {
+		/*
 		this.providers = {
 			wikipedia: this.wikipedia,
 			dawa: this.dawa,
 			wikidata: this.wikidata,
+			jsonSchemas: this.jsonSchemas,
 		};
+	*/
 	}
 
+	/*
+
+					"properties": {
+						"search": {
+							"type": "string",
+							"description": "API endpoint or function name for autocomplete suggestions"
+						},
+						"getResultValue": {
+							"type": "string",
+							"description": "Function name to extract value from selected result"
+						},
+						"renderResult": {
+							"type": "string",
+							"description": "Function name to format how results are displayed"
+						},
+						"autoSelect": {
+							"type": "boolean",
+							"default": true,
+							"description": "Automatically select the first matching suggestion"
+						}
+					}
+					
+*/
 	function stripHtml(str) {
 		const tmp = document.createElement('div');
 		tmp.innerHTML = str;
@@ -27,8 +54,69 @@
 			.replace(/'/g, '&#039;');
 	}
 
-	function renderByInputType(jseditor_editor, props, innerHtml) {
-		const name = (jseditor_editor.inputOptions?.name || '').toLowerCase();
+	/*
+	AutocompleteProviders.prototype.jsonSchemas = function () {
+		let cache = null;
+		let pending = null;
+
+		return {
+			search: async (jseditor_editor, input) => {
+				// If we have cached results, filter them based on input
+				if (cache) {
+					if (!input) return cache;
+					const lowerInput = input.toLowerCase();
+					return cache.filter((item) =>
+						item.text.toLowerCase().includes(lowerInput),
+					);
+				}
+
+				if (pending) return pending;
+
+				const api = new mw.Api();
+
+				pending = api
+					.get({
+						action: 'query',
+						list: 'allpages',
+						apnamespace: 2100,
+						aplimit: 'max',
+						formatversion: 2,
+					})
+					.then((res) => {
+						cache = res.query.allpages.map((page) => {
+							const titleObj = new mw.Title(page.title);
+							const baseTitle = titleObj.getMainText();
+							return {
+								text: baseTitle,
+								value: baseTitle,
+							};
+						});
+						pending = null;
+
+						// Filter after caching if input exists
+						if (input) {
+							const lowerInput = input.toLowerCase();
+							return cache.filter((item) =>
+								item.text.toLowerCase().includes(lowerInput),
+							);
+						}
+						return cache;
+					});
+
+				return pending;
+			},
+			getResultValue: (jseditor_editor, result) => result.value,
+			renderResult: (jseditor_editor, result, props) => result.text,
+		};
+	};
+*/
+
+	AutocompleteProviders.prototype._renderByInputType = function (
+		jseditor_editor,
+		props,
+		innerHtml,
+	) {
+		const name = (jseditor_editor.customOptions.inputName || '').toLowerCase();
 
 		switch (name) {
 			case 'autocomplete':
@@ -42,7 +130,7 @@
 					'</div>',
 				].join('');
 		}
-	}
+	};
 
 	// @source https://pmk65.github.io/jedemov2/dist/demo.html autocomplete demo, javascript tab
 	AutocompleteProviders.prototype.wikipedia = function () {
@@ -85,7 +173,7 @@
 						: '',
 				].join('');
 
-				return renderByInputType(jseditor_editor, props, inner);
+				return this._renderByInputType(jseditor_editor, props, inner);
 			},
 		};
 	};
@@ -115,7 +203,7 @@
 			renderResult: (jseditor_editor, result, props) => {
 				const text = escapeHtml(result.tekst || '');
 				const inner = ['<div class="wiki-title">', text, '</div>'].join('');
-				return renderByInputType(jseditor_editor, props, inner);
+				return this._renderByInputType(jseditor_editor, props, inner);
 			},
 		};
 	};
@@ -163,12 +251,11 @@
 						: '',
 				].join('');
 
-				return renderByInputType(jseditor_editor, props, inner);
+				return this._renderByInputType(jseditor_editor, props, inner);
 			},
 		};
 	};
 
 	// attach instance
 	JsonForms.autocompleteProviders = new AutocompleteProviders();
-})();
-
+} )( jQuery, mediaWiki, OO );

@@ -1,5 +1,6 @@
 {
 	"$schema": "https:\/\/json-schema.org\/draft\/2020-12\/schema",
+	"$id": "CreatePageForm",
 	"@type": "JsonForms default schema",
 	"type": "object",
 	"title": "Create\/edit form",
@@ -9,7 +10,7 @@
 		"name": {
 			"type": "string",
 			"title": "Form name",
-			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms:[form name]}}",
+			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms: <form name> }}",
 			"minLength": 1
 		},
 		"schema": {
@@ -17,8 +18,102 @@
 			"title": "JSON Schema",
 			"description": "",
 			"default": "",
+			"minLength": 1,
 			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
 			"x-enum-provider": "jsonSchemas"
+		},
+		"action": {
+			"type": "string",
+			"default": "",
+			"enum": [
+				"create",
+				"edit"
+			]
+		},
+		"edit": {
+			"type": "string",
+			"title": "Edit page",
+			"description": "Page to edit",
+			"default": "",
+			"x-input": "mw.widgets.TitleInputWidget",
+			"x-dependency": {
+				"action": "edit"
+			}
+		},
+		"ugroups": {
+			"type": "array",
+			"items": {
+				"type": "string",
+				"x-input": "OO.ui.MenuTagMultiselectWidget",
+				"x-enum-provider": "uGroups"
+			},
+			"default": [
+				"user"
+			],
+			"title": "Restrict to groups"
+		},
+		"captcha": {
+			"type": "boolean",
+			"description": "Add captcha to form",
+			"default": false,
+			"x-dependency": {
+				"path": "ugroups",
+				"op": "contains",
+				"value": "*"
+			}
+		},
+		"pagename_formula": {
+			"type": "string",
+			"title": "Page name formula",
+			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
+			"default": "",
+			"x-dependency": {
+				"action": "create"
+			}
+		},
+		"create_only_fields": {
+			"type": "array",
+			"title": "Create-only fields",
+			"description": "Add properties (usually used in the pagename formula) that must be shown only on data creation",
+			"default": [],
+			"items": {
+				"type": "string"
+			},
+			"x-input": "OO.ui.TagMultiselectWidget",
+			"x-dependency": {
+				"path": "pagename_formula",
+				"op": "!=",
+				"value": ""
+			}
+		},
+		"overwrite_existing_article_on_create": {
+			"type": "boolean",
+			"title": "Overwrite existing article",
+			"description": "If enabled, existing articles with the same name will be overwritten",
+			"default": false,
+			"x-dependency": {
+				"path": "pagename_formula",
+				"op": "!=",
+				"value": ""
+			}
+		},
+		"slot": {
+			"type": "string",
+			"title": "target slot",
+			"x-wikitext-description": "Default slot for form data: if different from main the related article will be saved as a [https://www.mediawiki.org/wiki/Multi-Content_Revisions Multi-Content-Revision]",
+			"default": "jsonforms-data",
+			"x-enum-provider": "jsonSlots"
+		},
+		"edit_freetext": {
+			"type": "boolean",
+			"title": "Edit freetext",
+			"description": "",
+			"default": true,
+			"x-dependency": {
+				"path": "slot",
+				"op": "!=",
+				"value": "main"
+			}
 		},
 		"edit_categories": {
 			"type": "boolean",
@@ -30,93 +125,41 @@
 			"title": "Default categories",
 			"description": "only if Edit categories is enabled",
 			"type": "array",
-			"items": {
-				"type": "string",
-				"x-input": "categorymultiselect"
-			}
-		},
-		"default_data_slot": {
-			"type": "string",
-			"title": "Default slot",
-			"description": "Default slot for form data: if different than main the related article will be saved as a Multi-Content-Revision",
-			"default": "main",
-			"x-enum-provider": "jsonSlots"
-		},
-		"edit_data_slot_role": {
-			"type": "boolean",
-			"title": "Edit data slot's role",
-			"description": "Is the user allowed to choose the role of the target slot ?",
-			"default": false
-		},
-		"edit_main_slot_content_model": {
-			"type": "boolean",
-			"title": "Edit main slot content model",
-			"description": "Is the user allowed to edit the content model of the main slot ?",
-			"default": false,
-			"x-dependency": {
-				"path": "default_data_slot",
-				"op": "!=",
-				"value": "main"
-			}
-		},
-		"edit_main_slot_content": {
-			"type": "boolean",
-			"title": "Edit main slot content",
-			"description": "Is the user allowed to edit the content of main slot ? (usually wikitext)",
-			"default": false,
-			"x-dependency": {
-				"path": "default_data_slot",
-				"op": "!=",
-				"value": "main"
-			}
-		},
-		"default_main_slot_content_model": {
-			"type": "string",
-			"title": "Default content model of main slot",
-			"default": "wikitext",
-			"x-enum-provider": "contentModels",
-			"x-dependency": {
-				"path": "default_data_slot",
-				"op": "!=",
-				"value": "main"
-			}
-		},
-		"edit_page": {
-			"type": "string",
-			"title": "Edit page",
-			"description": "Page to redirect to after editing",
-			"default": "",
-			"x-input": "title"
-		},
-		"pagename_formula": {
-			"type": "string",
-			"title": "Page name formula",
-			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
-			"default": "",
-			"x-dependency": {
-				"edit_page": ""
-			}
-		},
-		"create_only_fields": {
-			"type": "array",
-			"title": "Create-only fields",
-			"description": "Add properties (usually used in the pagename formula) that must be shown only on data creation",
-			"default": [],
+			"x-input": "mw.widgets.CategoryMultiselectWidget",
 			"items": {
 				"type": "string"
 			},
-			"x-input": "tagmultiselect",
 			"x-dependency": {
-				"path": "edit_page",
-				"op": "==",
-				"value": ""
+				"path": "edit_categories",
+				"op": "!=",
+				"value": false
 			}
 		},
-		"overwrite_existing_article_on_create": {
+		"show_infobox": {
 			"type": "boolean",
-			"title": "Overwrite existing article",
-			"description": "If enabled, existing articles with the same name will be overwritten",
-			"default": false
+			"title": "Show Infobox",
+			"description": "Whether to show an infobox on the target page",
+			"default": true,
+			"x-dependency": {
+				"path": "slot",
+				"op": "!=",
+				"value": "main"
+			}
+		},
+		"infobox_template": {
+			"type": "string",
+			"title": "Infobox template",
+			"description": "Template to use (leave empty for automatic generation)",
+			"default": "",
+			"x-input": "mw.widgets.TitleInputWidget",
+			"x-input-config": {
+				"namespace": 10
+			},
+			"x-dependency": {
+				"path": "show_infobox",
+				"op": "==",
+				"value": true
+			}
 		},
 		"view": {
 			"type": "string",
@@ -127,37 +170,58 @@
 		"popup_button_label": {
 			"type": "string",
 			"title": "popup button label",
-			"description": "Open popup button's label",
-			"x-input": "tagmultiselect",
-
 			"x-dependency": {
 				"view": "popup"
 			}
 		},
-		"callback": {
+		"popup_size": {
 			"type": "string",
-			"title": "Callback",
-			"x-format": "hidden",
-			"description": "JavaScript callback or handler name",
-			"default": ""
+			"title": "Popup size",
+			"default": "medium",
+			"enum": ["medium", "large", "small"],
+			"x-dependency": {
+				"view": "popup"
+			}
 		},
 		"preload": {
 			"type": "string",
 			"title": "Preload page",
 			"description": "Page to preload content from",
 			"default": "",
-			"x-input": "title"
+			"x-input": "mw.widgets.TitleInputWidget",
+			"x-dependency": {
+				"and": [
+					{
+						"path": "action",
+						"op": "==",
+						"value": "create"
+					},
+					{
+						"path": "slot",
+						"op": "!=",
+						"value": "main"
+					}
+				]
+			}
 		},
 		"preload_data": {
 			"type": "string",
 			"title": "Preload data",
 			"description": "Inline preload data",
-			"default": ""
+			"default": "",
+			"x-dependency": {
+				"action": "create"
+			}
 		},
 		"preload_data_separator": {
 			"type": "string",
 			"title": "Preload data separator",
-			"default": ""
+			"default": "",
+			"x-dependency": {
+				"path": "preload_data",
+				"op": "!=",
+				"value": ""
+			}
 		},
 		"return_page": {
 			"type": "string",
@@ -172,19 +236,19 @@
 			"format": "uri",
 			"default": ""
 		},
-		"start_path": {
+		"edit_path": {
 			"type": "string",
 			"format": "text",
-			"title": "Start path",
-			"description": "Json path to the subschema used to display a partial form (dot separated)",
+			"title": "Edit path",
+			"description": "Target path for form data (dot separated)",
 			"default": ""
 		},
-		"popup_size": {
+		"display_path": {
 			"type": "string",
-			"title": "Popup size",
-			"description": "Popup size definition",
-			"default": "medium",
-			"enum": ["medium", "large", "small"]
+			"format": "text",
+			"title": "Display path",
+			"description": "Json path to the subschema used to display a partial form (dot separated)",
+			"default": ""
 		},
 		"css_class": {
 			"type": "string",
@@ -197,25 +261,13 @@
 			"title": "editor options",
 			"description": "Editor options in the MediaWiki: namespace, javascript content model",
 			"default": "MediaWiki:DefaultEditorOptions",
-			"x-input": "title"
-		},
-		"editor_script": {
-			"type": "string",
-			"title": "editor script",
-			"description": "Editor script in the MediaWiki: namespace, javascript content model",
-			"default": "MediaWiki:DefaultEditorScript",
-			"x-input": "title"
+			"x-input": "mw.widgets.TitleInputWidget"
 		},
 		"width": {
 			"type": "string",
 			"title": "width",
 			"description": "",
 			"default": "600px"
-		},
-		"captcha": {
-			"type": "boolean",
-			"description": "Add captcha to form",
-			"default": false
 		}
 	}
 }

@@ -290,6 +290,46 @@ class JsonFormsHooks {
 	 * @return void
 	 */
 	public static function onSkinBuildSidebar( $skin, &$bar ) {
+		if ( !empty( $GLOBALS['wgJsonFormsDisableSidebarLink'] ) ) {
+			return;
+		}
+
+		$user = $skin->getUser();
+		$title = $skin->getTitle();
+
+		if ( $user->isAllowed( 'edit' ) ) {
+			$specialpage_title = SpecialPage::getTitleFor( 'JsonForms' );
+			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
+				'text'   => wfMessage( 'jsonforms-new-article' )->text(),
+				'class'   => "jsonforms-new-article",
+				'href'   => $specialpage_title->getLocalURL()
+			];
+		}
+
+		if ( $user->isAllowed( 'jsonforms-canmanageforms' ) ) {
+			$specialpage_title =SpecialPage::getTitleFor( 'JsonFormsManage', 'Forms' );
+			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
+				'text'   => wfMessage( 'jsonforms-sidepanel-managesforms' )->text(),
+				'href'   => $specialpage_title->getLocalURL()
+			];
+		}
+
+		if ( $user->isAllowed( 'jsonforms-canmanageschemas' ) ) {
+			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsManage', 'Schemas' );
+			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
+				'text'   => wfMessage( 'jsonforms-sidepanel-manageschemas' )->text(),
+				'href'   => $specialpage_title->getLocalURL()
+			];
+		}
+
+		$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
+		if ( count( array_intersect( $groups, \JsonForms::getUserGroups( $user ) ) ) ) {			
+			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsSlotManager' );
+			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
+				'text'   => wfMessage( 'jsonforms-sidepanel-slotmanager' )->text(),
+				'href'   => $specialpage_title->getLocalURL()
+			];
+		}
 	}
 
 	/**

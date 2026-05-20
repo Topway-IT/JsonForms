@@ -27,7 +27,7 @@ function JsonFormsPageForm(el, data) {
 	// console.log('this.schema', this.schema);
 
 	this.isPopup = this.formDescriptor.view === 'popup';
-	
+
 	this.editor = null;
 }
 
@@ -35,10 +35,12 @@ OO.inheritClass(JsonFormsPageForm, JsonForms);
 
 // ***redefine enum provider and callbacks
 JsonFormsPageForm.prototype.initialize = async function () {
-    await JsonFormsPageForm.super.prototype.initialize.call(this);
-    
+	await JsonFormsPageForm.super.prototype.initialize.call(this);
+
 	const defaultOptions = this.defaultOptions || {};
 	//  const defaultOptions = JSON.parse(JSON.stringify(this.defaultOptions || {}));
+
+	// console.log('defaultOptions.callbacks',defaultOptions.callbacks)
 
 	this.defaultOptions = {
 		...defaultOptions,
@@ -46,9 +48,9 @@ JsonFormsPageForm.prototype.initialize = async function () {
 			...(defaultOptions.callbacks || {}),
 			button: {
 				...(defaultOptions.callbacks?.button || {}),
-				outerFormNavButton: function(editor) {
-                this.onNavButton(editor);
-            }.bind(this),
+				outerFormNavButton: function (editor) {
+					this.onNavButton(editor);
+				}.bind(this),
 			},
 		},
 	};
@@ -66,6 +68,47 @@ JsonFormsPageForm.prototype.initialize = async function () {
 JsonFormsPageForm.prototype.adjustFormSchema = function () {
 	const formDescriptor = this.formDescriptor;
 	const ret = structuredClone(this.schema);
+
+	const formUrl = mw.config
+		.get('wgArticlePath')
+		.replace('$1', 'JsonForm:' + formDescriptor.name);
+	const schemaUrl = mw.config
+		.get('wgArticlePath')
+		.replace('$1', 'JsonSchema:' + formDescriptor.schema);
+		
+	const infoMessage = `Using schema <a target="_blank" href="${schemaUrl}">${formDescriptor.schema}</a> via form descriptor <a target="_blank" href="${formUrl}">${formDescriptor.name}</a>`;
+	
+	ret.properties.header.title = formDescriptor.name;
+	ret.properties.header.description = infoMessage;
+	
+
+/* 
+@TODO
+use
+	new OO.ui.PopupButtonWidget( {
+	icon: 'info',
+	framed: false,
+	label: 'More information',
+	invisibleLabel: true,
+	popup: {
+		head: true,
+		label: 'More information',
+		$content: $( '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\u200e</p>' ),
+		padded: true,
+		align: 'forwards',
+		autoFlip: false
+	}
+} )
+*/
+
+
+/*
+	ret['x-message'].label =
+		
+*/
+
+	// console.log('infoMessage',infoMessage)
+
 	/*
 default form descriptor
 {
@@ -108,7 +151,7 @@ default form descriptor
 	const options = ret.properties.form.properties.options.properties;
 	const required = ret.properties.form.properties.options.required;
 
-	if (formDescriptor.pagename_formula || formDescriptor.edit_page) {
+	if (formDescriptor.pagename_formula || formDescriptor.edit) {
 		delete options.title;
 		JsonForms.Utilities.removeArrayItem(required, 'title');
 	} else {
@@ -125,15 +168,9 @@ default form descriptor
 	// the key is the form descriptor field
 	// the value is the target schema
 	const keyMap = {
-		edit_data_slot_role: 'data_slot_role',
-		edit_main_slot_content_model: 'main_slot_content_model',
-		edit_main_slot_content: 'main_slot_content',
+		edit_freetext: 'freetext',
 		edit_categories: 'categories',
 	};
-
-	if (formDescriptor['edit_main_slot_content_model']) {
-		formDescriptor['edit_main_slot_content'] = true;
-	}
 
 	for (const key in keyMap) {
 		if (!formDescriptor[key]) {
@@ -143,7 +180,8 @@ default form descriptor
 		}
 	}
 
-	if (!formDescriptor['edit_main_slot_content']) {
+	if (!formDescriptor['edit_freetext']) {
+		delete options['freetext_content_model'];
 		delete options['summary'];
 		delete options['minor'];
 	}
@@ -162,9 +200,9 @@ default form descriptor
 
 JsonForms.prototype.initButtons = function (jsonEditor) {
 	const optionsEditor = jsonEditor.getEditor('root.form.options');
-	const validateButton = jsonEditor.getEditor('root.buttons.validate');
-	const submitButton = jsonEditor.getEditor('root.buttons.submit');
-	const gobackButton = jsonEditor.getEditor('root.buttons.goback');
+	const validateButton = jsonEditor.getEditor('root.footer.buttons.validate');
+	const submitButton = jsonEditor.getEditor('root.footer.buttons.submit');
+	const gobackButton = jsonEditor.getEditor('root.header.buttons.goback');
 
 	if (Object.keys(optionsEditor.editors).length) {
 		if (submitButton) {
@@ -213,8 +251,23 @@ JsonForms.prototype.createDefaultEditor = async function (config = {}) {
 JsonForms.prototype.createPopup = async function (config) {
 	let _resolveEditorReady = null;
 
+	const prepareEditor = async () => {
+		// use a separate JsonForms instance
+		// keep asynchronous functions outside callbacks.initialize
+		const jsonForms = new JsonForms(null, {
+				...this.data,
+				schema: config.schema,
+				startval: null,
+				name: null,
+			});
+			await jsonForms.initialize();			
+			return jsonForms
+	}
+	
+	const jsonFormsOptions = await prepareEditor()
+
 	const callbacks = {
-		initialize: async (dialog) => {
+		initialize:  (dialog) => {
 			const panelA = new OO.ui.PanelLayout({
 				expanded: false,
 				padded: false,
@@ -223,18 +276,21 @@ JsonForms.prototype.createPopup = async function (config) {
 			});
 
 			const el = document.createElement('div');
-			
+
 			const hasData = JsonForms.Utilities.getNestedProp(
 				['form', 'editor'],
 				this.startval,
 			);
+			
+			// @ATTENTION, we don't use editor.getEditor('root.form.editor')
+			// etc. since it's not synchronous !!
 			const editor = this.createEditor(el, {
 				...config,
 				/// startval: hasData ? this.startval.form.editor : undefined,
 				startval: this.startval,
-				start_path: 'form.editor',
+				display_path: 'form.editor',
 			});
-			
+
 			dialog.editor = editor;
 
 			panelA.$element.append(el);
@@ -246,18 +302,11 @@ JsonForms.prototype.createPopup = async function (config) {
 				data: { name: 'options' },
 			});
 
-			// do not use this.createEditor to not mess with the editor
+			// @ATTENTION, we don't use editor.getEditor('root.form.options')
+			// etc. since it's not synchronous !!
 			const elOptions = document.createElement('div');
-			const jsonForms = new JsonForms(elOptions, {
-				...this.data,
-				schema: config.schema,
-				startval: null,
-				name: null,
-			});
-			await jsonForms.initialize();
-
-			dialog.optionsEditor = jsonForms.createEditor(elOptions, {
-				start_path: 'form.options',
+			dialog.optionsEditor = jsonFormsOptions.createEditor(elOptions, {
+				display_path: 'form.options',
 				schema: config.schema,
 			});
 			panelB.$element.append(elOptions);
@@ -307,7 +356,9 @@ JsonForms.prototype.createPopup = async function (config) {
 						const innerformEditor = dialog.editor.getEditor('root.form.editor');
 						const innerEditor = innerformEditor.input.editor;
 
-						if (innerEditor.validation_results.length) {
+						const innerEditorValidationResults = innerEditor.validate();
+
+						if (innerEditorValidationResults.length) {
 							JsonForms.Alert('there are errors');
 							return;
 						} else {
@@ -326,18 +377,19 @@ JsonForms.prototype.createPopup = async function (config) {
 					const innerformEditor = dialog.editor.getEditor('root.form.editor');
 					const innerEditor = innerformEditor.input.editor;
 
-					if (innerEditor.validation_results.length) {
+					const innerEditorValidationResults = innerEditor.validate();
+
+					if (innerEditorValidationResults.length) {
 						JsonForms.Alert('there are errors');
 						return;
 					} else {
 						return getActionProcess.call(this, action).next(() => {
 							// return promise
-							const optionsEditor = dialog.optionsEditor.getEditor('root.form.options');
-							return this.submitForm(innerEditor, optionsEditor).then(
-								(res) => {
-									dialog.close({ action });
-								},
-							);
+							const optionsEditor =
+								dialog.optionsEditor.getEditor('root.form.options');
+							return this.submitForm(innerEditor, optionsEditor).then((res) => {
+								dialog.close({ action });
+							});
 						});
 					}
 				}
@@ -346,7 +398,7 @@ JsonForms.prototype.createPopup = async function (config) {
 	};
 
 	const button = new OO.ui.ButtonWidget({
-		label: this.formDescriptor.name,
+		label: this.formDescriptor.popup_button_label || this.formDescriptor.name,
 		icon: 'edit',
 		flags: [],
 		classes: [],
@@ -379,28 +431,30 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	// and first is validated/submitted
 	const jsonEditor = editor.jsoneditor;
 	const formEditor = jsonEditor.getEditor('root.form');
-	
+
 	// console.log('formEditor',formEditor)
 
 	// defined in the PageFormUI.json schema
 	const booklet = formEditor.groupWidget.layout;
 
-	const validateButton = jsonEditor.getEditor('root.buttons.validate');
-	const submitButton = jsonEditor.getEditor('root.buttons.submit');
-	const gobackButton = jsonEditor.getEditor('root.buttons.goback');
+	const validateButton = jsonEditor.getEditor('root.footer.buttons.validate');
+	const submitButton = jsonEditor.getEditor('root.footer.buttons.submit');
+	const gobackButton = jsonEditor.getEditor('root.header.buttons.goback');
 
 	const innerformEditor = jsonEditor.getEditor('root.form.editor');
 	const innerEditor = innerformEditor.input.editor;
 
 	switch (editor.key) {
 		case 'submit':
-			console.log('jsonEditor.validation_results',jsonEditor.validation_results)
-			console.log('innerEditor.validation_results',innerEditor.validation_results)
-			if (
-				jsonEditor.validation_results.length ||
-				innerEditor.validation_results.length
-			) {
+			jsonEditorValidationResults = jsonEditor.validate();
+			innerEditorValidationResults = innerEditor.validate();
 
+			console.log('jsonEditorValidationResults', jsonEditorValidationResults);
+			console.log('innerEditorValidationResults', innerEditorValidationResults);
+			if (
+				jsonEditorValidationResults.length ||
+				innerEditorValidationResults.length
+			) {
 				JsonForms.Alert('there are errors');
 				return;
 			} else {
@@ -418,10 +472,11 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 			break;
 
 		case 'validate': {
-			console.log('jsonEditor.validation_results',jsonEditor.validation_results)
-			console.log('innerEditor.validation_results',innerEditor.validation_results)
+			innerEditorValidationResults = innerEditor.validate();
+			console.log('innerEditorValidationResults', innerEditorValidationResults);
+
 			// the inner editor
-			if (innerEditor.validation_results.length === 0) {
+			if (innerEditorValidationResults.length === 0) {
 				booklet.setPage('options');
 				validateButton.theme.toggle(validateButton.container, false);
 				submitButton.theme.toggle(submitButton.container, true);
@@ -539,6 +594,29 @@ $(function () {
 		await jsonForms.initialize();
 
 		const editor = await jsonForms.createDefaultEditor(editorConfig);
+
+		const textarea = $('<textarea>', {
+			class: 'form-control',
+			id: 'value',
+			rows: 12,
+			style: 'font-size: 12px; font-family: monospace;',
+		});
+		$(el).append(textarea);
+
+		const textareaB = $('<textarea>', {
+			class: 'form-control',
+			id: 'value',
+			rows: 12,
+			style: 'font-size: 12px; font-family: monospace;',
+		});
+		$(el).append(textareaB);
+
+		editor.on('change', () => {
+			// console.log('editor.on change')
+
+			textarea.val(JSON.stringify(editor.getValue(), null, 2));
+			textareaB.val(JSON.stringify(Object.keys(editor.editors), null, 2));
+		});
 
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);

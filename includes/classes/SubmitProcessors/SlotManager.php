@@ -275,9 +275,9 @@ class SlotManager extends SubmitForm {
 		$isNewPage = false;
 		$titleStr = null;
 		$targetTitle = null;
-		
-		if ( !empty( $data['options']['editPage'] ) ) {
-			$titleStr = $data['options']['editPage'];
+
+		if ( !empty( $data['options']['edit'] ) ) {
+			$titleStr = $data['options']['edit'];
 
 		} elseif ( !empty( $data['value']['title'] ) ) {
 			$titleStr = $data['value']['title'];
@@ -300,7 +300,7 @@ class SlotManager extends SubmitForm {
 
 		$main_slot_content = $data['value']['content'] ?? null;
 		if ( $targetTitle->isKnown() ) {
-			if ( empty( $data['options']['editPage'] ) ) {			
+			if ( empty( $data['options']['edit'] ) ) {			
 				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
 					$targetTitle->getDBKey() )->parse() );
 			}
@@ -364,6 +364,12 @@ class SlotManager extends SubmitForm {
 				if ( $key === SLOT_ROLE_JSONFORMS_METADATA ) {
 					continue;
 				}
+				
+				if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
+					$content = json_decode( $value['content'], true );
+					$value['content'] = json_encode( $content['editor'] );
+					// $metadata['slots'][$key]['schema'] = $content['schema'];
+				}
 
 				$slots[$key] = [
 					'model' => $value['content_model'],
@@ -374,13 +380,17 @@ class SlotManager extends SubmitForm {
 					'model' => $value['content_model'],
 					'editor' => $value['editor'],			
 				];
+				
+				if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
+					$metadata['slots'][$key]['schema'] = $content['schema'];
+				}
 
 				// if ( $value['editor'] === 'JsonForms' ) {
 				// 	$metadata['slots'][$key]['schema'] = $data['structuredValue']["$key.content"]['schemaName'];
 				// }
-				if ( $value['content_model'] === 'json' && !empty( $metadataPrevious['slots'][$key]['schema'] ) ) {
-					$metadata['slots'][$key]['schema'] = $metadataPrevious['slots'][$key]['schema'];
-				}
+				// if ( $value['content_model'] === 'json' && !empty( $metadataPrevious['slots'][$key]['schema'] ) ) {
+				// 	$metadata['slots'][$key]['schema'] = $metadataPrevious['slots'][$key]['schema'];
+				// }
 			}
 		}
 

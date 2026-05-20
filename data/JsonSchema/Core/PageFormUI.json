@@ -1,10 +1,37 @@
 {
 	"@type": "JsonForms default schema",
+	"$id": "PageFormUI",
 	"x-compact": true,
 	"x-css-class": "jsonforms-outerform",
-	"required": [],
 	"type": "object",
 	"properties": {
+		"header": {
+			"x-compact": false,
+			"x-css-class": "jsonforms-outerform-header",
+			"title": "",
+			"description": "",
+			"properties": {
+				"buttons": {
+					"x-compact": true,
+					"properties": {
+						"goback": {
+							"type": "null",
+							"title": "go back",
+							"x-format": "button",
+							"x-button-action": "outerFormNavButton",
+							"x-input-config": {
+								"icon": "arrowPrevious",
+								"framed": false,
+								"flags": [
+									"invert", "primary"
+								],
+								"classes": [ "jsonforms-button-white-color" ]
+							}
+						}
+					}
+				}
+			}
+		},
 		"form": {
 			"type": "object",
 			"x-compact": true,
@@ -33,34 +60,13 @@
 							"minLength": 1,
 							"x-input": "title"
 						},
-						"data_slot_role": {
+						"freetext_content_model": {
 							"type": "string",
-							"title": "data slot's role",
-							"description": "Target slot role for form data",
-							"default": "",
-							"x-enum-provider": "jsonSlots"
+							"x-enum-provider": "contentModels"
 						},
-						"main_slot_content_model": {
-							"title": "content model of main slot",
+						"freetext": {
 							"type": "string",
-							"default": "wikitext",
-							"x-enum-provider": "contentModels",
-							"x-dependency": {
-								"data_slot": {
-									"op": "!=",
-									"value": "main"
-								}
-							}
-						},
-						"main_slot_content": {
-							"type": "string",
-							"format": "textarea",
-							"x-dependency": {
-								"data_slot": {
-									"op": "!=",
-									"value": "main"
-								}
-							}
+							"x-format": "textarea"
 						},
 						"categories": {
 							"type": "array",
@@ -101,32 +107,30 @@
 			"type": "string",
 			"format": "captcha"
 		},
-		"buttons": {
+		"footer": {
 			"x-compact": true,
-			"x-css-class": "jsonforms-outerform-buttons",
+			"x-css-class": "jsonforms-outerform-footer",
 			"properties": {
-				"validate": {
-					"type": "null",
-					"x-format": "button",
-					"x-button-action": "outerFormNavButton",
-					"x-input-config": {
-						"flags": ["primary", "progressive"]
-					}
-				},
-				"submit": {
-					"type": "null",
-					"x-format": "button",
-					"x-button-action": "outerFormNavButton",
-					"x-input-config": {
-						"flags": ["primary", "progressive"]
-					}
-				},
-				"goback": {
-					"type": "null",
-					"x-format": "button",
-					"x-button-action": "outerFormNavButton",
-					"x-input-config": {
-						"icon": "arrowPrevious"
+				"buttons": {
+					"x-compact": true,
+					"x-css-class": "jsonforms-outerform-buttons",
+					"properties": {
+						"validate": {
+							"type": "null",
+							"x-format": "button",
+							"x-button-action": "outerFormNavButton",
+							"x-input-config": {
+								"flags": ["primary", "progressive"]
+							}
+						},
+						"submit": {
+							"type": "null",
+							"x-format": "button",
+							"x-button-action": "outerFormNavButton",
+							"x-input-config": {
+								"flags": ["primary", "progressive"]
+							}
+						}
 					}
 				}
 			}
