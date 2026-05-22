@@ -64,10 +64,7 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 	switch (action) {
 		case 'submit':
 			const innerEditorValidationResults = innerEditor.validate();
-			console.log(
-				'innerEditorValidationResults',
-				innerEditorValidationResults,
-			);
+			console.log('innerEditorValidationResults', innerEditorValidationResults);
 
 			if (innerEditorValidationResults.length) {
 				JsonForms.Alert('there are errors');
@@ -93,7 +90,11 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 			break;
 
 		case 'cancel':
-			// alert('cancel');
+			const url = mw.config
+				.get('wgArticlePath')
+				.replace('$1', mw.config.get('wgPageName'));
+
+			window.location.href = url;
 			break;
 	}
 };
@@ -139,7 +140,10 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 	// $formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';
 	// or $formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';
 	// server-side
-	const template = this.editor.compileTemplate(formDescriptor.pagename_formula);
+
+	const template = this.editor.compileTemplate(
+		formDescriptor.pagename_formula.replace('<', '{{').replace('>', '}}'),
+	);
 	const title = this.editor.getTemplateResult(template, vars);
 
 	// *** submission data are arbitrary and depend on the

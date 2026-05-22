@@ -75,14 +75,13 @@ JsonFormsPageForm.prototype.adjustFormSchema = function () {
 	const schemaUrl = mw.config
 		.get('wgArticlePath')
 		.replace('$1', 'JsonSchema:' + formDescriptor.schema);
-		
+
 	const infoMessage = `Using schema <a target="_blank" href="${schemaUrl}">${formDescriptor.schema}</a> via form descriptor <a target="_blank" href="${formUrl}">${formDescriptor.name}</a>`;
-	
+
 	ret.properties.header.title = formDescriptor.name;
 	ret.properties.header.description = infoMessage;
-	
 
-/* 
+	/* 
 @TODO
 use
 	new OO.ui.PopupButtonWidget( {
@@ -101,8 +100,7 @@ use
 } )
 */
 
-
-/*
+	/*
 	ret['x-message'].label =
 		
 */
@@ -189,8 +187,8 @@ default form descriptor
 	this.hasOptions = Object.keys(options).length;
 
 	if (!this.hasOptions) {
-		delete ret.properties.buttons.properties.validate;
-		delete ret.properties.buttons.properties.goback;
+		delete ret.properties.footer.properties.buttons.properties.validate;
+		delete ret.properties.header.properties.buttons.properties.goback;
 	}
 
 	// console.log('ret',ret)
@@ -255,19 +253,19 @@ JsonForms.prototype.createPopup = async function (config) {
 		// use a separate JsonForms instance
 		// keep asynchronous functions outside callbacks.initialize
 		const jsonForms = new JsonForms(null, {
-				...this.data,
-				schema: config.schema,
-				startval: null,
-				name: null,
-			});
-			await jsonForms.initialize();			
-			return jsonForms
-	}
-	
-	const jsonFormsOptions = await prepareEditor()
+			...this.data,
+			schema: config.schema,
+			startval: null,
+			name: null,
+		});
+		await jsonForms.initialize();
+		return jsonForms;
+	};
+
+	const jsonFormsOptions = await prepareEditor();
 
 	const callbacks = {
-		initialize:  (dialog) => {
+		initialize: (dialog) => {
 			const panelA = new OO.ui.PanelLayout({
 				expanded: false,
 				padded: false,
@@ -281,7 +279,7 @@ JsonForms.prototype.createPopup = async function (config) {
 				['form', 'editor'],
 				this.startval,
 			);
-			
+
 			// @ATTENTION, we don't use editor.getEditor('root.form.editor')
 			// etc. since it's not synchronous !!
 			const editor = this.createEditor(el, {
@@ -307,6 +305,7 @@ JsonForms.prototype.createPopup = async function (config) {
 			const elOptions = document.createElement('div');
 			dialog.optionsEditor = jsonFormsOptions.createEditor(elOptions, {
 				display_path: 'form.options',
+				startval: this.startval,
 				schema: config.schema,
 			});
 			panelB.$element.append(elOptions);
@@ -500,12 +499,15 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 		vars[path] = structuredValue[path].value;
 	}
 
-	if (this.formDescriptor.pagename_formula) {
+	// Create a shallow copy to avoid mutating the original
+	const formDescriptor = { ...this.formDescriptor };
+
+	if (formDescriptor.pagename_formula) {
 		const template = this.editor.compileTemplate(
-			this.formDescriptor.pagename_formula,
+			formDescriptor.pagename_formula.replace('<', '{{').replace('>', '}}'),
 		);
 
-		this.formDescriptor.pagename_formula = this.editor.getTemplateResult(
+		formDescriptor.pagename_formula = this.editor.getTemplateResult(
 			template,
 			vars,
 		);
@@ -520,7 +522,7 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 			captcha: this.editor.getEditor('root.form.captcha'),
 		},
 		structuredValue,
-		formDescriptor: this.formDescriptor,
+		formDescriptor,
 		config: mw.config.get('jsonforms'),
 		processor: 'PageForms', //submit processor
 	};
@@ -564,7 +566,6 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 					resolve(result);
-					// @TODO this.editor can be wrong !!
 					this.editor.destroy();
 					this.createDefaultEditor().then((editor) => {});
 				}

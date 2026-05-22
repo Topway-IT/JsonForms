@@ -1,5 +1,5 @@
 export default {
-	show_errors: 'interaction',
+	show_errors: 'never',
 	template: 'default',
 	max_depth: 16,
 	use_default_values: true,

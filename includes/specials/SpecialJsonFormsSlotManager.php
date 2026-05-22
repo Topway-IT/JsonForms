@@ -130,7 +130,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 						$val['editor'] = $metadata['slots'][$role]['editor'];
 					}
 					$content = \JsonForms::getSlotContent( $wikiPage, $role );
-					if ( strtolower( $val['editor'] ) !== 'jsonforms' ) {
+					if ( !isset( $val['editor'] )  || strtolower( $val['editor'] ) !== 'jsonforms' ) {
 						$val['content'] = $content;
 
 					} else {

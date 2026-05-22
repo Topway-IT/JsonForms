@@ -65,7 +65,7 @@
 		"pagename_formula": {
 			"type": "string",
 			"title": "Page name formula",
-			"description": "can contain wikitext, properties values are retrieved using an expression like {{parent_property.child_property}}",
+			"description": "can contain wikitext, properties values are retrieved using an expression like <parent.child> (e.g. <name> or <address.country>)",
 			"default": "",
 			"x-dependency": {
 				"action": "create"
@@ -108,7 +108,7 @@
 			"type": "boolean",
 			"title": "Edit freetext",
 			"description": "",
-			"default": true,
+			"default": false,
 			"x-dependency": {
 				"path": "slot",
 				"op": "!=",

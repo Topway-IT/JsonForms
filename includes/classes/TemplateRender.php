@@ -17,20 +17,7 @@ class TemplateRender
 
 	public function render($data, $templatePrefix)
 	{
-		// children
-		$childrenHtml = "";
-		if (is_array($data)) {
-			foreach ($data as $key => $item) {
-				$childrenHtml .= $this->renderNode(
-					$item,
-					[$key],
-					[],
-					$templatePrefix,
-				);
-			}
-		} else {
-			$childrenHtml .= $this->renderNode($data, [], [], $templatePrefix);
-		}
+		$childrenHtml = $this->renderNode($data, [], [], $templatePrefix);
 
 		// root container
 		$params = [

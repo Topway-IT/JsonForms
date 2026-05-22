@@ -180,7 +180,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$out->addHTML( '<br />' );
 				
 				$item = 'form';
-				$formDescriptor['pagename_formula'] = 'JsonForm:{{name}}';
+				$formDescriptor['pagename_formula'] = 'JsonForm:<name>';
 				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
 				// $innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::getSourceSchema( 'CreatePageForm', 'JsonSchema/Core' );
@@ -204,7 +204,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 				$out->addHTML( '<br />' );
 */
 				$item = 'schema';
-				$formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';				
+				$formDescriptor['pagename_formula'] = 'JsonSchema:<x-name>';
 				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
 				// $innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::getSourceSchema( 'MetaSchema', 'JsonSchema/SchemaBuilder' );

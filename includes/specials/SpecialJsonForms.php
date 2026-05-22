@@ -60,36 +60,60 @@ class SpecialJsonForms extends SpecialPage {
 
 		$this->addHelpLink( 'Extension:JsonForms' );
 
-		$out->addModules( 'ext.JsonForms.newArticle' );
 		// $context = RequestContext::getMain();
 
-		$jsonForm = \JsonForms::getSourceSchema( 'NewArticle', 'JsonSchema/Core' );
-		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+		if ( empty( $par ) ) {
+			$jsonForm = \JsonForms::getSourceSchema( 'NewArticle', 'JsonSchema/Core' );
+			$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		$formData = [
-			'schema' => $jsonForm,
-			'name' => 'SlotManager',
-			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
-			'editorScript'=> 'MediaWiki:DefaultEditorScript',
-		];
-
-		if ( !empty( $startValInnerForm ) ) {
-			$formData['startval'] = [
-				'editor' => json_encode( $startValInnerForm )
+			$out->addModules( 'ext.JsonForms.newArticle' );
+			$formData = [
+				'schema' => $jsonForm,
+				'name' => 'NewArticle',
+				'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+				'editorScript'=> 'MediaWiki:DefaultEditorScript',
 			];
+		
+			$formData = \JsonForms::prepareFormData( $out, $formData );
+
+			$res_ = \JsonForms::getJsonFormHtml( $formData, [
+				'width' => '100%'
+			] );
+
+			if ( !$res_->ok ) {
+				return $this->printError( $out, $res_->error );
+			}
+
+			$html = $res_->value;
+
+		} else {
+			$formDescriptor = \JsonForms::getSourceSchema( $par, 'JsonForm' );
+			$html = \JsonForms::getPageForm( $out, $formDescriptor );
+			
+			$out->addModules( 'ext.JsonForms.pageForms' );
+
+/*
+			$schemaName = $formDescriptor['schema'];
+			$jsonForm = \JsonForms::getSourceSchema( $schemaName, 'JsonSchema' );
+			$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+
+			$out->addModules( 'ext.JsonForms.pageForms' );
+
+			$formData = [
+				'schema' => $jsonForm,
+				'name' => 'PageForm',
+				'editorOptions' => 'MediaWiki:DefaultEditorOptions',
+				'editorScript'=> 'MediaWiki:DefaultEditorScript',
+				'formDescriptor' => $formDescriptor
+			];
+			// @TODO 
+*/
+			// if ( !empty( $startVal ) ) {
+			// 	$formData['startval'] = [
+			// 		'editor' => json_encode( $startValInnerForm )
+			// 	];
+			// }
 		}
-
-		$formData = \JsonForms::prepareFormData( $out, $formData );
-
-		$res_ = \JsonForms::getJsonFormHtml( $formData, [
-			'width' => '100%'
-		] );
-
-		if ( !$res_->ok ) {
-			return $this->printError( $out, $res_->error );
-		}
-
-		$html = $res_->value;
 
 		\JsonForms::addJsConfigVars( $out );
 		

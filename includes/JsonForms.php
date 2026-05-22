@@ -171,6 +171,9 @@ class JsonForms {
 			}
 		}
 
+		$formDescriptor['css_class'] = ( !empty( $formDescriptor['css_class'] ) ?
+			$formDescriptor['css_class'] . ' ' : '' ) . 'jsonforms-form-inline';
+
 		$result = self::getPageForm( $output, $formDescriptor );
 
 		return [
@@ -250,9 +253,17 @@ class JsonForms {
 										$startVal['form']['editor'] = $content;
 
 									} else {
-										$json = SlotEditor::parseMaybeJSON( $content );
-										$json = self::getValueByPath( $json, $formDescriptor['edit_path'] );
-										$startVal['form']['editor'] = SlotEditor::stringifyMaybeJSON( $json );
+										// if it's in this form 0.schools.0.classes.
+										// we are adding an array item
+										list( $shouldAppend, $_ ) = self::parseAppendPath( $formDescriptor['edit_path'] );
+										if ( !$shouldAppend ) {
+											// $returnObject = true;
+											$json = SlotEditor::parseMaybeJSON( $content /*, $returnObject */ );
+											$json = self::getValueByPath( $json, $formDescriptor['edit_path'] );
+											if ( !empty( $json ) ) {
+												$startVal['form']['editor'] = SlotEditor::stringifyMaybeJSON( $json );
+											}
+										}
 									}
 								}
 								break;
@@ -271,6 +282,7 @@ class JsonForms {
 					$formDescriptor['edit_freetext'] === true
 				) {
 					$startVal['form']['options']['freetext_content_model'] = $editTitle->getContentModel();
+					$startVal['form']['options']['freetext'] = self::getArticleContent( $editTitle );
 				}
 			}
 		}
@@ -322,8 +334,11 @@ class JsonForms {
 		$formData = \JsonForms::prepareFormData( $output, $formData );
 
 		$attr = [];
-		if ( isset( $formDescriptor['width'] ) ) {
+		if ( !empty( $formDescriptor['width'] ) ) {
 			$attr['width'] = $formDescriptor['width'];
+		}
+		if ( !empty( $formDescriptor['css_class'] ) ) {
+			$attr['css_class'] = $formDescriptor['css_class'];
 		}
 
 		// print_r($formData);
@@ -676,7 +691,8 @@ class JsonForms {
 
 		$ret = HtmlClass::rawElement( 'div', [
 			'data-form-data' => json_encode( $data ),
-			'class' => 'jsonforms-form jsonforms-form-wrapper',
+			'class' => 'jsonforms-form jsonforms-form-wrapper' .
+				( !isset( $attr['css_class'] ) ? '' : ' ' . $attr['css_class'] ),
 			'style' => !isset( $attr['width'] ) ? '' : 'width:' . $attr['width']
 		], $loadingContainer . $loadingPlaceholder );
 		
@@ -1337,10 +1353,27 @@ class JsonForms {
 	}
 
 	/**
+	 * Check if path ends with an append symbol
+	 *
+	 * @param string $path The original path
+	 * @param array $appendSymbols Array of symbols to check for
+	 * @return array [shouldAppend, cleanedPath]
+	 */
+	private static function parseAppendPath( $path, $appendSymbols = [ '.[]', '.', '[]' ] ) {
+		foreach ( $appendSymbols as $symbol ) {
+			$symbolLen = strlen( $symbol );
+			if ( substr( $path, -$symbolLen ) === $symbol ) {
+				return [ true, substr( $path, 0, -$symbolLen ) ];
+			}
+		}
+		return [ false, $path ];
+	}
+
+	/**
 	 * Set a value in an array by dot notation path
 	 *
 	 * @param array|null $obj Source array (passed by reference)
-	 * @param string|null $path Dot notation path (e.g., "a.b.1.c")
+	 * @param string $path Dot notation path (e.g., "a.b.1.c")
 	 * @param mixed $value Value to set
 	 * @param bool $createMissing Whether to create missing intermediate arrays
 	 * @return bool True if value was set, false otherwise
@@ -1358,6 +1391,20 @@ class JsonForms {
 			$obj = $value;
 			return true;
 		}
+		
+		$addPathSymbols = [ '.[]', '.', '[]' ];
+
+		if ( in_array( $path, $addPathSymbols ) ) {
+			$obj[] = $value;
+			return true;
+		}
+
+		list( $shouldAppend, $path ) = self::parseAppendPath( $path );
+
+		if ( empty( $path ) && $shouldAppend ) {
+			$obj[] = $value;
+			return true;
+		}
 
 		// Convert bracket notation to dot notation: a[1].b -> a.1.b
 		$normalizedPath = preg_replace( '/\[(\d+)\]/', '.$1', $path );
@@ -1367,13 +1414,38 @@ class JsonForms {
 		foreach ( $keys as $i => $key ) {
 			$isLastKey = ( $i === count( $keys ) - 1 );
 			
+			// Convert numeric strings to integers
+			if ( is_numeric( $key ) && is_array( $current ) ) {
+				$key = (int) $key;
+			}
+
 			if ( $isLastKey ) {
-				// Set the value at the final path
-				$current[ $key ] = $value;
+				if ( $shouldAppend ) {
+					// Create parent array
+					if ( !isset( $current[ $key ] ) ) {
+						if ( $createMissing ) {
+							$current[ $key ] = [];
+						} else {
+							return false;
+						}
+					}
+
+					if ( !is_array( $current[ $key ] ) ) {
+						if ( $createMissing ) {
+							$current[ $key ] = [];
+						} else {
+							return false;
+						}
+					}
+					
+					$current[ $key ][] = $value;
+				} else {
+					$current[ $key ] = $value;
+				}
 				return true;
 			}
 			
-			// next level
+			// Next level
 			if ( !isset( $current[ $key ] ) ) {
 				if ( $createMissing ) {
 					$current[ $key ] = [];

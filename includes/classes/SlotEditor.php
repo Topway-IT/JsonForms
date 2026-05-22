@@ -179,12 +179,12 @@ class SlotEditor
         return true;
     }
 
-	public static function parseMaybeJSON( $value ) {
+	public static function parseMaybeJSON( $value, $returnObject = fase ) {
 		if ( !is_string( $value ) ) {
 			return $value;
 		}
 
-		$decoded = json_decode( $value, true );
+		$decoded = json_decode( $value, !$returnObject );
 
 		if ( json_last_error() === JSON_ERROR_NONE ) {
 			return $decoded;

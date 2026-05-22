@@ -376,9 +376,10 @@ metadata can be stored:
 		// 	$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
 		// }
 
-		if ( !empty( $formDescriptor['edit_path'] ) ) {
-			$wholeData = \JsonForms::getSlotContent( $refWikiPage, $targetSlot );
-			\JsonForms::setValueByPath( $wholeData, $formDescriptor['edit_path'], $dataToSave );
+		if ( !empty( $data['formDescriptor']['edit_path'] ) ) {
+			$wholeDataStr = \JsonForms::getSlotContent( $refWikiPage, $targetSlot );
+			$wholeData = json_decode( $wholeDataStr, true );
+			\JsonForms::setValueByPath( $wholeData, $data['formDescriptor']['edit_path'], $dataToSave );
 			$dataToSave = $wholeData;
 		}
 
