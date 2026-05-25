@@ -19,20 +19,28 @@
  * @copyright Copyright ©2026, https://wikisphere.org
  */
 
-function JsonFormsNewArticle(el, data) {
-	JsonFormsNewArticle.super.call(this, el, data);
+function JsonFormsEditSchema(el, data) {
+	JsonFormsEditSchema.super.call(this, el, data);
 
+	this.metadata = data.metadata;
 	this.jsonformsConfig = mw.config.get('jsonforms');
-	this.editPage = data.editPage;
+	this.editTitle = data.editTitle;
 }
 
-OO.inheritClass(JsonFormsNewArticle, JsonForms);
+OO.inheritClass(JsonFormsEditSchema, JsonForms);
 
-JsonFormsNewArticle.prototype.onFormButton = function (action, editor) {
+JsonFormsEditSchema.prototype.onFormButton = function (action, editor) {
 	switch (action) {
+		case 'cancel':
+			const url = mw.config
+				.get('wgArticlePath')
+				.replace('$1', mw.config.get('wgPageName'));
+
+			window.location.href = url;
+			break;
+
 		case 'submit':
 			const validationResults = this.editor.validate();
-
 			console.log('validationResults', validationResults);
 
 			if (validationResults.length) {
@@ -46,8 +54,8 @@ JsonFormsNewArticle.prototype.onFormButton = function (action, editor) {
 };
 
 // ***redefine enum provider and callbacks
-JsonFormsNewArticle.prototype.initialize = async function () {
-	await JsonFormsNewArticle.super.prototype.initialize.call(this);
+JsonFormsEditSchema.prototype.initialize = async function () {
+	await JsonFormsEditSchema.super.prototype.initialize.call(this);
 
 	this.defaultOptions.callbacks.button = {
 		...(this.defaultOptions?.callbacks?.button ?? {}),
@@ -55,126 +63,45 @@ JsonFormsNewArticle.prototype.initialize = async function () {
 			submitButton: (editor) => {
 				this.onFormButton('submit', editor);
 			},
+			cancelButton: (editor) => {
+				this.onFormButton('cancel', editor);
+			},
 		},
 	};
+
+	// this.defaultOptions.callbacks.template = {
+	// 	...this.defaultOptions.callbacks.template,
+	// 	...this.enumProviders,
+	// };
 };
 
-JsonForms.prototype.initButtons = function (jsonEditor) {
-	switch (jsonEditor.schema.$id) {
-		case 'NewArticleDataOnly':
-			{
-				const summaryInput = jsonEditor.getEditor('root.footer.summary');
-				const minorInput = jsonEditor.getEditor('root.footer.minor');
-
-				summaryInput.theme.toggle(summaryInput.container, false);
-				minorInput.theme.toggle(minorInput.container, false);
-			}
-			break;
-	}
-};
-
-JsonFormsNewArticle.prototype.submitForm = function () {
-	let options,
-		value,
-		metadata = {};
-
+JsonFormsEditSchema.prototype.submitForm = function () {
 	const editorValue = this.editor.getValue();
 
-	console.log('editorValue', editorValue);
+	// console.log('editorValue', editorValue);
 
-	switch (this.data.schema.$id) {
-		case 'NewArticleCombined':
-			{
-				const mainEditor = this.editor.getEditor('root.form.main');
-				const footerEditor = this.editor.getEditor('root.footer');
-
-				options = {
-					...mainEditor.getValue(),
-					...footerEditor.getValue(),
-				};
-
-				metadata = { ...(editorValue.form.options || {}) };
-
-				const schemaEditor = this.editor.getEditor(
-					'root.form.schema.selectedSchema.editor',
-				);
-				if (schemaEditor) {
-					value = schemaEditor.getValue();
-				}
-
-				const schemaNameEditor = this.editor.getEditor(
-					'root.form.schema.selectedSchema.schemaName',
-				);
-
-				if (schemaNameEditor) {
-					metadata.schemaName = schemaNameEditor.getValue();
-				}
-
-				if (!metadata.schemaName) {
-					JsonForms.Alert('schema is required');
-					return;
-				}
-			}
-			break;
-		case 'NewArticleDataOnly':
-			{
-				const formEditor = this.editor.getEditor('root.form');
-
-				options = {
-					...formEditor.getValue(),
-				};
-				delete options.schema;
-
-				const schemaEditor = this.editor.getEditor(
-					'root.form.schema.selectedSchema.editor',
-				);
-				if (schemaEditor) {
-					value = schemaEditor.getValue();
-				}
-
-				const schemaNameEditor = this.editor.getEditor(
-					'root.form.schema.selectedSchema.schemaName',
-				);
-
-				if (schemaNameEditor) {
-					metadata.schemaName = schemaNameEditor.getValue();
-				}
-
-				if (!metadata.schemaName) {
-					JsonForms.Alert('schema is required');
-					return;
-				}
-			}
-			break;
-		case 'NewArticleRegular':
-		default:
-			{
-				const formEditor = this.editor.getEditor('root.form');
-				const footerEditor = this.editor.getEditor('root.footer');
-
-				options = {
-					...formEditor.getValue(),
-					...footerEditor.getValue(),
-				};
-			}
-			break;
+	const options = { title: this.editTitle };
+	let value;
+	const metadata = { ...editorValue.form.options };
+	
+	if ( editorValue.form.schema.selectedSchema ) {
+		value = editorValue.form.schema.selectedSchema.editor;
+		metadata.schemaName = editorValue.form.schema.selectedSchema.schemaName;
 	}
 
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
 	const data = {
-		options,
 		value,
+		options,
 		metadata,
 		config: mw.config.get('jsonforms'),
 
 		//submit processor
-		processor: 'NewArticle',
+		processor: 'EditSchema',
 	};
 
 	console.log('data', data);
-
-	// return;
 
 	const payload = {
 		data: JSON.stringify(data),
@@ -217,19 +144,19 @@ JsonFormsNewArticle.prototype.submitForm = function () {
 };
 
 $(function () {
+	// console.log(' mw.config', mw.config);
+
 	$('.jsonforms-form-wrapper').each(async function (index, el) {
 		this.el = el;
 		const data = $(el).data().formData;
 
 		console.log('data', data);
 
-		const jsonForms = new JsonFormsNewArticle(el, data);
+		const jsonForms = new JsonFormsEditSchema(el, data);
 
 		await jsonForms.initialize();
 
 		const editor = jsonForms.createDefaultEditor();
-
-		editor.on('ready', jsonForms.initButtons);
 
 /*
 		const textarea = $('<textarea>', {
@@ -247,5 +174,4 @@ $(function () {
 */
 	});
 });
-// console.log(' mw.config', mw.config);
 

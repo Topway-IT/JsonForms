@@ -26,12 +26,12 @@
 .jsonforms-form.jsonforms-form-inline {
 	width: 600px;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.2),0 2px 2px rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12);
-	border-radius: 4px;
 }
 
-.jsonforms-form .jsonforms-outerform {
-	padding: 0;
-	border: none;
+.jsonforms-form:not(.jsonforms-form-inline) {
+	padding: 12px;
+	border: 1px solid #ccc;
+	border-radius: 12px;
 }
 
 .jsonforms-form .jsonforms-innerform {
@@ -78,30 +78,29 @@
 }
 
 .jsonforms-form .jsonforms-outerform-header {
-	background: #1976d2; /* cbdcff */
-	color: white;
 	font-weight: bold;
 	border-top: none;
 	padding: 0.8em;
 	border-radius: 6px 6px 0 0;
+	background: linear-gradient( #efefef, white,  white );
 }
 
 .jsonforms-form .jsonforms-outerform-header .jsonforms-header {
-	color: white;
 }
 
 .jsonforms-form .jsonforms-outerform-header .jsonforms-description {
-	color: black;
+	color: gray;
 	font-style: italic;
+	font-size: smaller;
 }
 
 .jsonforms-form .jsonforms-outerform-header .jsonforms-description a {
-	color: black;
+	color: gray;
 	text-decoration: underline;
 }
 
 .jsonforms-button-white-color a {
-	color: white !important;
+	/* color: white !important; */
 }
 
 .jsonforms-form .jsonforms-outerform-footer {
@@ -122,6 +121,74 @@
 	margin: auto;
 	max-width: 50em;
 	background-color: #fff;
+}
+
+.jsonforms-editdata-preview {
+  position: relative;
+  padding: 1rem;
+  margin: 1rem 0;
+  
+  /* Visual */
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* Disable selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.jsonforms-editdata-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-color: #c0c0c0;
+}
+
+/* Blurred overlay - always present */
+.jsonforms-editdata-preview::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(1px);
+  border-radius: 8px;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+}
+
+/* Text appears only on hover - DOES NOT cover entire container */
+.jsonforms-editdata-preview:hover::before {
+  content: "This is a preview, edit data after insert";
+  white-space: pre;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 24px;
+  border-radius: 8px;
+  z-index: 2;
+  pointer-events: none;
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 80%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .jsonforms-dialogs-non-modal .oo-ui-window {

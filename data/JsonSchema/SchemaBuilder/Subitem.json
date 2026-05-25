@@ -30,7 +30,6 @@
 		"name",
 		"type"
 	],
-	"additionalProperties": false,
 	"allOf": [
 		{
 			"if": {

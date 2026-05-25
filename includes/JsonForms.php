@@ -27,7 +27,6 @@ use MediaWiki\Extension\JsonForms\Aliases\Linker as LinkerClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Extension\JsonForms\FormParameters;
 use MediaWiki\Extension\JsonForms\QueryLinkParameters;
-use MediaWiki\Extension\JsonForms\RecursiveObjectIterator;
 use MediaWiki\Extension\JsonForms\ResultWrapper;
 use MediaWiki\Extension\JsonForms\SlotEditor;
 use MediaWiki\Extension\JsonForms\SlotHelper;

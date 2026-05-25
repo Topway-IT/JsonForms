@@ -96,13 +96,6 @@ class SpecialJsonFormsManage extends SpecialPage {
 		$this->setHeaders();
 		$this->outputHeader();
 
-
-		// if ( !$user->isAllowed( 'jsonforms-canmanageschemas' )
-		// 	&& !$user->isAllowed( 'jsonforms-caneditschema' ) ) {
-		// 	$this->displayRestrictionError();
-		// 	return;
-		// }
-
 		$out = $this->getOutput();
 
 		$out->addModuleStyles( 'mediawiki.special' );
@@ -125,27 +118,12 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$action = $this->getRequest()->getVal( 'action' );
 
-		// $jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
-		// $jsonForm = json_decode( $jsonForm, true );
 		$jsonForm = \JsonForms::getSourceSchema( 'SimpleFormUI', 'JsonSchema/Core' );
-
-		// // $formDescriptor = file_get_contents(  __DIR__ . '/../schemas/formDescriptors/EditForm.json');
-		// $formDescriptor = file_get_contents(  __DIR__ . '/../../data/JsonForm/Default.json');
-		// $formDescriptor = json_decode( $formDescriptor, true );
 		$formDescriptor = \JsonForms::getSourceSchema( 'Default', 'JsonForm' );
 
 		$formDescriptor['slot'] = SlotRecord::MAIN;
 		$formDescriptor['edit_categories'] = false;
-		// $formDescriptor['width'] = '800px';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
-		// $formDescriptor['create_only_fields'] = [
-		// 	'name',
-		// 	// 'edit_page'
-		// ];
-
-		// if ( !empty( $formDescriptor['edit_page'] ) ) {
-		// 	$jsonForm['properties']['editor']['x-input-config']['disableFields'] = $formDescriptor['create_only_fields'];
-		// }
 
 		$schemaName = '';
 		$pageid = $this->getRequest()->getVal( 'pageid' );
@@ -158,9 +136,6 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 			$formDescriptor['edit'] = $title->getFullText();
 			$articleContent = \JsonForms::getArticleContent( $title );
-			// if ( $text ) {
-			//	$startVal = json_decode( $articleContent, true );
-			// }
 	
 			$schemaName = $title->getText();
 		}
@@ -181,8 +156,6 @@ class SpecialJsonFormsManage extends SpecialPage {
 				
 				$item = 'form';
 				$formDescriptor['pagename_formula'] = 'JsonForm:<name>';
-				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/CreatePageForm.json');
-				// $innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::getSourceSchema( 'CreatePageForm', 'JsonSchema/Core' );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
@@ -190,23 +163,12 @@ class SpecialJsonFormsManage extends SpecialPage {
 				// those of the host schema
 				$jsonForm['properties']['editor']['x-input-config'] = [
 					'schema' => json_encode( $innerSchema ),
-					// 'lazyPropertiesLayout' => 'buttons'
 				];
 				break;
 
 			case 'schemas':
-/*
-				$message = new \OOUI\MessageWidget( [
-					'type' => 'error',
-					'label' =>  new \OOUI\HtmlSnippet( 'This feature is under development! Create/edit <b><a target="_blank" href="https://json-schema.org/draft-07">draft-07 (2018)</a></b> schemas manually or via an IA assistant until it\'s completed!' )
-				] );
-				$out->addHTML( $message );
-				$out->addHTML( '<br />' );
-*/
 				$item = 'schema';
 				$formDescriptor['pagename_formula'] = 'JsonSchema:<x-name>';
-				// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/MetaSchema.json');
-				// $innerSchema = json_decode( $innerSchema, true );
 				$innerSchema = \JsonForms::getSourceSchema( 'MetaSchema', 'JsonSchema/SchemaBuilder' );
 				$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
@@ -216,12 +178,17 @@ class SpecialJsonFormsManage extends SpecialPage {
 					'schema' => json_encode( $innerSchema ),
 					'isMetaSchema' => true,
 					'schemaName' => $schemaName,
-					// 'lazyPropertiesLayout' => 'toolbar'
 				];
 				break;
 		}
 
 		if ( $pageid ) {
+			$specialPageTitle = SpecialPage::getTitleFor( 'JsonFormsManage', $par );
+			$out->addWikiMsg(
+				'jsonforms-special-manage-returnlink',
+				$specialPageTitle->getFullText()
+			);
+
 			$out->addHTML( HtmlClass::rawElement( 'p', [], $this->msg( 'jsonforms-special-manage-schemas-schemaname', $title->getFullText())->parse() ) );
 		}
 
@@ -233,8 +200,6 @@ class SpecialJsonFormsManage extends SpecialPage {
 					'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 					'editorScript'=> 'MediaWiki:DefaultEditorScript',
 					'formDescriptor' => $formDescriptor,
-					// 'editorConfig' => [
-					// ]
 				];
 
 				if ( isset( $articleContent ) ) {
@@ -245,7 +210,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 				$data = [];
 				$res_ = \JsonForms::getJsonFormHtml( $formData, [
-					'width' => '100%'
+					'width' => 'calc(100% - 24px)'
 				] );
 
 				if ( !$res_->ok ) {
@@ -255,7 +220,6 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 				$html = HtmlClass::rawElement( 'div', [ 'class' => 'jsonforms-build-container' ], $res_->value );
 
-				// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
 				$out->addModules( 'ext.JsonForms.ManageSchemas' );
 
 				\JsonForms::addJsConfigVars( $out );
@@ -268,21 +232,18 @@ class SpecialJsonFormsManage extends SpecialPage {
 					[ 'id' => 'jsonforms-panel-layout', 'expanded' => false, 'padded' => false, 'framed' => false ]
 				);
 
-				// @TODO remove condition as soon as the metaschema editor works
-				// if ( $item === 'form' ) {
-					$layout->appendContent(
-						new OOUI\ButtonWidget(
-							[
-								'href' => wfAppendQuery( $this->localTitle->getLocalURL(), [ 'action' => 'edit' ] ),
-								'label' => $this->msg( 'jsonforms-manage-form-button-add-' . $item )->text(),
-								'infusable' => true,
-								'flags' => [ 'progressive', 'primary' ],
-							]
-						)
-					);
+				$layout->appendContent(
+					new OOUI\ButtonWidget(
+						[
+							'href' => wfAppendQuery( $this->localTitle->getLocalURL(), [ 'action' => 'edit' ] ),
+							'label' => $this->msg( 'jsonforms-manage-form-button-add-' . $item )->text(),
+							'infusable' => true,
+							'flags' => [ 'progressive', 'primary' ],
+						]
+					)
+				);
 
-					$out->addHTML( $layout );
-				// }
+				$out->addHTML( $layout );
 
 				$options = $this->showOptions( $request );
 

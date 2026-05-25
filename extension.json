@@ -15,12 +15,16 @@
 	},
 	"callback": "JsonFormsHooks::initExtension",
 	"Actions": {
-		"slotedit": "JsonFormsActionSlotManager"
+		"slotedit": "JsonFormsActionSlotManager",
+		"jsonedit": "JsonFormsActionJsonEdit"
 	},
 	"AutoloadClasses": {
 		"SpecialJsonForms": "includes/specials/SpecialJsonForms.php",
 		"JsonFormsActionSlotManager": "includes/JsonFormsActionSlotManager.php",
+		"JsonFormsActionJsonEdit": "includes/JsonFormsActionJsonEdit.php",
 		"SpecialJsonFormsDemo": "includes/specials/SpecialJsonFormsDemo.php",
+		"SpecialJsonFormsCreate": "includes/specials/SpecialJsonFormsCreate.php",
+		"SpecialJsonFormsEdit": "includes/specials/SpecialJsonFormsEdit.php",
 		"SpecialJsonFormsManage": "includes/specials/SpecialJsonFormsManage.php",
 		"SpecialJsonFormsSlotManager": "includes/specials/SpecialJsonFormsSlotManager.php",
 		"JsonForms": "includes/JsonForms.php",
@@ -64,6 +68,8 @@
 	},
 	"SpecialPages": {
 		"JsonForms": "SpecialJsonForms",
+		"JsonFormsCreate": "SpecialJsonFormsCreate",
+		"JsonFormsEdit": "SpecialJsonFormsEdit",
 		"JsonFormsDemo": "SpecialJsonFormsDemo",
 		"JsonFormsManage": "SpecialJsonFormsManage",
 		"JsonFormsSlotManager": "SpecialJsonFormsSlotManager",
@@ -179,6 +185,7 @@
 				"AutocompleteProviders.js",
 				"UISchemaConverters.js",
 				"schema-converters/NewProperty.js",
+				"schema-converters/NewSchema.js",
 				"schema-converters/NewSlot.js",
 				"schema-converters/Survey.js",
 				"schema-converters/Field.js",
@@ -229,6 +236,20 @@
 			],
 			"scripts": [
 				"JsonFormsNewArticle.js"
+			],
+			"dependencies": [
+				"ext.JsonForms.base"
+			],
+			"messages": [],
+			"position": "top"
+		},
+		"ext.JsonForms.editSchema": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+			],
+			"scripts": [
+				"JsonFormsEditSchema.js"
 			],
 			"dependencies": [
 				"ext.JsonForms.base"

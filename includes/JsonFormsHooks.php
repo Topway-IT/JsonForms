@@ -227,22 +227,36 @@ class JsonFormsHooks {
 		}
 
 		$errors = [];
-		if ( \JsonForms::checkWritePermissions( $user, $title, $errors )
-			// && $user->isAllowed( 'jsonforms-caneditdata' )
-			&& !$title->isSpecialPage()
-			// && in_array( $title->getNamespace(), $GLOBALS['wgVisualDataEditDataNamespaces'] )
+		if ( \JsonForms::checkWritePermissions( $user, $title, $errors ) &&
+			!$title->isSpecialPage()
 		 ) {
-			$link = [
-				'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'slotedit' ? 'selected' : '' ),
-				'text' => wfMessage( 'jsonforms-slotedit-label' )->text(),
-				'href' => $title->getLocalURL( 'action=slotedit' )
-			];
+		 
+		 	$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
+			if ( count( array_intersect( $groups, \JsonForms::getUserGroups( $user ) ) ) ) {
+				$link = [
+					'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'slotedit' ? 'selected' : '' ),
+					'text' => wfMessage( 'jsonforms-slotedit-label' )->text(),
+					'href' => $title->getLocalURL( 'action=slotedit' )
+				];
 
+				$keys = array_keys( $links['views'] );
+				$pos = array_search( 'edit', $keys );
+
+				$links['views'] = array_intersect_key( $links['views'], array_flip( array_slice( $keys, 0, $pos + 1 ) ) )
+					+ [ 'slotedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
+			}
 			$keys = array_keys( $links['views'] );
 			$pos = array_search( 'edit', $keys );
 
+			$link = [
+				'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'jsonedit' ? 'selected' : '' ),
+				'text' => wfMessage( 'jsonforms-jsonedit-label' )->text(),
+				'href' => $title->getLocalURL( 'action=jsonedit' )
+			];
+			
 			$links['views'] = array_intersect_key( $links['views'], array_flip( array_slice( $keys, 0, $pos + 1 ) ) )
-				+ [ 'slotedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
+				+ [ 'jsonedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
+			
 		}
 	}
 
@@ -299,6 +313,13 @@ class JsonFormsHooks {
 
 		if ( $user->isAllowed( 'edit' ) ) {
 			$specialpage_title = SpecialPage::getTitleFor( 'JsonForms' );
+			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
+				'text'   => wfMessage( 'jsonforms-forms' )->text(),
+				'class'   => "jsonforms-forms",
+				'href'   => $specialpage_title->getLocalURL()
+			];
+
+			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsCreate' );
 			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
 				'text'   => wfMessage( 'jsonforms-new-article' )->text(),
 				'class'   => "jsonforms-new-article",

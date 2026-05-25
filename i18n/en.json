@@ -9,13 +9,21 @@
 	"jsonformsmanage": "JsonForms Manage",
 	"jsonformsslotmanager": "JsonForms Slot Manager",
 	"jsonforms-slotedit-label": "Edit slots",
-	"jsonforms": "Create article",
+	"jsonforms-jsonedit-label": "Edit schema",
+	"jsonforms": "Forms",
+	"jsonformsedit": "Edit schema",
+	"jsonformscreate": "New article",
+
+	"jsonformsbrowseregular" : "Regular",
+	"jsonformsbrowsecombined" : "Combined",
+	"jsonformsbrowsedataonly" : "Data only",
 
 	"right-jsonforms-caneditdata": "Edit data (JsonForms)",
 	"right-jsonforms-canmanageschemas": "Manage schemas (JsonForms)",
 	"right-jsonforms-canmanageforms": "Manage forms (JsonForms)",
 	
 	"jsonforms-sidepanel-section": "JsonForms",
+	"jsonforms-forms": "Forms",
 	"jsonforms-new-article": "New article",
 	"jsonforms-sidepanel-managesforms": "Manage Forms",
 	"jsonforms-sidepanel-manageschemas": "Manage Schemas",
@@ -41,12 +49,20 @@
 	"jsonformsmanageforms": "Manage Forms",
 	"jsonformsmanageschemas": "Manage Schemas",
 
+	"jsonforms-special-edit-notitle": "title not set",
+	"jsonforms-special-edit-title-unknown": "unknown title",
+	"jsonforms-special-forms-returnlink": "← [[$1|All forms]]",
+	
+	"jsonforms-special-edit-message": "Here you can assign/edit a schema associated to an article, provided that the article represents a class instance. (eg. city, person, article, etc.)",
+
+	"jsonforms-special-manage-returnlink": "'''← [[$1|Back]]'''",
 	"jsonforms-special-manage-schemas-schemaname": "'''Editing [[$1]]'''",
 	"jsonforms-special-manage-forms-alert": "A form is a wrapper for a schema ! To a create a new schema go [[Special:JsonFormsManage/Schemas|here]]",
 	
 	"jsonforms-special-submit-captcha-error": "cannot verify captcha",
 	"jsonforms-special-submit-computed-target-title-error": "computed title error",
 	"jsonforms-special-submit-notitle": "article no title",
+	"jsonforms-special-submit-nocontent": "no content",
 	"jsonforms-special-submit-permission-error": "permission error",
 	"jsonforms-special-submit-article-exists": "article exists",
 	"jsonforms-special-submit-cannot-create-wikipage": "create wikipage error",

@@ -4,6 +4,35 @@
 	"x-compact": true,
 	"x-css-class": "jsonforms-outerform",
 	"type": "object",
+	"definitions": {
+		"editor_wikieditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "wikieditor"
+		},
+		"editor_visualeditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "visualeditor"
+		},
+		"editor_jsoneditor": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input": "jsoneditor"
+		},
+		"editor_source": {
+			"type": "string",
+			"x-compact": true,
+			"x-format": "textarea",
+			"x-input-config": {
+				"autosize": true,
+				"rows": 6
+			}
+		}
+	},
 	"properties": {
 		"header": {
 			"x-compact": false,
@@ -22,10 +51,8 @@
 							"x-input-config": {
 								"icon": "arrowPrevious",
 								"framed": false,
-								"flags": [
-									"invert", "primary"
-								],
-								"classes": [ "jsonforms-button-white-color" ]
+								"flags": ["primary"],
+								"classes": ["jsonforms-button-white-color"]
 							}
 						}
 					}
@@ -62,38 +89,33 @@
 						},
 						"freetext_content_model": {
 							"type": "string",
-							"x-enum-provider": "contentModels"
+							"title": "Content model",
+							"default": "wikitext",
+							"x-watch": "role",
+							"x-enum-provider": "contentModelByRole"
+						},
+						"editor": {
+							"type": "string",
+							"title": "Editor",
+							"default": "source",
+							"x-watch": "freetext_content_model",
+							"x-enum-provider": "editorByContentModel"
 						},
 						"freetext": {
 							"type": "string",
-							"x-format": "textarea"
+							"x-watch": "editor",
+							"links": [
+								{
+									"rel": "describedBy",
+									"href": "#/definitions/editor_{{editor}}"
+								}
+							]
 						},
 						"categories": {
 							"type": "array",
 							"items": {
 								"type": "string",
 								"x-input": "categorymultiselect"
-							}
-						},
-						"summary": {
-							"type": "string",
-							"x-dependency": {
-								"data_slot": {
-									"op": "!=",
-									"value": "main"
-								}
-							}
-						},
-						"minor": {
-							"type": "boolean",
-							"description": "",
-							"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
-							"x-input": "checkbox",
-							"x-dependency": {
-								"data_slot": {
-									"op": "!=",
-									"value": "main"
-								}
 							}
 						}
 					},
@@ -111,8 +133,23 @@
 			"x-compact": true,
 			"x-css-class": "jsonforms-outerform-footer",
 			"properties": {
+				"summary": {
+					"type": "string"
+				},
+				"minor": {
+					"type": "boolean",
+					"title": "",
+					"description": "",
+					"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"x-input": "checkbox",
+					"x-control-config": {
+						"align": "inline"
+					}
+				},
 				"buttons": {
+					"type": "object",
 					"x-compact": true,
+					"x-layout": "horizontal",
 					"x-css-class": "jsonforms-outerform-buttons",
 					"properties": {
 						"validate": {

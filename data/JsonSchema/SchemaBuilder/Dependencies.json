@@ -70,8 +70,7 @@
 					"required": [
 						"op",
 						"value"
-					],
-					"additionalProperties": false
+					]
 				},
 				{
 					"title": "Compare Another Field to Constant",
@@ -96,8 +95,7 @@
 						"path",
 						"op",
 						"value"
-					],
-					"additionalProperties": false
+					]
 				},
 				{
 					"title": "Compare Current Field to Another Field",
@@ -121,8 +119,7 @@
 					"required": [
 						"path",
 						"op"
-					],
-					"additionalProperties": false
+					]
 				},
 				{
 					"title": "Exists Check",
@@ -139,8 +136,7 @@
 					"required": [
 						"op",
 						"path"
-					],
-					"additionalProperties": false
+					]
 				},
 				{
 					"title": "Matches Regex",
@@ -160,8 +156,7 @@
 					"required": [
 						"op",
 						"value"
-					],
-					"additionalProperties": false
+					]
 				}
 			]
 		},
@@ -196,8 +191,7 @@
 			},
 			"required": [
 				"and"
-			],
-			"additionalProperties": false
+			]
 		},
 		"orCondition": {
 			"title": "OR Condition",
@@ -230,8 +224,7 @@
 			},
 			"required": [
 				"or"
-			],
-			"additionalProperties": false
+			]
 		},
 		"notCondition": {
 			"title": "NOT Condition",
@@ -260,8 +253,7 @@
 			},
 			"required": [
 				"not"
-			],
-			"additionalProperties": false
+			]
 		}
 	}
 }

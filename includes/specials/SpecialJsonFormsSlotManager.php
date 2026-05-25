@@ -33,21 +33,6 @@ use MediaWiki\Revision\SlotRecord;
  */
 class SpecialJsonFormsSlotManager extends SpecialPage {
 
-	/** @var user */
-	public $user;
-
-	/** @var Request */
-	public $request;
-
-	/** @var string */
-	public $par;
-
-	/** @var int */
-	public $namespace;
-
-	/** @var string */
-	public $localTitle;
-
 	/**
 	 * @inheritDoc
 	 */
@@ -60,9 +45,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function execute( $par ) {
-		// $this->requireLogin();
-
-		$this->par = $par;
+		$this->requireLogin();
 
 		$this->setHeaders();
 		$this->outputHeader();
@@ -80,26 +63,18 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$out->addModuleStyles( 'mediawiki.special' );
 		$this->addHelpLink( 'Extension:JsonForms' );
 
-		$request = $this->getRequest();
-		$this->request = $request;
-		$this->user = $user;
-
 		$out->enableOOUI();
 
-		// $jsonForm = file_get_contents(  __DIR__ . '/../schemas/SimpleFormUI.json');
-		// $jsonForm = json_decode( $jsonForm, true );
 		$jsonForm = \JsonForms::getSourceSchema( 'SimpleFormUI', 'JsonSchema/Core' );
 		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		// $innerSchema = file_get_contents(  __DIR__ . '/../schemas/SlotManager.json');
-		// $innerSchema = json_decode( $innerSchema, true );
 		$innerSchema = \JsonForms::getSourceSchema( 'SlotManager', 'JsonSchema/Core' );
 		$innerSchema = \JsonForms::processSchema( $out, $innerSchema );
 
 		// ***important, encode schema otherwise $refs can mess with
 		// those of the host schema
 		$jsonForm['properties']['editor']['x-input-config']['schema'] = json_encode( $innerSchema );
-		// $jsonForm['properties']['editor']['x-input-config']['lazyPropertiesLayout'] = 'toolbar';
+
 		$editTitle = null;
 		if ( !empty( $par ) ) {
 			$editTitle = TitleClass::newFromText( $par );
@@ -125,7 +100,8 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 				$slots = \JsonForms::getSlots( $wikiPage );
 
 				$setStartVal = static function( &$val, $role, $slot ) use ( $metadata, $wikiPage, $editTitle ) {
-					$val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
+					// $val['content_model'] = $slot->getContent()->getContentHandler()->getModelID();
+					$val['content_model'] = $slot->getModel();
 					if ( isset( $metadata['slots'][$role]['editor'] ) ) {
 						$val['editor'] = $metadata['slots'][$role]['editor'];
 					}
@@ -160,7 +136,6 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$formData = [
 			'schema' => $jsonForm,
-			'name' => 'SlotManager',
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',
 			'metadata'=> $metadata,
@@ -172,11 +147,11 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 				'editor' => json_encode( $startValInnerForm )
 			];
 		}
-// print_r($startValInnerForm);
+
 		$formData = \JsonForms::prepareFormData( $out, $formData );
 
 		$res_ = \JsonForms::getJsonFormHtml( $formData, [
-			'width' => '100%'
+			'width' => 'auto'
 		] );
 
 		if ( !$res_->ok ) {
@@ -185,7 +160,6 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 
 		$html = $res_->value;
 
-		// $html = \JsonForms::getJsonForm( $out, $formName, $data, $errorMessage );
 		$out->addModules( 'ext.JsonForms.slotManager' );
 		
 		\JsonForms::addJsConfigVars( $out );

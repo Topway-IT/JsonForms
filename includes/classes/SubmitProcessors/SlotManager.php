@@ -364,26 +364,42 @@ class SlotManager extends SubmitForm {
 				if ( $key === SLOT_ROLE_JSONFORMS_METADATA ) {
 					continue;
 				}
-				
-				if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
-					$content = json_decode( $value['content'], true );
-					$value['content'] = json_encode( $content['editor'] );
-					// $metadata['slots'][$key]['schema'] = $content['schema'];
+
+				// if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
+				// 	$content = json_decode( $value['content'], true );
+				// 	$value['content'] = json_encode( $content['editor'] );
+				// }
+
+				$metadata['slots'][$key] = [
+					'model' => $value['content_model'],
+					'editor' => $value['editor'],			
+				];
+
+				if ( $key === SLOT_ROLE_JSONFORMS_DATA ) {
+					if ( !empty( $metadataPrevious['slots'][$key]['schema'] ) ) {
+						$metadata['slots'][$key]['schema'] = $metadataPrevious['slots'][$key]['schema'];
+					}
+
+					$metadataKeys = [
+						'show_infobox' => 'showInfobox',
+						'infobox_template' => 'infoboxTemplate',
+					];
+
+					foreach ( $metadataKeys as $k => $v ) {
+						if ( !empty( $metadataPrevious['slots'][$key][$k] ) ) {
+							$metadata['slots'][$key][$v] = $metadataPrevious['slots'][$key][$k];
+						}
+					}
 				}
 
 				$slots[$key] = [
 					'model' => $value['content_model'],
 					'content' => $value['content'],
 				];
-
-				$metadata['slots'][$key] = [
-					'model' => $value['content_model'],
-					'editor' => $value['editor'],			
-				];
-				
-				if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
-					$metadata['slots'][$key]['schema'] = $content['schema'];
-				}
+	
+				// if ( strtolower( $value['editor'] ) === 'jsonforms' ) {
+				// 	$metadata['slots'][$key]['schema'] = $content['schema'];
+				// }
 
 				// if ( $value['editor'] === 'JsonForms' ) {
 				// 	$metadata['slots'][$key]['schema'] = $data['structuredValue']["$key.content"]['schemaName'];

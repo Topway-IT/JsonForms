@@ -1,17 +1,6 @@
 // use IIFE, this ensure name is scoped
 (function () {
-	function EnumProviders() {
-		/*
-		this.providers = {
-			jsonSchemas: this.jsonSchemas,
-			contentModels: this.contentModels,
-			jsonSlots: this.jsonSlots,
-			slotRoles: this.slotRoles,
-			contentModelByRole: this.contentModelByRole,
-			metaSchemaFormatToInput: this.metaSchemaFormatToInput
-		};
-*/
-	}
+	function EnumProviders() {}
 
 	EnumProviders.prototype.metaSchemaFormatToInput = function () {
 		return {
@@ -182,6 +171,62 @@
 		};
 	};
 
+	EnumProviders.prototype.editorByContentModel = function () {
+		const contentModels = mw.config.get('jsonforms')['contentModels'];
+
+		// key/value object, this is also supported
+
+		return {
+			source: (editor, { item, watched }) => {
+				// console.log('editorByContentModelSource',editor)
+				// console.log('watched',watched)
+
+				// if (!('content_model' in watched)) {
+				// 	console.warn('contentModelProperty not set in watch', watched);
+				// 	return;
+				// }
+
+				const jsonformsConfig = mw.config.get('jsonforms');
+
+				const contentModel = watched?.content_model || watched?.freetext_content_model || 'wikitext';
+
+				let options = ['source'];
+				switch (contentModel) {
+					case 'wikitext':
+						options = {
+							wikieditor: 'WikiEditor',
+							visualeditor: 'VisualEditor',
+						};
+						break;
+
+					/*
+		case 'css':
+		case 'javascript':
+				options = { codeeditor: 'codeEditor' };
+			break;
+
+		case 'json':
+			// , 'JsonForms'
+			options = { codeeditor: 'codeEditor', jsoneditor: 'JSON Editor' };
+			break;
+*/
+					default:
+						if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
+							// , jsonforms: 'JsonForms',  codeeditor: 'codeEditor',
+							options = { jsoneditor: 'JSON Editor' };
+						}
+				}
+
+				// @TODO complete codeEditor widget
+				//delete options.codeeditor;
+
+				// console.log('options', options);
+				return options;
+			},
+		};
+	};
+
 	// attach instance
 	JsonForms.enumProviders = new EnumProviders();
 })();
+

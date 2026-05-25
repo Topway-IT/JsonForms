@@ -19,14 +19,14 @@
  * @file
  * @ingroup extensions
  * @author thomas-topway-it <support@topway.it>
- * @copyright Copyright ©2021-2024, https://wikisphere.org
+ * @copyright Copyright ©2026, https://wikisphere.org
  */
 
 use MediaWiki\Extension\JsonForms\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 
 
-class SpecialJsonForms extends SpecialPage {
+class SpecialJsonForms extends QueryPage {
 
 	/** @inheritDoc */
 	public function __construct() {
@@ -38,6 +38,13 @@ class SpecialJsonForms extends SpecialPage {
 
 	/** @inheritDoc */
 	public function execute( $par ) {
+		$this->addHelpLink( 'Extension:JsonForms' );
+
+		if ( empty( $par ) ) {
+			parent::execute( $par );
+			return;
+		}
+
 		$out = $this->getOutput();
 		$out->setArticleRelated( false );
 		$out->setRobotPolicy( $this->getRobotPolicy() );
@@ -58,62 +65,18 @@ class SpecialJsonForms extends SpecialPage {
 			return;
 		}
 
-		$this->addHelpLink( 'Extension:JsonForms' );
+		$specialPageTitle = SpecialPage::getTitleFor( 'JsonForms' );
+		$out->addWikiMsg(
+			'jsonforms-special-forms-returnlink',
+			$specialPageTitle->getFullText()
+		);
 
-		// $context = RequestContext::getMain();
+		// $out->addHTML( '<br />' );
 
-		if ( empty( $par ) ) {
-			$jsonForm = \JsonForms::getSourceSchema( 'NewArticle', 'JsonSchema/Core' );
-			$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
-
-			$out->addModules( 'ext.JsonForms.newArticle' );
-			$formData = [
-				'schema' => $jsonForm,
-				'name' => 'NewArticle',
-				'editorOptions' => 'MediaWiki:DefaultEditorOptions',
-				'editorScript'=> 'MediaWiki:DefaultEditorScript',
-			];
+		$formDescriptor = \JsonForms::getSourceSchema( $par, 'JsonForm' );
+		$html = \JsonForms::getPageForm( $out, $formDescriptor );
 		
-			$formData = \JsonForms::prepareFormData( $out, $formData );
-
-			$res_ = \JsonForms::getJsonFormHtml( $formData, [
-				'width' => '100%'
-			] );
-
-			if ( !$res_->ok ) {
-				return $this->printError( $out, $res_->error );
-			}
-
-			$html = $res_->value;
-
-		} else {
-			$formDescriptor = \JsonForms::getSourceSchema( $par, 'JsonForm' );
-			$html = \JsonForms::getPageForm( $out, $formDescriptor );
-			
-			$out->addModules( 'ext.JsonForms.pageForms' );
-
-/*
-			$schemaName = $formDescriptor['schema'];
-			$jsonForm = \JsonForms::getSourceSchema( $schemaName, 'JsonSchema' );
-			$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
-
-			$out->addModules( 'ext.JsonForms.pageForms' );
-
-			$formData = [
-				'schema' => $jsonForm,
-				'name' => 'PageForm',
-				'editorOptions' => 'MediaWiki:DefaultEditorOptions',
-				'editorScript'=> 'MediaWiki:DefaultEditorScript',
-				'formDescriptor' => $formDescriptor
-			];
-			// @TODO 
-*/
-			// if ( !empty( $startVal ) ) {
-			// 	$formData['startval'] = [
-			// 		'editor' => json_encode( $startValInnerForm )
-			// 	];
-			// }
-		}
+		$out->addModules( 'ext.JsonForms.pageForms' );
 
 		\JsonForms::addJsConfigVars( $out );
 		
@@ -121,21 +84,71 @@ class SpecialJsonForms extends SpecialPage {
 	}
 
 	/**
-	 * @param Output $out
-	 * @param string $msg
-	 */
-	private function printError( $out, $msg ) {
-		$out->addHTML( new \OOUI\MessageWidget( [
-			'type' => 'error',
-			'label' => new \OOUI\HtmlSnippet( $this->msg( $msg )->parse() )
-		] ) );
-	}
-
-	/**
-	 * @return string
+	 * @inheritDoc
 	 */
 	protected function getGroupName() {
 		return 'jsonforms';
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	function isExpensive() {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function isSyndicated() {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function getQueryInfo() {
+		$ret = [];
+		$conds = [];
+		$join_conds = [];
+		$options = [];
+
+		$tables = [];
+		$tables['page_alias'] = 'page';
+		$fields = [ 'page_namespace', 'page_title', 'page_id' ];
+		$conds['page_namespace'] = NS_JSONFORM;
+
+		$ret['tables'] = $tables;
+		$ret['fields'] = $fields;
+		$ret['join_conds'] = $join_conds;
+		$ret['conds'] = $conds;
+		$ret['options'] = $options;
+
+		return $ret;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getOrderFields() {
+		return [ 'page_title' ];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function sortDescending() {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function formatResult( $skin, $result ) {
+		$pageName = $result->page_title;
+
+		$title = SpecialPage::getTitleFor( 'JsonForms', $pageName );
+		return $this->getLinkRenderer()->makeKnownLink( $title, htmlspecialchars( $pageName ) );
 	}
 
 }

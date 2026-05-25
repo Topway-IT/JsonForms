@@ -95,7 +95,7 @@
 				"name": {
 					"title": "slot name",
 					"type": "string",
-					"x-enum-provider": "slotRoles"
+					"x-enum-provider": "slotRolesNoMain"
 				}
 			}
 		}

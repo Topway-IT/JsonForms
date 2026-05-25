@@ -31,7 +31,6 @@
 		"isActive",
 		"children"
 	],
-	"additionalProperties": false,
 	"x-message": {
 		"type": "notice",
 		"label": "test message",

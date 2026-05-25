@@ -110,8 +110,7 @@
 							"title": "Suffix",
 							"description": "Suffix (e.g., Jr., Sr., III)"
 						}
-					},
-					"additionalProperties": false
+					}
 				}
 			],
 			"title": "Name",
@@ -244,7 +243,6 @@
 			"description": "Birthday in YYYY-MM-DD format"
 		}
 	},
-	"required": [],
-	"additionalProperties": false
+	"required": []
 }
 

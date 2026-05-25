@@ -19,40 +19,50 @@
  * @file
  * @ingroup extensions
  * @author thomas-topway-it <support@topway.it>
- * @copyright Copyright ©2025-2026, https://wikisphere.org
+ * @copyright Copyright ©2026, https://wikisphere.org
  */
 
-/**
- * A special page that lists protected pages
- *
- * @ingroup SpecialPage
- */
-
-namespace MediaWiki\Extension\JsonForms\Specials;
-
-use SpecialPage;
-
-class ManageForms extends SpecialPage {
+class JsonFormsActionJsonEdit extends Action {
 
 	/**
-	 * @inheritDoc
+	 * inheritDoc
 	 */
-	public function __construct() {
-		$listed = true;
-		parent::__construct( 'JsonFormsManageForms', '', $listed );
+	public function getName() {
+		return 'jsonedit';
 	}
 
 	/**
-	 * @inheritDoc
+	 * inheritDoc
 	 */
-	public function getPageTitle( $subpage = false ) {
-		return SpecialPage::getTitleFor( 'JsonFormsManage', 'Forms' );
+	public function requiresWrite() {
+		return true;
 	}
 
 	/**
-	 * @return string
+	 * inheritDoc
 	 */
-	protected function getGroupName() {
-		return 'jsonforms';
+	public function getRestriction() {
+		return 'edit';
 	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function show() {
+		$article = $this->getArticle();
+		$title = $article->getTitle();
+
+		$specialEditData = new SpecialJsonFormsEdit();
+		$specialEditData->execute( $title->getFullText() );
+
+		return false;
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function execute() {
+		return true;
+	}
+
 }

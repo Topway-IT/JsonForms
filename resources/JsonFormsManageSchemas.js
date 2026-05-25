@@ -64,7 +64,7 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 	switch (action) {
 		case 'submit':
 			const innerEditorValidationResults = innerEditor.validate();
-			console.log('innerEditorValidationResults', innerEditorValidationResults);
+			// console.log('innerEditorValidationResults', innerEditorValidationResults);
 
 			if (innerEditorValidationResults.length) {
 				JsonForms.Alert('there are errors');
@@ -237,6 +237,7 @@ $(function () {
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
 
+/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -252,6 +253,7 @@ $(function () {
 			style: 'font-size: 12px; font-family: monospace;',
 		});
 		$(el).append(textareaB);
+*/
 
 		editor.on('ready', async (editor_) => {
 			// console.log('editor_', editor_);
@@ -262,6 +264,7 @@ $(function () {
 
 			innerEditor.on('ready', () => {});
 
+/*
 			innerEditor.on('change', () => {
 				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
 				textareaB.val(
@@ -274,6 +277,7 @@ $(function () {
 					JSON.stringify(Object.keys(innerEditor.editors), null, 2),
 				);
 			});
+*/
 		});
 	});
 });

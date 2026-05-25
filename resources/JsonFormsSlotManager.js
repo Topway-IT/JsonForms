@@ -57,53 +57,6 @@ JsonFormsSlotManager.prototype.onFormButton = function (action, editor) {
 	}
 };
 
-JsonFormsSlotManager.prototype.editorByContentModelSource = function (
-	editor,
-	{ item, watched },
-) {
-	// console.log('editorByContentModelSource',editor)
-	// console.log('watched',watched)
-
-	if (!('content_model' in watched)) {
-		console.warn('contentModelProperty not set in watch', watched);
-		return;
-	}
-
-	const jsonformsConfig = mw.config.get('jsonforms');
-
-	const contentModel = watched?.content_model || 'wikitext';
-
-	let options = ['source'];
-	switch (contentModel) {
-		case 'wikitext':
-			options = { wikieditor: 'WikiEditor', visualeditor: 'VisualEditor' };
-			break;
-
-		/*
-		case 'css':
-		case 'javascript':
-				options = { codeeditor: 'codeEditor' };
-			break;
-
-		case 'json':
-			// , 'JsonForms'
-			options = { codeeditor: 'codeEditor', jsoneditor: 'JSON Editor' };
-			break;
-*/
-		default:
-			if (jsonformsConfig.jsonContentModels.includes(contentModel)) {
-				// , 'JsonForms',  codeeditor: 'codeEditor',
-				options = { jsoneditor: 'JSON Editor', jsonforms: 'JsonForms' };
-			}
-	}
-
-	// @TODO complete codeEditor widget
-	//delete options.codeeditor;
-
-	// console.log('options', options);
-	return options;
-};
-
 // ***redefine enum provider and callbacks
 JsonFormsSlotManager.prototype.initialize = async function () {
 	await JsonFormsSlotManager.super.prototype.initialize.call(this);
@@ -112,15 +65,9 @@ JsonFormsSlotManager.prototype.initialize = async function () {
 	roles = JsonForms.Utilities.removeArrayItem(roles, 'main');
 	roles = JsonForms.Utilities.removeArrayItem(roles, 'jsonforms-metadata');
 
-	this.enumProviders.slotRoles = () => {
+	this.enumProviders.slotRolesNoMain = () => {
 		return {
 			source: () => roles,
-		};
-	};
-
-	this.enumProviders.editorByContentModel = () => {
-		return {
-			source: this.editorByContentModelSource,
 		};
 	};
 
@@ -168,12 +115,14 @@ JsonFormsSlotManager.prototype.submitForm = function () {
 			edit: this.editPage,
 		},
 		config: mw.config.get('jsonforms'),
-		processor: 'SlotManager', //submit processor
+		
+		//submit processor
+		processor: 'SlotManager',
 	};
 
 	console.log('data', data);
 
-	var payload = {
+	const payload = {
 		data: JSON.stringify(data),
 		action: 'jsonforms-submit-form',
 	};
@@ -220,7 +169,7 @@ $(function () {
 		this.el = el;
 		const data = $(el).data().formData;
 
-		// console.log('data', data);
+		console.log('data', data);
 
 		const jsonForms = new JsonFormsSlotManager(el, data);
 
@@ -228,6 +177,7 @@ $(function () {
 
 		const editor = jsonForms.createDefaultEditor();
 
+/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -240,6 +190,7 @@ $(function () {
 		editor.on('change', () => {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 		});
+*/
 
 		const editorOnChange = async (editor) => {
 			// console.log('editorOnChange');

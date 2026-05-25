@@ -72,6 +72,7 @@ JsonFormsPageForm.prototype.adjustFormSchema = function () {
 	const formUrl = mw.config
 		.get('wgArticlePath')
 		.replace('$1', 'JsonForm:' + formDescriptor.name);
+
 	const schemaUrl = mw.config
 		.get('wgArticlePath')
 		.replace('$1', 'JsonSchema:' + formDescriptor.schema);
@@ -147,6 +148,8 @@ default form descriptor
 	// console.log('targetSchema', targetSchema);
 	// console.log('formDescriptor', formDescriptor);
 	const options = ret.properties.form.properties.options.properties;
+	const footer = ret.properties.footer.properties;
+	const buttons = ret.properties.footer.properties.buttons.properties;
 	const required = ret.properties.form.properties.options.required;
 
 	if (formDescriptor.pagename_formula || formDescriptor.edit) {
@@ -163,32 +166,23 @@ default form descriptor
 			mw.config.get('jsonforms').captchaSiteKey;
 	}
 
-	// the key is the form descriptor field
-	// the value is the target schema
-	const keyMap = {
-		edit_freetext: 'freetext',
-		edit_categories: 'categories',
-	};
-
-	for (const key in keyMap) {
-		if (!formDescriptor[key]) {
-			delete options[keyMap[key]];
-		} else {
-			// required.push(keyMap[key]);
-		}
+	if (!formDescriptor['edit_categories']) {
+		delete options['categories'];
 	}
-
+	
 	if (!formDescriptor['edit_freetext']) {
+		delete options['freetext'];
+		delete options['editor'];
 		delete options['freetext_content_model'];
-		delete options['summary'];
-		delete options['minor'];
+		delete footer['summary'];
+		delete footer['minor'];
 	}
 
 	this.hasOptions = Object.keys(options).length;
 
 	if (!this.hasOptions) {
-		delete ret.properties.footer.properties.buttons.properties.validate;
-		delete ret.properties.header.properties.buttons.properties.goback;
+		delete buttons.validate;
+		delete buttons.goback;
 	}
 
 	// console.log('ret',ret)
@@ -201,6 +195,8 @@ JsonForms.prototype.initButtons = function (jsonEditor) {
 	const validateButton = jsonEditor.getEditor('root.footer.buttons.validate');
 	const submitButton = jsonEditor.getEditor('root.footer.buttons.submit');
 	const gobackButton = jsonEditor.getEditor('root.header.buttons.goback');
+	const summaryInput = jsonEditor.getEditor('root.footer.summary');
+	const minorInput = jsonEditor.getEditor('root.footer.minor');
 
 	if (Object.keys(optionsEditor.editors).length) {
 		if (submitButton) {
@@ -219,6 +215,9 @@ JsonForms.prototype.initButtons = function (jsonEditor) {
 	if (gobackButton) {
 		gobackButton.theme.toggle(gobackButton.container, false);
 	}
+
+	summaryInput.theme.toggle(summaryInput.container, false);
+	minorInput.theme.toggle(minorInput.container, false);
 };
 
 JsonForms.prototype.createDefaultEditor = async function (config = {}) {
@@ -468,6 +467,11 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 			validateButton.theme.toggle(validateButton.container, true);
 			submitButton.theme.toggle(submitButton.container, false);
 			gobackButton.theme.toggle(gobackButton.container, false);
+
+			const summaryInput = jsonEditor.getEditor('root.footer.summary');
+			const minorInput = jsonEditor.getEditor('root.footer.minor');
+			summaryInput.theme.toggle(summaryInput.container, false);
+			minorInput.theme.toggle(minorInput.container, false);
 			break;
 
 		case 'validate': {
@@ -480,6 +484,11 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				validateButton.theme.toggle(validateButton.container, false);
 				submitButton.theme.toggle(submitButton.container, true);
 				gobackButton.theme.toggle(gobackButton.container, true);
+
+				const summaryInput = jsonEditor.getEditor('root.footer.summary');
+				const minorInput = jsonEditor.getEditor('root.footer.minor');
+				summaryInput.theme.toggle(summaryInput.container, true);
+				minorInput.theme.toggle(minorInput.container, true);
 			} else {
 				JsonForms.Alert('there are errors');
 				return;
@@ -596,6 +605,7 @@ $(function () {
 
 		const editor = await jsonForms.createDefaultEditor(editorConfig);
 
+/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -618,7 +628,7 @@ $(function () {
 			textarea.val(JSON.stringify(editor.getValue(), null, 2));
 			textareaB.val(JSON.stringify(Object.keys(editor.editors), null, 2));
 		});
-
+*/
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
 	});
