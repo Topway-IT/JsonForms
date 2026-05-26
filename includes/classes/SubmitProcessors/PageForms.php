@@ -318,24 +318,64 @@ metadata can be stored:
 		$this->context->setTitle( $targetTitle );
 		$this->setOutput( $this->context->getOutput() );
 
+		$returnMessage = null;
 		$returnUrl = null;
-		$localUrl = null;
-		if ( !empty( $data['formDescriptor']['return_url'] ) ) {
-			$localUrl = $data['formDescriptor']['return_url'];
-			
-		} else if ( !empty( $data['formDescriptor']['return_page'] ) ) {
-			$title_ = TitleClass::newFromText( $data['formDescriptor']['return_page'] );
-			if ( $title_ ) {
-				$localUrl = $title_->getLocalURL();
+
+		if ( empty( $data['formDescriptor']['return'] ) ) {
+			if ( !empty( $data['formDescriptor']['return_url'] ) ) {
+				$data['formDescriptor']['return'] = 'url';
+
+			} elseif ( !empty( $data['formDescriptor']['return_page'] ) ) {
+				$data['formDescriptor']['return'] = 'article';
+
+			} else {
+				$data['formDescriptor']['return'] = 'target';
 			}
 		}
+		
+		switch ( $data['formDescriptor']['return'] ) {
+			case 'none':
+				$localUrl = $targetTitle->getLocalURL();
+				$targetUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
 
-		if ( $localUrl ) {
-			$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
-			
-			if ( filter_var( $returnUrl, FILTER_VALIDATE_URL ) === false ) {
-				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-url-error', $targetUrl )->text() );
+				$messageKey = 'jsonforms-jsmodule-return-message-' . ( $isNewPage ? 'create' : 'edit' );
+				$returnMessage = $this->context->msg( $messageKey,
+						$targetTitle->getFullText(),
+						$targetUrl
+					)->text();
+				break;
+
+			case 'article':
+				if ( !empty( $data['formDescriptor']['return_page'] ) ) {
+					$title_ = TitleClass::newFromText( $data['formDescriptor']['return_page'] );
+					if ( $title_ ) {
+						$localUrl = $title_->getLocalURL();
+					}
+				}
+				break;
+
+			case 'url':
+				if ( !empty( $data['formDescriptor']['return_url'] ) ) {
+					$localUrl = $data['formDescriptor']['return_url'];
+					$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
+				}
+				break;
+
+			case 'target':
+			default:
+				$localUrl = $targetTitle->getLocalURL();
+		}
+
+		if ( !$returnUrl ) {
+			if ( !$localUrl ) {
+				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-no-return-url' )->text() );
 			}
+
+			$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
+		}
+
+		if ( filter_var( $returnUrl, FILTER_VALIDATE_URL ) === false ) {
+			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-validate-url-error', $returnUrl )->text() );
 		}
 
 		// update content model if necessary
@@ -392,13 +432,14 @@ metadata can be stored:
 		];
 
 		// determine freetext
-		if ( $isNewPage &&
-			$main_slot_content === null &&
-			!empty( $data['formDescriptor']['preload'] )
-		) {
-			$title_ = \JsonForms::getTitleIfKnown( $data['formDescriptor']['preload'] );
-			if ( $title_ ) {
-				$main_slot_content = \JsonForms::getWikipageContent( $title_ );
+		if ( $isNewPage && $main_slot_content === null ) {
+			if ( !empty( $data['formDescriptor']['preload_article'] ) ) {
+				$title_ = \JsonForms::getTitleIfKnown( $data['formDescriptor']['preload_article'] );
+				if ( $title_ ) {
+					$main_slot_content = \JsonForms::getWikipageContent( $title_ );
+				}
+			} else if ( !empty( $data['formDescriptor']['preload_wikitext'] ) ) {
+				$main_slot_content = $data['formDescriptor']['preload_wikitext'];
 			}
 		}
 
@@ -473,18 +514,6 @@ metadata can be stored:
 			// }
 		}
 
-		$localUrl = $targetTitle->getLocalURL();
-		$targetUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
-
-		$message = null;
-		if ( !$returnUrl ) {
-			$messageKey = 'jsonforms-jsmodule-return-message-' . ( $isNewPage ? 'create' : 'edit' );
-			$message = $this->context->msg( $messageKey,
-					$targetTitle->getFullText(),
-					$targetUrl
-				)->text();
-		}
-
 		$processedData = [
 			'slots' => $slots,
 			'targetTitle' => $targetTitle,
@@ -498,8 +527,7 @@ metadata can be stored:
 
 		$returnData = [
 			'returnUrl' => $returnUrl,
-			'targetUrl' => $targetUrl,
-			'message' => $message,
+			'message' => $returnMessage,
 			'targetTitle' => $targetTitle->getFullText()
 		];
 		

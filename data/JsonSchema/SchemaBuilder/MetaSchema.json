@@ -11,8 +11,8 @@
 	"definitions": {
 		"controlConfig": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.FieldLayout OO.ui.FieldLayout]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.FieldLayout OO.ui.FieldLayout]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"properties": {
@@ -133,19 +133,28 @@
 					"type": "string",
 					"description": "Field title"
 				},
+				"x-title-format": {
+					"type": "string",
+					"description": "title format",
+					"enum": [
+						"text",
+						"html",
+						"wikitext"
+					]
+				},
 				"description": {
 					"type": "string",
 					"x-format": "textarea",
 					"description": "Description or help text for the field"
 				},
-				"x-wikitext-title": {
+				"x-description-format": {
 					"type": "string",
-					"description": "Wikitext-formatted title (overrides title)"
-				},
-				"x-wikitext-description": {
-					"type": "string",
-					"x-format": "textarea",
-					"description": "description template (overrides description)"
+					"description": "description format",
+					"enum": [
+						"text",
+						"html",
+						"wikitext"
+					]
 				},
 				"x-title-template": {
 					"type": "string",
@@ -290,8 +299,8 @@
 				"links": {
 					"type": "array",
 					"x-layout": "tabs_",
-					"description": "Hyperlink relations for the schema instance",
-					"x-wikitext-description": "see [https://json-schema.org/draft-06/draft-wright-json-schema-hyperschema-01 draft-wright-json-schema-hyperschema-01]",
+					"description": "see [https://json-schema.org/draft-06/draft-wright-json-schema-hyperschema-01 draft-wright-json-schema-hyperschema-01]",
+					"x-description-format": "wikitext",
 					"items": {
 						"type": "object",
 						"properties": {
@@ -1044,8 +1053,8 @@
 						},
 						"icon": {
 							"type": "string",
-							"description": "OOUI icon name to display",
-							"x-wikitext-description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])"
+							"description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])",
+							"x-description-format": "wikitext"
 						}
 					}
 				}
@@ -1209,7 +1218,8 @@
 						"icon": {
 							"type": "string",
 							"description": "OOUI icon name to display",
-							"x-wikitext-description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])"
+							"description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])",
+							"x-description-format": "wikitext"
 						}
 					}
 				},
@@ -1227,14 +1237,19 @@
 							"x-format": "textarea",
 							"description": "Message text content"
 						},
-						"x-wikitext-label": {
+						"x-label-format": {
 							"type": "string",
-							"x-format": "textarea",
-							"description": "Wikitext-formatted message content"
+							"description": "label format",
+							"enum": [
+								"text",
+								"html",
+								"wikitext"
+							]
 						},
 						"icon": {
 							"type": "string",
-							"x-wikitext-description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])"
+							"description": "OOUI icon name to display ([https://doc.wikimedia.org/oojs-ui/master/demos/?page=icons\u0026theme=wikimediaui\u0026direction=ltr\u0026platform=desktop see here])",
+							"x-description-format": "wikitext"
 						},
 						"inline": {
 							"type": "boolean",

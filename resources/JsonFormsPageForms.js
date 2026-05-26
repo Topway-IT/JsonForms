@@ -169,7 +169,7 @@ default form descriptor
 	if (!formDescriptor['edit_categories']) {
 		delete options['categories'];
 	}
-	
+
 	if (!formDescriptor['edit_freetext']) {
 		delete options['freetext'];
 		delete options['editor'];
@@ -216,8 +216,13 @@ JsonForms.prototype.initButtons = function (jsonEditor) {
 		gobackButton.theme.toggle(gobackButton.container, false);
 	}
 
-	summaryInput.theme.toggle(summaryInput.container, false);
-	minorInput.theme.toggle(minorInput.container, false);
+	if ( summaryInput ) {
+		summaryInput.theme.toggle(summaryInput.container, false);
+	}
+
+	if ( minorInput ) {
+		minorInput.theme.toggle(minorInput.container, false);
+	}
 };
 
 JsonForms.prototype.createDefaultEditor = async function (config = {}) {
@@ -470,8 +475,14 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 
 			const summaryInput = jsonEditor.getEditor('root.footer.summary');
 			const minorInput = jsonEditor.getEditor('root.footer.minor');
-			summaryInput.theme.toggle(summaryInput.container, false);
-			minorInput.theme.toggle(minorInput.container, false);
+			
+			if ( summaryInput ) {
+				summaryInput.theme.toggle(summaryInput.container, false);
+			}
+			
+			if ( minorInput ) {
+				minorInput.theme.toggle(minorInput.container, false);
+			}
 			break;
 
 		case 'validate': {
@@ -487,8 +498,14 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 
 				const summaryInput = jsonEditor.getEditor('root.footer.summary');
 				const minorInput = jsonEditor.getEditor('root.footer.minor');
-				summaryInput.theme.toggle(summaryInput.container, true);
-				minorInput.theme.toggle(minorInput.container, true);
+				
+				if ( summaryInput ) {
+					summaryInput.theme.toggle(summaryInput.container, true);
+				}
+				
+				if ( minorInput ) {
+					minorInput.theme.toggle(minorInput.container, true);
+				}
 			} else {
 				JsonForms.Alert('there are errors');
 				return;
@@ -511,15 +528,25 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 	// Create a shallow copy to avoid mutating the original
 	const formDescriptor = { ...this.formDescriptor };
 
-	if (formDescriptor.pagename_formula) {
-		const template = this.editor.compileTemplate(
-			formDescriptor.pagename_formula.replace('<', '{{').replace('>', '}}'),
-		);
+	const substitutions = ['pagename_formula', 'preload_wikitext', 'return_url'];
+	for (const field of substitutions) {
+		if (formDescriptor[field]) {
+			formDescriptor[field] = this.processTemplate(
+				formDescriptor[field],
+				vars,
+				{ replaceAngularBrackets: true },
+			);
+		}
+	}
 
-		formDescriptor.pagename_formula = this.editor.getTemplateResult(
-			template,
-			vars,
-		);
+	if (!formDescriptor.return) {
+		if (formDescriptor.return_url) {
+			formDescriptor.return = 'url';
+		} else if (formDescriptor.return_page) {
+			formDescriptor.return = 'article';
+		} else {
+			formDescriptor.return = 'target';
+		}
 	}
 
 	// *** submission data are arbitrary and depend on the
@@ -533,7 +560,9 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 		structuredValue,
 		formDescriptor,
 		config: mw.config.get('jsonforms'),
-		processor: 'PageForms', //submit processor
+
+		//submit processor
+		processor: 'PageForms',
 	};
 
 	console.log('data', data);
@@ -561,22 +590,31 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 					};
 					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
-				} else if (result.returnUrl) {
-					if (result.returnUrl === window.location.href) {
-						window.location.reload();
-					} else {
-						window.location.href = result.returnUrl;
-					}
 				} else {
-					const config = {
-						htmlMessage: result.message,
-						type: 'success',
-					};
-					const nonModalDialog = new JsonForms.NonModalDialog();
-					nonModalDialog.open(config);
-					resolve(result);
-					this.editor.destroy();
-					this.createDefaultEditor().then((editor) => {});
+					if (!formDescriptor.return) {
+						formDescriptor.return = 'target';
+					}
+					switch (formDescriptor.return) {
+						case 'none':
+							const nonModalDialog = new JsonForms.NonModalDialog();
+							nonModalDialog.open({
+								htmlMessage: result.message,
+								type: 'success',
+							});
+							resolve(result);
+							this.editor.destroy();
+							this.createDefaultEditor().then((editor) => {});
+							break;
+						case 'target':
+						case 'article':
+						case 'url':
+							if (result.returnUrl === window.location.href) {
+								window.location.reload();
+							} else {
+								window.location.href = result.returnUrl;
+							}
+							break;
+					}
 				}
 			})
 			.fail(function (thisRes) {
@@ -605,7 +643,7 @@ $(function () {
 
 		const editor = await jsonForms.createDefaultEditor(editorConfig);
 
-/*
+		/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',

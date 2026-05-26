@@ -66,7 +66,7 @@ class SpecialJsonFormsSlotManager extends SpecialPage {
 		$out->enableOOUI();
 
 		$jsonForm = \JsonForms::getSourceSchema( 'SimpleFormUI', 'JsonSchema/Core' );
-		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$innerSchema = \JsonForms::getSourceSchema( 'SlotManager', 'JsonSchema/Core' );
 		$innerSchema = \JsonForms::processSchema( $out, $innerSchema );

@@ -154,8 +154,8 @@
 		},
 		"OO.ui.TextInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TextInputWidget OO.ui.TextInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TextInputWidget OO.ui.TextInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -313,8 +313,8 @@
 		},
 		"OO.ui.ToggleSwitchWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ToggleSwitchWidget OO.ui.ToggleSwitchWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ToggleSwitchWidget OO.ui.ToggleSwitchWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -330,8 +330,8 @@
 		},
 		"OO.ui.RadioSelectInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.RadioSelectInputWidget OO.ui.RadioSelectInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.RadioSelectInputWidget OO.ui.RadioSelectInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -527,8 +527,8 @@
 		},
 		"OO.ui.NumberInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.NumberInputWidget OO.ui.NumberInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.NumberInputWidget OO.ui.NumberInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -705,8 +705,8 @@
 		},
 		"OO.ui.MenuTagMultiselectWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MenuTagMultiselectWidget OO.ui.MenuTagMultiselectWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MenuTagMultiselectWidget OO.ui.MenuTagMultiselectWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -725,8 +725,8 @@
 		},
 		"OO.ui.ComboBoxInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ComboBoxInputWidget OO.ui.ComboBoxInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ComboBoxInputWidget OO.ui.ComboBoxInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -736,8 +736,8 @@
 		},
 		"OO.ui.MultilineTextInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MultilineTextInputWidget OO.ui.MultilineTextInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.MultilineTextInputWidget OO.ui.MultilineTextInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -766,8 +766,8 @@
 		},
 		"OO.ui.MultiselectWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -777,8 +777,8 @@
 		},
 		"OO.ui.ButtonSelectWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.ButtonSelectWidget OO.ui.ButtonSelectWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -807,8 +807,8 @@
 		},
 		"OO.ui.CheckboxInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxInputWidget OO.ui.CheckboxInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxInputWidget OO.ui.CheckboxInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -827,8 +827,8 @@
 		},
 		"OO.ui.CheckboxMultiselectInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxMultiselectInputWidget OO.ui.CheckboxMultiselectInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.CheckboxMultiselectInputWidget OO.ui.CheckboxMultiselectInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -881,8 +881,8 @@
 		},
 		"OO.ui.DropdownInputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.DropdownInputWidget OO.ui.DropdownInputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.DropdownInputWidget OO.ui.DropdownInputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -935,8 +935,8 @@
 		},
 		"OO.ui.InputWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.InputWidget OO.ui.InputWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.InputWidget OO.ui.InputWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -1021,8 +1021,8 @@
 		},
 		"intl-tel-input": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://github.com/jackocnr/intl-tel-input intl-tel-input]"
+				"label": "Reference: [https://github.com/jackocnr/intl-tel-input intl-tel-input]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],
@@ -1115,8 +1115,8 @@
 		},
 		"OO.ui.TagMultiselectWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TagMultiselectWidget OO.ui.TagMultiselectWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.TagMultiselectWidget OO.ui.TagMultiselectWidget]",
+				"x-label-format": "wikitext"
 			},
 			"allOf": [
 				{
@@ -1187,8 +1187,8 @@
 		},
 		"OO.ui.SelectFileWidget": {
 			"x-message": {
-				"label": "",
-				"x-wikitext-label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.SelectFileWidget OO.ui.SelectFileWidget]"
+				"label": "Reference: [https://doc.wikimedia.org/mediawiki-core/1.39.5/js/#!/api/OO.ui.SelectFileWidget OO.ui.SelectFileWidget]",
+				"x-label-format": "wikitext"
 			},
 			"type": "object",
 			"x-default-properties": [],

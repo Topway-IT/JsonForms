@@ -205,6 +205,32 @@ JsonForms.prototype.createEditor = function (el, config) {
 	return this.editor;
 };
 
+
+
+JsonForms.prototype.processTemplate = function (str, vars, options = {}) {
+    // Match patterns like <user.name> or <count>
+    const regex = /<([^>]+)>/g;
+
+    return str.replace(regex, (match, path) => {
+        const trimmedPath = path.trim();
+        return vars[trimmedPath] !== undefined ? vars[trimmedPath] : '';
+    });
+}
+
+/*
+JsonForms.prototype.processTemplate = function (str, vars, options = {}) {
+	if ( options.replaceAngularBrackets ) {
+		str = str.replace('<', '{{').replace('>', '}}');
+	}
+
+	const template = this.editor.compileTemplate( str );
+	return this.editor.getTemplateResult(
+		template,
+		vars,
+	);
+};
+*/
+
 window.JsonForms = JsonForms;
 
 $(function () {

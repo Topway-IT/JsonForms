@@ -64,7 +64,7 @@ class SpecialJsonFormsEdit extends SpecialPage {
 		$out->addWikiMsg( 'jsonforms-special-edit-message' );
 	
 		$jsonForm = \JsonForms::getSourceSchema( 'EditDataUI', 'JsonSchema/Core' );
-		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$startVal = [];
 		$wikiPage = \JsonForms::getWikiPage( $editTitle );

@@ -137,14 +137,13 @@ JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
 		return;
 	}
 
-	// $formDescriptor['pagename_formula'] = 'JsonSchema:{{name}}';
-	// or $formDescriptor['pagename_formula'] = 'JsonSchema:{{x-name}}';
+	// $formDescriptor['pagename_formula'] = 'JsonSchema:<name>';
+	// or $formDescriptor['pagename_formula'] = 'JsonSchema:<x-name>';
 	// server-side
 
-	const template = this.editor.compileTemplate(
-		formDescriptor.pagename_formula.replace('<', '{{').replace('>', '}}'),
-	);
-	const title = this.editor.getTemplateResult(template, vars);
+	const title = this.processTemplate(formDescriptor.pagename_formula, vars, {
+		replaceAngularBrackets: true,
+	});
 
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
@@ -237,7 +236,7 @@ $(function () {
 		// console.log('editor', editor);
 		// console.log('editor.editors', editor.editors);
 
-/*
+		/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',
@@ -264,7 +263,7 @@ $(function () {
 
 			innerEditor.on('ready', () => {});
 
-/*
+			/*
 			innerEditor.on('change', () => {
 				textarea.val(JSON.stringify(innerEditor.getValue(), null, 2));
 				textareaB.val(

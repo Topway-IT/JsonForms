@@ -123,6 +123,7 @@ class SpecialJsonFormsManage extends SpecialPage {
 
 		$formDescriptor['slot'] = SlotRecord::MAIN;
 		$formDescriptor['edit_categories'] = false;
+		$formDescriptor['return'] = 'url';
 		$formDescriptor['return_url'] = $this->localTitle->getLocalURL();
 
 		$schemaName = '';

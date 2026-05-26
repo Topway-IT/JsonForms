@@ -83,7 +83,8 @@
 				"schema": {
 					"type": "string",
 					"title": "JSON Schema",
-					"x-wikitext-description": "Manage schemas [[Special:JsonFormsManage/Schemas|here]]",
+					"description": "Manage schemas [[Special:JsonFormsManage/Schemas|here]]",
+					"x-description-format": "wikitext",
 					"default": "",
 					"x-format": "text",
 					"x-input": "OO.ui.DropdownInputWidget",
@@ -183,8 +184,8 @@
 				"minor": {
 					"type": "boolean",
 					"title": "",
-					"description": "",
-					"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"x-description-format": "wikitext",
 					"x-input": "checkbox",
 					"x-control-config": {
 						"align": "inline"

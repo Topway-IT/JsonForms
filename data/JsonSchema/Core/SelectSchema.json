@@ -11,7 +11,8 @@
 			"description": "",
 			"default": "",
 			"minLength": 1,
-			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
+			"description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
+			"x-description-format": "wikitext",
 			"x-format": "autocomplete",
 			"x-input": "LookupElement",
 			"x-autocomplete-provider": "jsonSchemas"

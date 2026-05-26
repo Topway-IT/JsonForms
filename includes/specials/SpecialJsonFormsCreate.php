@@ -76,7 +76,7 @@ class SpecialJsonFormsCreate extends SpecialPage {
 		}
 	
 		$jsonForm = \JsonForms::getSourceSchema( $schema, 'JsonSchema/Core' );
-		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$formData = [
 			'schema' => $jsonForm,

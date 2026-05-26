@@ -66,7 +66,8 @@
 	"jsonforms-special-submit-permission-error": "permission error",
 	"jsonforms-special-submit-article-exists": "article exists",
 	"jsonforms-special-submit-cannot-create-wikipage": "create wikipage error",
-	"jsonforms-special-submit-return-url-error": "url error",
+	"jsonforms-special-submit-return-validate-url-error": "cannot validate return url",
+	"jsonforms-special-submit-return-no-return-url": "cannot determine return url",
 	"jsonforms-special-submit-move-error": "move error (from '$1' to $2')",
 
 	"jsonforms-parserfunction-error-no-form-name": "no form name",

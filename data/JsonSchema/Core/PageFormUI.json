@@ -140,7 +140,8 @@
 					"type": "boolean",
 					"title": "",
 					"description": "",
-					"x-wikitext-description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"description": "This is a [https://www.mediawiki.org/wiki/Help:Minor_edit minor edit]",
+					"x-description-format": "wikitext",
 					"x-input": "checkbox",
 					"x-control-config": {
 						"align": "inline"

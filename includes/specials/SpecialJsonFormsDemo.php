@@ -57,7 +57,7 @@ class SpecialJsonFormsDemo extends SpecialPage {
 		$out->addModules( 'ext.JsonForms.demo' );
 
 		$jsonForm = \JsonForms::getSourceSchema( 'DemoForm', 'JsonSchema/Core' );
-		$jsonForm = \JsonForms::processSchema( $out, $jsonForm );
+		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
 		$formData = [
 			'schema' => $jsonForm,

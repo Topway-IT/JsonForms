@@ -10,7 +10,7 @@
 		"name": {
 			"type": "string",
 			"title": "Form name",
-			"description": "the form can then be dispayed in any page using the parser function {{#jsonforms: <form name> }}",
+			"description": "the form can then be displayed in any page using the parser function {{#jsonforms: <form name> }}",
 			"minLength": 1
 		},
 		"schema": {
@@ -19,7 +19,8 @@
 			"description": "",
 			"default": "",
 			"minLength": 1,
-			"x-wikitext-description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
+			"description": "any schema listed {{#querylink: Special:PrefixIndex|here|namespace=2100}}",
+			"x-description-format": "wikitext",
 			"x-enum-provider": "jsonSchemas"
 		},
 		"action": {
@@ -100,7 +101,8 @@
 		"slot": {
 			"type": "string",
 			"title": "target slot",
-			"x-wikitext-description": "Default slot for form data: if different from main the related article will be saved as a [https://www.mediawiki.org/wiki/Multi-Content_Revisions Multi-Content-Revision]",
+			"description": "Default slot for form data: if different from main the related article will be saved as a [https://www.mediawiki.org/wiki/Multi-Content_Revisions Multi-Content-Revision]",
+			"x-description-format": "wikitext",
 			"default": "jsonforms-data",
 			"x-enum-provider": "jsonSlots"
 		},
@@ -185,10 +187,15 @@
 		},
 		"preload": {
 			"type": "string",
-			"title": "Preload page",
-			"description": "Page to preload content from",
+			"title": "Preload",
+			"description": "Preload page or wikitext",
 			"default": "",
-			"x-input": "mw.widgets.TitleInputWidget",
+			"enum": [
+				"none",
+				"article",
+				"wikitext"
+			],
+			"default": "none",
 			"x-dependency": {
 				"and": [
 					{
@@ -204,37 +211,73 @@
 				]
 			}
 		},
-		"preload_data": {
+		"preload_article": {
 			"type": "string",
-			"title": "Preload data",
-			"description": "Inline preload data",
+			"title": "Preload page",
+			"description": "Page to preload content from",
 			"default": "",
+			"x-input": "mw.widgets.TitleInputWidget",
 			"x-dependency": {
-				"action": "create"
+				"and": [
+					{
+						"path": "preload",
+						"op": "==",
+						"value": "article"
+					}
+				]
 			}
 		},
-		"preload_data_separator": {
+		"preload_wikitext": {
 			"type": "string",
-			"title": "Preload data separator",
+			"title": "Preload wikitext",
+			"description": "Preload wikitext into the target article. (Performs substitutions using an expression like <parent.child>).",
 			"default": "",
+			"x-format": "textarea",
 			"x-dependency": {
-				"path": "preload_data",
-				"op": "!=",
-				"value": ""
+				"and": [
+					{
+						"path": "preload",
+						"op": "==",
+						"value": "wikitext"
+					}
+				]
 			}
+		},
+		"return": {
+			"type": "string",
+			"title": "Return",
+			"description": "Page to redirect to after completion",
+			"enum": [
+				"target",
+				"none",
+				"article",
+				"url"
+			],
+			"default": "target"
 		},
 		"return_page": {
 			"type": "string",
 			"title": "Return page",
+			"x-input": "mw.widgets.TitleInputWidget",
 			"description": "Page to redirect to after completion",
-			"default": ""
+			"default": "",
+			"x-dependency": {
+				"path": "return",
+				"op": "==",
+				"value": "article"
+			}
 		},
 		"return_url": {
 			"type": "string",
 			"title": "Return URL",
-			"description": "External URL to redirect to after completion",
+			"description": "External URL to redirect to after completion. (Performs substitutions using an expression like <parent.child>)",
 			"format": "uri",
-			"default": ""
+			"default": "",
+			"x-dependency": {
+				"path": "return",
+				"op": "==",
+				"value": "url"
+			}
 		},
 		"edit_path": {
 			"type": "string",

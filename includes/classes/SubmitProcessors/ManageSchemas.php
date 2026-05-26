@@ -24,7 +24,6 @@
 
 namespace MediaWiki\Extension\JsonForms\SubmitProcessors;
 
-
 class ManageSchemas extends PageForms {
 
 	/**

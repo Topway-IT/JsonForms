@@ -590,20 +590,40 @@ class JsonForms {
 		}
 	
 		$wikitextKeys = [
-			'x-wikitext-title' => 'title',
-			'x-wikitext-description' => 'description',
-			'x-wikitext-label' => 'label'
+			'x-title-format' => 'title',
+			'x-description-format' => 'description',
+			'x-label-format' => 'label',
 		];
 		$callback = static function ( &$parent, $key, &$value, $pathArr ) use ( $output, $wikitextKeys ) {
 			if ( !is_array( $value ) ) {
 				return;
 			}
 			foreach ( $wikitextKeys as $k => $v ) {
-   				if ( isset( $value[$k] ) && is_string( $value[$k] ) ) {
-					$value[$v] = self::parseWikitext(
-						$output,
-						$value[$k]
-					);
+   				if ( !isset( $value[$v] ) || is_array( $value[$v] ) ) {
+   					continue;
+
+   				} else {
+   					if ( !isset( $value[$k] ) ) {
+   						$value[$k] = 'text';
+   					}
+   					switch ( $value[$k]  ) {
+   						case 'html':
+   							// do not escape
+   							break;
+
+   						case 'wikitext':
+   							$value[$v] = self::parseWikitext(
+								$output,
+								$value[$v]
+							);
+   							break;
+
+   						case 'text':
+   						default:
+   							$value[$v] = htmlspecialchars( $value[$v] );
+   							break;
+   					
+   					}
 				}
 			}
 		};
