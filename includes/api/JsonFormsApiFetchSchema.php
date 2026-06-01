@@ -78,8 +78,8 @@ class JsonFormsApiFetchSchema extends ApiBase {
 	 */
 	protected function getExamplesMessages() {
 		return [
-			'action=Jsonforms-fetch-schema'
-			=> 'apihelp-Jsonforms-fetch-schema-example-1'
+			'action=jsonforms-fetch-schema'
+			=> 'apihelp-jsonforms-fetch-schema-example-1'
 		];
 	}
 }

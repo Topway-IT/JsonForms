@@ -55,7 +55,9 @@ class JsonFormsApiSubmitForm extends ApiBase {
 		// $specialpage_title = SpecialPage::getTitleFor( 'JsonFormsSubmit' );
 		// $context->setTitle( $specialpage_title );
 
-		$data = json_decode( $params['data'], true );
+		// @IMPORTANT !! preserve as object otherwise {} will
+		// be converted to PHP empty array !!
+		$data = json_decode( $params['data'], false );
 
 		$submitForm = new SubmitForm( $user, $context );
 		$result_ = $submitForm->processData( $data );
@@ -87,8 +89,8 @@ class JsonFormsApiSubmitForm extends ApiBase {
 	 */
 	protected function getExamplesMessages() {
 		return [
-			'action=Jsonforms-submit-form'
-			=> 'apihelp-Jsonforms-submit-form-example-1'
+			'action=jsonforms-submit-form'
+			=> 'apihelp-jsonforms-submit-form-example-1'
 		];
 	}
 }

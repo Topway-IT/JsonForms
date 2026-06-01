@@ -66,8 +66,7 @@
 	},
 	"properties": {
 		"form": {
-			"x-compact": true,
-			"title": "data only",
+			"title": "",
 			"description": "The data will be saved in the main slot as json content-model.",
 			"properties": {
 				"title": {

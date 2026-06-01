@@ -23,9 +23,6 @@ function JsonFormsManageSchemas(el, data) {
 	JsonFormsManageSchemas.super.call(this, el, data);
 
 	this.formDescriptor = data.formDescriptor;
-	// console.log('this.schema', this.schema);
-	// console.log('data', data);
-	// console.log('this.schemaName', this.schemaName);
 }
 
 OO.inheritClass(JsonFormsManageSchemas, JsonForms);
@@ -67,6 +64,7 @@ JsonFormsManageSchemas.prototype.onFormButton = function (action, editor) {
 			// console.log('innerEditorValidationResults', innerEditorValidationResults);
 
 			if (innerEditorValidationResults.length) {
+				console.log('innerEditorValidationResults',innerEditorValidationResults);
 				JsonForms.Alert('there are errors');
 				return;
 			}
@@ -113,8 +111,6 @@ JsonFormsManageSchemas.prototype.adjustFormSchema = function () {
 };
 
 JsonFormsManageSchemas.prototype.submitForm = function (innerEditor) {
-	// console.log('innerEditor', innerEditor);
-
 	// console.log('innerEditor', innerEditor);
 
 	const vars = {};

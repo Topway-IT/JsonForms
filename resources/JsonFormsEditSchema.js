@@ -79,12 +79,23 @@ JsonFormsEditSchema.prototype.submitForm = function () {
 	const editorValue = this.editor.getValue();
 
 	// console.log('editorValue', editorValue);
+	let processedSchema;
+	// processedSchema = this.editor.getProcessedSchema();
+	// console.log('processedSchema', processedSchema);
+
+	const selectedSchemaEditor = this.editor.getEditor(
+		'root.form.schema.selectedSchema.editor',
+	);
+
+	if (selectedSchemaEditor) {
+		processedSchema = selectedSchemaEditor.getProcessedSchema();
+	}
 
 	const options = { title: this.editTitle };
 	let value;
 	const metadata = { ...editorValue.form.options };
-	
-	if ( editorValue.form.schema.selectedSchema ) {
+
+	if (editorValue.form.schema.selectedSchema) {
 		value = editorValue.form.schema.selectedSchema.editor;
 		metadata.schemaName = editorValue.form.schema.selectedSchema.schemaName;
 	}
@@ -92,6 +103,7 @@ JsonFormsEditSchema.prototype.submitForm = function () {
 	// *** submission data are arbitrary and depend on the
 	// SubmitProcessor
 	const data = {
+		processedSchema,
 		value,
 		options,
 		metadata,
@@ -158,7 +170,7 @@ $(function () {
 
 		const editor = jsonForms.createDefaultEditor();
 
-/*
+		/*
 		const textarea = $('<textarea>', {
 			class: 'form-control',
 			id: 'value',

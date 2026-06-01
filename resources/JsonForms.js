@@ -49,7 +49,7 @@ JsonForms.prototype.initialize = async function () {
 
 	// console.log('defaultOptions',defaultOptions)
 
-	const defaultOptions = this.editorOptions;
+	const defaultOptions = this.editorOptions || {};
 
 	// const defaultOptions = JSON.parse(JSON.stringify(this.editorOptions));
 

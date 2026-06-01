@@ -68,8 +68,8 @@ class JsonFormsApiGroupNames extends ApiBase {
 	 */
 	protected function getExamplesMessages() {
 		return [
-			'action=Jsonforms-groupnames'
-			=> 'apihelp-Jsonforms-groupnames-example-1'
+			'action=jsonforms-groupnames'
+			=> 'apihelp-jsonforms-groupnames-example-1'
 		];
 	}
 }

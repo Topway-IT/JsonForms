@@ -125,7 +125,6 @@
 		const contentModels = mw.config.get('jsonforms')['contentModels'];
 		const roleContentModelMap =
 			mw.config.get('jsonforms')['roleContentModelMap'];
-		// const roles = mw.config.get('jsonforms')['slotRoles'];
 
 		// key/value object, this is also supported
 		return {
@@ -175,16 +174,10 @@
 		const contentModels = mw.config.get('jsonforms')['contentModels'];
 
 		// key/value object, this is also supported
-
 		return {
 			source: (editor, { item, watched }) => {
 				// console.log('editorByContentModelSource',editor)
 				// console.log('watched',watched)
-
-				// if (!('content_model' in watched)) {
-				// 	console.warn('contentModelProperty not set in watch', watched);
-				// 	return;
-				// }
 
 				const jsonformsConfig = mw.config.get('jsonforms');
 

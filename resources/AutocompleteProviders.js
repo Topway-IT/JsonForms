@@ -2,39 +2,8 @@
 (function ($, mw, srf) {
 	'use strict';
 	function AutocompleteProviders() {
-		/*
-		this.providers = {
-			wikipedia: this.wikipedia,
-			dawa: this.dawa,
-			wikidata: this.wikidata,
-			jsonSchemas: this.jsonSchemas,
-		};
-	*/
 	}
 
-	/*
-
-					"properties": {
-						"search": {
-							"type": "string",
-							"description": "API endpoint or function name for autocomplete suggestions"
-						},
-						"getResultValue": {
-							"type": "string",
-							"description": "Function name to extract value from selected result"
-						},
-						"renderResult": {
-							"type": "string",
-							"description": "Function name to format how results are displayed"
-						},
-						"autoSelect": {
-							"type": "boolean",
-							"default": true,
-							"description": "Automatically select the first matching suggestion"
-						}
-					}
-					
-*/
 	function stripHtml(str) {
 		const tmp = document.createElement('div');
 		tmp.innerHTML = str;

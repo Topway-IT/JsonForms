@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * This file is part of the MediaWiki extension JsonForms.
+ *
+ * JsonForms is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * JsonForms is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JsonForms.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup extensions
+ * @author thomas-topway-it <support@topway.it>
+ * @copyright Copyright ©2025-2026, https://wikisphere.org
+ */
+
 namespace MediaWiki\Extension\JsonForms;
 
 /**
@@ -15,8 +37,11 @@ class ProcessParameters
     protected array $query = [];
     public array $initialKnown = [];
 
-    public function __construct(array $argv = [])
+    public function __construct(array $argv = [], $schema = null)
     {
+        if ( $schema !== null ) {
+            $this->defaultParameters = $this->buildDefaultParametersFromSchema( $schema );
+        }
         $this->prepareDefaults();
         $this->parse($argv);
         
@@ -24,20 +49,30 @@ class ProcessParameters
         $this->applyDefaults();
     }
 
-    protected function buildDefaultParametersFromSchema(array $schema): array
+    /**
+     * Build default parameters from schema object (stdClass only)
+     */
+    protected function buildDefaultParametersFromSchema( $schema ): array
     {
         $parameters = [];
 
-        $required = $schema["required"] ?? [];
-        $properties = $schema["properties"] ?? [];
+        // Get required properties (array from object property)
+        $required = property_exists( $schema, 'required' ) && is_array( $schema->required ) 
+            ? $schema->required 
+            : [];
+        
+        // Get properties object
+        $properties = property_exists( $schema, 'properties' ) && is_object( $schema->properties ) 
+            ? $schema->properties 
+            : new \stdClass();
 
-        foreach ($properties as $name => $definition) {
+        foreach ( get_object_vars( $properties ) as $name => $definition ) {
             $parameters[$name] = [
-                "label" => $definition["title"] ?? $name,
-                "description" => $definition["description"] ?? "",
-                "type" => $definition["type"] ?? "string",
-                "required" => in_array($name, $required, true),
-                "default" => $definition["default"] ?? null,
+                "label" => property_exists( $definition, 'title' ) ? $definition->title : $name,
+                "description" => property_exists( $definition, 'description' ) ? $definition->description : "",
+                "type" => property_exists( $definition, 'type' ) ? $definition->type : "string",
+                "required" => in_array( $name, $required, true ),
+                "default" => property_exists( $definition, 'default' ) ? $definition->default : null,
             ];
         }
 
@@ -100,31 +135,19 @@ class ProcessParameters
 
     protected function applyDefaults(): void
     {
-		foreach ($this->flatDefaults as $key => [$defaultValue, $type]) {
-			if (array_key_exists($key, $this->options)) {
-				$val = $this->options[$key];
-
-			} else {
-				$val = $defaultValue;
-			}
-
-			$this->options[$key] = $this->castValueByType(
-				$type,
-				$val,
-				$defaultValue
-			);
-		}
-
-/*
         foreach ($this->flatDefaults as $key => [$defaultValue, $type]) {
-            $val = $this->options[$key] ?? $defaultValue;
+            if (array_key_exists($key, $this->options)) {
+                $val = $this->options[$key];
+            } else {
+                $val = $defaultValue;
+            }
+
             $this->options[$key] = $this->castValueByType(
                 $type,
                 $val,
                 $defaultValue
             );
         }
-       */
     }
 
     protected function castValueByType(?string $type, $value, $default = null)
@@ -140,18 +163,18 @@ class ProcessParameters
 
             case "float":
             case "number":
-			case 'numeric':
+            case 'numeric':
                return filter_var( $value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE );
 
-			case "bool":
-			case "boolean":
-				$ret = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            case "bool":
+            case "boolean":
+                $ret = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
-				if ($ret === null) {
-					$ret = filter_var($default, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-				}
+                if ($ret === null) {
+                    $ret = filter_var($default, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                }
 
-				return $ret ?? false;
+                return $ret ?? false;
 
             case "string":
                 return (string) $value;
@@ -205,6 +228,5 @@ class ProcessParameters
     {
         return $this->query;
     }
-
 }
 

@@ -32,26 +32,34 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use Parser;
 
-class PageForms extends SubmitForm {
-
+class PageForms extends SubmitForm
+{
 	/**
 	 * @param array $data
 	 * @param string $path
 	 * @param array $value
 	 */
-	function setDataAtPath( ?array &$data, string $path, $value ): void {
-		if ( !is_array( $data ) ) {
+	function setDataAtPath(?array &$data, string $path, $value): void
+	{
+		if (!is_array($data)) {
 			$data = [];
 		}
 
-		$keys = explode( '.', $path );
+		$keys = explode(".", $path);
 		$current = &$data;
 
-		foreach ( $keys as $index => $key ) {
-			if ( $index === count( $keys ) - 1 ) {
-				if ( is_array( $current ) && isset( $current[$key] ) && is_array( $current[$key] ) && is_array( $value ) ) {
-					$current[$key] = array_replace_recursive( $current[$key], $value );
-
+		foreach ($keys as $index => $key) {
+			if ($index === count($keys) - 1) {
+				if (
+					is_array($current) &&
+					isset($current[$key]) &&
+					is_array($current[$key]) &&
+					is_array($value)
+				) {
+					$current[$key] = array_replace_recursive(
+						$current[$key],
+						$value,
+					);
 				} else {
 					$current[$key] = $value;
 				}
@@ -59,7 +67,7 @@ class PageForms extends SubmitForm {
 			}
 
 			// Create path if it doesn't exist or isn't an array
-			if ( !isset( $current[$key] ) || !is_array( $current[$key] ) ) {
+			if (!isset($current[$key]) || !is_array($current[$key])) {
 				$current[$key] = [];
 			}
 
@@ -71,7 +79,8 @@ class PageForms extends SubmitForm {
 	 * @param array $data
 	 * @return array
 	 */
-	public function processData( $data ) {
+	public function processData($data)
+	{
 		$services = MediaWikiServices::getInstance();
 
 		// this should happen only if hacked
@@ -82,7 +91,7 @@ class PageForms extends SubmitForm {
 
 		$errors = [];
 
-/*
+		/*
 {
   "value": {
     "name": "aaaa"
@@ -189,10 +198,9 @@ main_slot_content_model:
 main_slot_content: 
 categories: 
 summary: 
-*/	
+*/
 
-
-/*
+		/*
 metadata can be stored:
 -- using an outer schema (VisualData)
 -- as a reference in the data schema itself (OSL)
@@ -201,22 +209,26 @@ metadata can be stored:
 */
 
 		$output = $this->output;
-		
-		if ( !isset( $data['options'] ) ) {
-			$data['options'] = [];
+
+		if (!isset($data->options)) {
+			$data->options = new \stdClass();
 		}
 
-		if ( !empty( $data['options']['captcha'] ) ) {
-			$recaptchaSecret = $GLOBALS['wgJsonFormsReCaptchaSecretKey'];
-			$recaptchaResponse = $data['options']['captcha'];
+		if (!empty($data->options->captcha)) {
+			$recaptchaSecret = $GLOBALS["wgJsonFormsReCaptchaSecretKey"];
+			$recaptchaResponse = $data->options->captcha;
 
 			$response = file_get_contents(
-				"https://www.google.com/recaptcha/api/siteverify?secret={$recaptchaSecret}&response={$recaptchaResponse}"
+				"https://www.google.com/recaptcha/api/siteverify?secret={$recaptchaSecret}&response={$recaptchaResponse}",
 			);
 			$responseKeys = json_decode($response, true);
 
-			if (!$responseKeys['success']) {
-				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-captcha-error' )->text() );
+			if (!$responseKeys["success"]) {
+				return ResultWrapper::failure(
+					$this->context
+						->msg("jsonforms-special-submit-captcha-error")
+						->text(),
+				);
 			}
 		}
 
@@ -224,76 +236,89 @@ metadata can be stored:
 		$isNewPage = false;
 		$titleStr = null;
 		$targetTitle = null;
-		if ( !empty( $data['options']['title'] ) ) {
-			$titleStr = $data['options']['title'];
+		if (!empty($data->options->title)) {
+			$titleStr = $data->options->title;
+		} elseif (!empty($data->formDescriptor->edit)) {
+			$titleStr = $data->formDescriptor->edit;
+		} elseif (!empty($data->formDescriptor->pagename_formula)) {
+			$targetTitle = $data->formDescriptor->pagename_formula;
+			$targetTitle = $this->parseWikitext($targetTitle);
+			$targetTitle = \JsonForms::parseTitleCounter($targetTitle);
 
-		} elseif ( !empty( $data['formDescriptor']['edit'] ) ) {
-			$titleStr = $data['formDescriptor']['edit'];
-
-		} elseif ( !empty( $data['formDescriptor']['pagename_formula'] ) ) {
-			$targetTitle = $data['formDescriptor']['pagename_formula'];
-			$targetTitle = $this->parseWikitext( $targetTitle );
-			$targetTitle = \JsonForms::parseTitleCounter( $targetTitle );
-
-			if ( empty( $targetTitle ) ) {
-				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-computed-target-title-error' )->text() );
+			if (empty($targetTitle)) {
+				return ResultWrapper::failure(
+					$this->context
+						->msg(
+							"jsonforms-special-submit-computed-target-title-error",
+						)
+						->text(),
+				);
 			}
 		}
 
-		if ( !$targetTitle ) {
-			$targetTitle = TitleClass::newFromText( $titleStr );
-		}
-		
-		if ( empty( $targetTitle ) ) {
-			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-notitle' )->text() );
+		if (!$targetTitle) {
+			$targetTitle = TitleClass::newFromText($titleStr);
 		}
 
-		if ( !\JsonForms::checkWritePermissions( $this->user, $targetTitle, $errors ) ) {
-			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-permission-error' )->text() );
+		if (empty($targetTitle)) {
+			return ResultWrapper::failure(
+				$this->context->msg("jsonforms-special-submit-notitle")->text(),
+			);
+		}
+
+		if (
+			!\JsonForms::checkWritePermissions(
+				$this->user,
+				$targetTitle,
+				$errors,
+			)
+		) {
+			return ResultWrapper::failure(
+				$this->context
+					->msg("jsonforms-special-submit-permission-error")
+					->text(),
+			);
 		}
 
 		$previousPage = null;
 		if (
-			!empty( $data['options']['title'] ) &&
-			!empty( $data['formDescriptor']['edit'] )
+			!empty($data->options->title) &&
+			!empty($data->formDescriptor->edit)
 		) {
-			$previousPage = TitleClass::newFromText( $data['formDescriptor']['edit'] );
+			$previousPage = TitleClass::newFromText(
+				$data->formDescriptor->edit,
+			);
 		}
 
-		$refTargetTitle = ( !$previousPage ? $targetTitle : $previousPage );
+		$refTargetTitle = !$previousPage ? $targetTitle : $previousPage;
 
-		// if ( $data['options']['action'] === 'delete' ) {
-			
-		// }
+		$contentModelMainSlot = "wikitext";
 
-		$contentModelMainSlot = 'wikitext';
-
-		// user defined, not set if is a new page or target slot is main
-		if ( !empty( $data['options']['freetext_content_model'] ) ) {
-			$contentModelMainSlot = $data['options']['freetext_content_model'];
-
-		// } else if ( !empty( $data['formDescriptor']['default_main_slot_content_model'] ) ) {
-		// 	$contentModel = $data['formDescriptor']['default_main_slot_content_model'];
-
-		// $contentModel = $data['config']['contentModel'];
-		} else if ( $refTargetTitle->isKnown() ) {
+		if (!empty($data->options->freetext_content_model)) {
+			$contentModelMainSlot = $data->options->freetext_content_model;
+		} elseif ($refTargetTitle->isKnown()) {
 			$contentModelMainSlot = $refTargetTitle->getContentModel();
 		}
 
-		$main_slot_content = $data['options']['freetext'] ?? null;
+		$main_slot_content = $data->options->freetext ?? null;
 
-		if ( !$targetTitle->isKnown() && !$previousPage) {
+		if (!$targetTitle->isKnown() && !$previousPage) {
 			$isNewPage = true;
 		}
 
-		// action create, but target title exists
 		if (
 			$targetTitle->isKnown() &&
-			empty( $data['formDescriptor']['edit'] ) &&
-			$data['formDescriptor']['overwrite_existing_article_on_create'] !== true
+			empty($data->formDescriptor->edit) &&
+			$data->formDescriptor->overwrite_existing_article_on_create !== true
 		) {
-			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-article-exists',
-				$targetTitle->getDBKey() )->parse() );
+			return ResultWrapper::failure(
+				$this->context
+					->msg(
+						"jsonforms-special-submit-article-exists",
+						$targetTitle->getDBKey(),
+					)
+					->parse(),
+			);
 		}
 
 		$movePage = false;
@@ -301,237 +326,269 @@ metadata can be stored:
 			$previousPage &&
 			$previousPage->getFullText() !== $targetTitle->getFullText()
 		) {
-			$movePage = [
-				$previousPage,
-				$targetTitle
-			];
+			$movePage = [$previousPage, $targetTitle];
 		}
 
-		$wikiPage = \JsonForms::getWikiPage( $targetTitle );
-		$refWikiPage = \JsonForms::getWikiPage( $refTargetTitle );
-		
-		if ( !$wikiPage ) {
-			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-cannot-create-wikipage' )->text() );
+		$wikiPage = \JsonForms::getWikiPage($targetTitle);
+		$refWikiPage = \JsonForms::getWikiPage($refTargetTitle);
+
+		if (!$wikiPage) {
+			return ResultWrapper::failure(
+				$this->context
+					->msg("jsonforms-special-submit-cannot-create-wikipage")
+					->text(),
+			);
 		}
 
-		// @set title for further use of parseWikitext
-		$this->context->setTitle( $targetTitle );
-		$this->setOutput( $this->context->getOutput() );
+		$this->context->setTitle($targetTitle);
+		$this->setOutput($this->context->getOutput());
 
 		$returnMessage = null;
 		$returnUrl = null;
 
-		if ( empty( $data['formDescriptor']['return'] ) ) {
-			if ( !empty( $data['formDescriptor']['return_url'] ) ) {
-				$data['formDescriptor']['return'] = 'url';
-
-			} elseif ( !empty( $data['formDescriptor']['return_page'] ) ) {
-				$data['formDescriptor']['return'] = 'article';
-
+		if (empty($data->formDescriptor->return)) {
+			if (!empty($data->formDescriptor->return_url)) {
+				$data->formDescriptor->return = "url";
+			} elseif (!empty($data->formDescriptor->return_page)) {
+				$data->formDescriptor->return = "article";
 			} else {
-				$data['formDescriptor']['return'] = 'target';
+				$data->formDescriptor->return = "target";
 			}
 		}
-		
-		switch ( $data['formDescriptor']['return'] ) {
-			case 'none':
-				$localUrl = $targetTitle->getLocalURL();
-				$targetUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
 
-				$messageKey = 'jsonforms-jsmodule-return-message-' . ( $isNewPage ? 'create' : 'edit' );
-				$returnMessage = $this->context->msg( $messageKey,
-						$targetTitle->getFullText(),
-						$targetUrl
-					)->text();
+		switch ($data->formDescriptor->return) {
+			case "none":
+				$localUrl = $targetTitle->getLocalURL();
+				$targetUrl = (string) $services
+					->getUrlUtils()
+					->expand($localUrl, PROTO_FALLBACK);
+
+				$messageKey =
+					"jsonforms-jsmodule-return-message-" .
+					($isNewPage ? "create" : "edit");
+				$returnMessage = $this->context
+					->msg($messageKey, $targetTitle->getFullText(), $targetUrl)
+					->text();
 				break;
 
-			case 'article':
-				if ( !empty( $data['formDescriptor']['return_page'] ) ) {
-					$title_ = TitleClass::newFromText( $data['formDescriptor']['return_page'] );
-					if ( $title_ ) {
+			case "article":
+				if (!empty($data->formDescriptor->return_page)) {
+					$title_ = TitleClass::newFromText(
+						$data->formDescriptor->return_page,
+					);
+					if ($title_) {
 						$localUrl = $title_->getLocalURL();
 					}
 				}
 				break;
 
-			case 'url':
-				if ( !empty( $data['formDescriptor']['return_url'] ) ) {
-					$localUrl = $data['formDescriptor']['return_url'];
-					$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
+			case "url":
+				if (!empty($data->formDescriptor->return_url)) {
+					$localUrl = $data->formDescriptor->return_url;
+					$returnUrl = (string) $services
+						->getUrlUtils()
+						->expand($localUrl, PROTO_FALLBACK);
 				}
 				break;
 
-			case 'target':
+			case "target":
 			default:
 				$localUrl = $targetTitle->getLocalURL();
 		}
 
-		if ( !$returnUrl ) {
-			if ( !$localUrl ) {
-				return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-no-return-url' )->text() );
+		if (!$returnUrl) {
+			if (!$localUrl) {
+				return ResultWrapper::failure(
+					$this->context
+						->msg("jsonforms-special-submit-return-no-return-url")
+						->text(),
+				);
 			}
 
-			$returnUrl = (string)$services->getUrlUtils()->expand( $localUrl, PROTO_FALLBACK );
+			$returnUrl = (string) $services
+				->getUrlUtils()
+				->expand($localUrl, PROTO_FALLBACK);
 		}
 
-		if ( filter_var( $returnUrl, FILTER_VALIDATE_URL ) === false ) {
-			return ResultWrapper::failure( $this->context->msg( 'jsonforms-special-submit-return-validate-url-error', $returnUrl )->text() );
+		if (filter_var($returnUrl, FILTER_VALIDATE_URL) === false) {
+			return ResultWrapper::failure(
+				$this->context
+					->msg(
+						"jsonforms-special-submit-return-validate-url-error",
+						$returnUrl,
+					)
+					->text(),
+			);
 		}
 
-		// update content model if necessary
 		if (
 			!$isNewPage &&
 			$contentModelMainSlot &&
 			$contentModelMainSlot !== $refTargetTitle->getContentModel()
 		) {
-			$this->updateContentModel( $refTargetTitle, $wikiPage, $contentModelMainSlot, $errors );
+			$this->updateContentModel(
+				$refTargetTitle,
+				$wikiPage,
+				$contentModelMainSlot,
+				$errors,
+			);
 		}
 
-		if ( count( $errors ) ) {
-			return ResultWrapper::failure( $errors[0] );
+		if (count($errors)) {
+			return ResultWrapper::failure($errors[0]);
 		}
 
-		// if ( !empty( $data['options']['data_slot'] ) ) {
-		//	$targetSlot = $data['options']['data_slot'];	
-		//} else
-		if ( !empty( $data['formDescriptor']['slot'] ) ) {
-			 $targetSlot = $data['formDescriptor']['slot'];
-
-		} else if ( $isNewPage && $main_slot_content === null ) {
-			$targetSlot = 'main';
-
+		if (!empty($data->formDescriptor->slot)) {
+			$targetSlot = $data->formDescriptor->slot;
+		} elseif ($isNewPage && $main_slot_content === null) {
+			$targetSlot = "main";
 		} else {
-			$targetSlot = \JsonForms::getFirstJsonSlot( $refWikiPage );		
+			$targetSlot = \JsonForms::getFirstJsonSlot($refWikiPage);
 		}
 
-		if ( !$targetSlot ) {
+		if (!$targetSlot) {
 			$targetSlot = SLOT_ROLE_JSONFORMS_DATA;
 		}
 
-		$dataToSave = $this->postProcessJsonData( $data['value'], $data['structuredValue'] );
+		$dataToSave = $this->postProcessJsonData(
+			$data->value,
+			$data->structuredValue,
+		);
 
-		// if ( !empty( $data['formDescriptor']['start_path'] ) ) {
-		// 	$dataToSave = \JsonForms::getSlotContent( $wikiPage, $targetSlot );
-		// 	$dataToSave = SlotEditor::parseMaybeJSON( $dataToSave );
-		// 	$this->setDataAtPath( $dataToSave, $data['formDescriptor']['start_path'], $data['value'] );
-		// }
-
-		if ( !empty( $data['formDescriptor']['edit_path'] ) ) {
-			$wholeDataStr = \JsonForms::getSlotContent( $refWikiPage, $targetSlot );
-			$wholeData = json_decode( $wholeDataStr, true );
-			\JsonForms::setValueByPath( $wholeData, $data['formDescriptor']['edit_path'], $dataToSave );
+		if (!empty($data->formDescriptor->edit_path)) {
+			$wholeDataStr = \JsonForms::getSlotContent(
+				$refWikiPage,
+				$targetSlot,
+			);
+			$wholeData = json_decode($wholeDataStr, false);
+			\JsonForms::setValueByPath(
+				$wholeData,
+				$data->formDescriptor->edit_path,
+				$dataToSave,
+			);
 			$dataToSave = $wholeData;
 		}
 
 		$slots = [
 			$targetSlot => [
-				'model' => 'json',
-				// this will strip writeOnly and other post-processing
-				'content' => json_encode( $dataToSave )
-			]
+				"model" => "json",
+				"content" => json_encode($dataToSave),
+			],
 		];
 
-		// determine freetext
-		if ( $isNewPage && $main_slot_content === null ) {
-			if ( !empty( $data['formDescriptor']['preload_article'] ) ) {
-				$title_ = \JsonForms::getTitleIfKnown( $data['formDescriptor']['preload_article'] );
-				if ( $title_ ) {
-					$main_slot_content = \JsonForms::getWikipageContent( $title_ );
+		if ($isNewPage && $main_slot_content === null) {
+			if (!empty($data->formDescriptor->preload_article)) {
+				$title_ = \JsonForms::getTitleIfKnown(
+					$data->formDescriptor->preload_article,
+				);
+				if ($title_) {
+					$main_slot_content = \JsonForms::getWikipageContent(
+						$title_,
+					);
 				}
-			} else if ( !empty( $data['formDescriptor']['preload_wikitext'] ) ) {
-				$main_slot_content = $data['formDescriptor']['preload_wikitext'];
+			} elseif (!empty($data->formDescriptor->preload_wikitext)) {
+				$main_slot_content = $data->formDescriptor->preload_wikitext;
 			}
 		}
 
-		if ( $main_slot_content === null && !$isNewPage ) {
-			$main_slot_content = \JsonForms::getWikipageContent( $targetTitle );
+		if ($main_slot_content === null && !$isNewPage) {
+			$main_slot_content = \JsonForms::getWikipageContent($targetTitle);
 		}
 
-		// trigger_error('$targetSlot ' . print_r($slots,1));
-
-		// @ATTENTION !! if freetext is NULL the slot content
-		// must not be edited in order to keep it unchanged
-		if ( $targetSlot !== 'main' ) {
+		if ($targetSlot !== "main") {
 			$slots[SlotRecord::MAIN] = [
-				'model' => $contentModelMainSlot,
-				'content' => $main_slot_content
+				"model" => $contentModelMainSlot,
+				"content" => $main_slot_content,
 			];
 		}
 
-		// set metadata
-		// JsonFormsHooks::$PageUpdate[$targetTitle->getFullText()] = $metadata;
-		$metadata = [
-			'slots' => [
-				SlotRecord::MAIN => [
-					'model' => $contentModelMainSlot,
-					'editor' => ( $contentModel === 'wikitext' ? 'WikiEditor' :
-						( $contentModelMainSlot === 'json' ? 'JsonEditor' : 'source' ) ) 
-				]
-			]
-		];
+		// Initialize metadata as object
+		$metadata = new \stdClass();
+		$metadata->slots = new \stdClass();
 
-		if ( $targetSlot !== 'main' ) {
-			$metadata['slots'][$targetSlot] = [
-				'editor' => 'JsonEditor',
-				'model' => 'json',
-				'schema' => $data['formDescriptor']['schema'],
-				// 'show_infobox' => $data['formDescriptor']['show_infobox'],
-				// 'infobox_template' => $data['formDescriptor']['infobox_template']
-			];
+		$metadata->slots->{SlotRecord::MAIN} = new \stdClass();
+		$metadata->slots->{SlotRecord::MAIN}->model = $contentModelMainSlot;
+		$metadata->slots->{SlotRecord::MAIN}->editor =
+			$contentModel === "wikitext"
+				? "WikiEditor"
+				: ($contentModelMainSlot === "json"
+					? "JsonEditor"
+					: "source");
+
+		if ($targetSlot !== "main") {
+			$metadata->slots->{$targetSlot} = new \stdClass();
+			$metadata->slots->{$targetSlot}->editor = "JsonEditor";
+			$metadata->slots->{$targetSlot}->model = "json";
+			$metadata->slots->{$targetSlot}->schema =
+				$data->formDescriptor->schema;
 		}
-
-		// 'ugroups' => $data['formDescriptor']['ugroups'],
 
 		if (
-			!empty( $data['options']['categories'] ) &&
-			is_array( $data['options']['categories'] )
+			!empty($data->options->categories) &&
+			is_array($data->options->categories)
 		) {
-			$metadata['categories'] = $data['options']['categories'];			
+			$metadata->categories = $data->options->categories;
 		}
 
-		// $previousMetadata = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
-		
-		// $previousData = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
-		// if ( $previousData ) {
-		// 	$metadata = \JsonForms::array_merge_recursive( $previousData, $metadata, true );
-		// }
-
 		$slots[SLOT_ROLE_JSONFORMS_METADATA] = [
-			'model' => 'json',
-			'content' =>  json_encode( $metadata )
+			"model" => "json",
+			"content" => json_encode($metadata),
 		];
 
-		// keep existing slots
-		$previousMetadata = \JsonForms::getMetadata( $wikiPage );
-		if ( $previousMetadata && isset( $previousMetadata['slots'] ) ) {
-			// $previousMetadata = json_decode( $previousMetadata, true );
-			$slots = $slots + $previousMetadata['slots'];
-
-			// foreach ( $previousMetadata as $key => $value ) {
-			// 	if ( !isset( $slots[$key] ) ) {
-			// 		$slots[$key] = $value;
-			// 	}
-			// }
+		// keep existing slots - $previousMetadata is an object
+		$previousMetadata = \JsonForms::getMetadata($wikiPage);
+		if (
+			$previousMetadata &&
+			isset($previousMetadata->slots) &&
+			is_object($previousMetadata->slots)
+		) {
+			// Convert object slots to array for merging
+			$previousSlotsArray = [];
+			foreach (
+				get_object_vars($previousMetadata->slots)
+				as $role => $slotData
+			) {
+				$previousSlotsArray[$role] = $slotData;
+			}
+			$slots = $slots + $previousSlotsArray;
 		}
 
 		$processedData = [
-			'slots' => $slots,
-			'targetTitle' => $targetTitle,
-			'targetSlot' => $targetSlot,
-			'isNewPage' => $isNewPage,
-			'contentModel' => $contentModel,
-			'main_slot_content' => $main_slot_content,
-			'metadata' => $metadata,
-			'movePage' => $movePage,
+			"slots" => $slots,
+			"targetTitle" => $targetTitle,
+			"targetSlot" => $targetSlot,
+			"isNewPage" => $isNewPage,
+			"contentModel" => $contentModel,
+			"main_slot_content" => $main_slot_content,
+			"metadata" => $metadata,
+			"movePage" => $movePage,
 		];
 
 		$returnData = [
-			'returnUrl' => $returnUrl,
-			'message' => $returnMessage,
-			'targetTitle' => $targetTitle->getFullText()
+			"returnUrl" => $returnUrl,
+			"message" => $returnMessage,
+			"targetTitle" => $targetTitle->getFullText(),
 		];
-		
-		return ResultWrapper::success( [ $processedData, $returnData ] );
-	}
 
+		return ResultWrapper::success([$processedData, $returnData]);
+		$processedData = [
+			"slots" => $slots,
+			"targetTitle" => $targetTitle,
+			"targetSlot" => $targetSlot,
+			"isNewPage" => $isNewPage,
+			"contentModel" => $contentModel,
+			"main_slot_content" => $main_slot_content,
+			"metadata" => $metadata,
+			"movePage" => $movePage,
+		];
+
+		$returnData = [
+			"returnUrl" => $returnUrl,
+			"message" => $returnMessage,
+			"targetTitle" => $targetTitle->getFullText(),
+		];
+
+		return ResultWrapper::success([$processedData, $returnData]);
+	}
 }
+

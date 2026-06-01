@@ -35,8 +35,8 @@ use RawMessage;
 use RequestContext;
 use Status;
 
-class SubmitForm {
-
+class SubmitForm
+{
 	/** @var Output */
 	protected $output;
 
@@ -53,7 +53,8 @@ class SubmitForm {
 	 * @param User $user
 	 * @param Context|null $context can be null
 	 */
-	public function __construct( $user, $context = null ) {
+	public function __construct($user, $context = null)
+	{
 		$this->user = $user;
 		// @ATTENTION ! use always Main context, in api
 		// context OutputPage -> parseAsContent works
@@ -66,7 +67,8 @@ class SubmitForm {
 	/**
 	 * @param Output $output
 	 */
-	protected function setOutput( $output ) {
+	protected function setOutput($output)
+	{
 		$this->output = $output;
 	}
 
@@ -74,18 +76,19 @@ class SubmitForm {
 	 * @param string|array $value
 	 * @return string
 	 */
-	protected function parseWikitext( $value ) {
+	protected function parseWikitext($value)
+	{
 		// return $this->parser->recursiveTagParseFully( $str );
-		$values = is_array( $value ) ? $value : [ $value ];
+		$values = is_array($value) ? $value : [$value];
 
 		$parsed = array_map(
-			fn ( $v ) => Parser::stripOuterParagraph(
-				$this->output->parseAsContent( $v )
+			fn($v) => Parser::stripOuterParagraph(
+				$this->output->parseAsContent($v),
 			),
-			$values
+			$values,
 		);
 
-		return is_array( $value ) ? $parsed : $parsed[0];
+		return is_array($value) ? $parsed : $parsed[0];
 	}
 
 	/**
@@ -95,7 +98,12 @@ class SubmitForm {
 	 * @param array &$errors
 	 * @return bool
 	 */
-	protected function createInitialRevision( $title, $content, $contentModel, &$errors = [] ) {
+	protected function createInitialRevision(
+		$title,
+		$content,
+		$contentModel,
+		&$errors = [],
+	) {
 		// "" will trigger an error by ContentHandler::makeContent
 		// if ( empty( $contentModel ) ) {
 		// 	$contentModel = null;
@@ -103,22 +111,28 @@ class SubmitForm {
 
 		// @see https://github.com/wikimedia/mediawiki/blob/master/includes/page/WikiPage.php
 		$flags = EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY | EDIT_INTERNAL;
-		$summary = 'JsonForms initial revision';
+		$summary = "JsonForms initial revision";
 
-		$wikiPage = \JsonForms::getWikiPage( $title );
-		$pageUpdater = $wikiPage->newPageUpdater( $this->user );
-		
+		$wikiPage = \JsonForms::getWikiPage($title);
+		$pageUpdater = $wikiPage->newPageUpdater($this->user);
+
 		$services = MediaWikiServices::getInstance();
 		$contentHandlerFactory = $services->getContentHandlerFactory();
-		$contentHandler = $contentHandlerFactory->getContentHandler( $contentModel );
-		
-		$main_content = !empty( $content ) ?
-			ContentHandler::makeContent( (string)$content, $title, $contentModel ) :
-			$contentHandler->makeEmptyContent();
+		$contentHandler = $contentHandlerFactory->getContentHandler(
+			$contentModel,
+		);
 
-		$pageUpdater->setContent( SlotRecord::MAIN, $main_content );
-		$comment = CommentStoreComment::newUnsavedComment( $summary );
-		$revisionRecord = $pageUpdater->saveRevision( $comment, $flags );
+		$main_content = !empty($content)
+			? ContentHandler::makeContent(
+				(string) $content,
+				$title,
+				$contentModel,
+			)
+			: $contentHandler->makeEmptyContent();
+
+		$pageUpdater->setContent(SlotRecord::MAIN, $main_content);
+		$comment = CommentStoreComment::newUnsavedComment($summary);
+		$revisionRecord = $pageUpdater->saveRevision($comment, $flags);
 		$status = $pageUpdater->getStatus();
 		return $status->isOK();
 	}
@@ -129,11 +143,13 @@ class SubmitForm {
 	 * @param string $model
 	 * @return Status
 	 */
-	protected function changeContentModel( $page, $model ) {
+	protected function changeContentModel($page, $model)
+	{
 		// $page = $this->wikiPageFactory->newFromTitle( $title );
 		// ***edited
-		$performer = ( method_exists( RequestContext::class, 'getAuthority' ) ? $this->context->getAuthority()
-			: $this->user );
+		$performer = method_exists(RequestContext::class, "getAuthority")
+			? $this->context->getAuthority()
+			: $this->user;
 		// ***edited
 		$services = $this->services;
 		$contentModelChangeFactory = $services->getContentModelChangeFactory();
@@ -142,26 +158,26 @@ class SubmitForm {
 			$performer,
 			$page,
 			// ***edited
-			$model
+			$model,
 		);
 		// MW 1.36+
-		if ( method_exists( ContentModelChange::class, 'authorizeChange' ) ) {
+		if (method_exists(ContentModelChange::class, "authorizeChange")) {
 			$permissionStatus = $changer->authorizeChange();
-			if ( !$permissionStatus->isGood() ) {
+			if (!$permissionStatus->isGood()) {
 				// *** edited
 				$out = $this->output;
-				$wikitext = $out->formatPermissionStatus( $permissionStatus );
+				$wikitext = $out->formatPermissionStatus($permissionStatus);
 				// Hack to get our wikitext parsed
-				return Status::newFatal( new RawMessage( '$1', [ $wikitext ] ) );
+				return Status::newFatal(new RawMessage('$1', [$wikitext]));
 			}
 		} else {
 			$errors = $changer->checkPermissions();
-			if ( $errors ) {
+			if ($errors) {
 				// *** edited
 				$out = $this->output;
-				$wikitext = $out->formatPermissionsErrorMessage( $errors );
+				$wikitext = $out->formatPermissionsErrorMessage($errors);
 				// Hack to get our wikitext parsed
-				return Status::newFatal( new RawMessage( '$1', [ $wikitext ] ) );
+				return Status::newFatal(new RawMessage('$1', [$wikitext]));
 			}
 		}
 		// Can also throw a ThrottledError, don't catch it
@@ -169,8 +185,8 @@ class SubmitForm {
 			// ***edited
 			$this->context,
 			// $data['reason'],
-			'',
-			true
+			"",
+			true,
 		);
 		return $status;
 	}
@@ -182,14 +198,21 @@ class SubmitForm {
 	 * @param array &$errors
 	 * @return bool
 	 */
-	protected function updateContentModel( $targetTitle, $wikiPage, $contentModel, &$errors ) {
-		$status = $this->changeContentModel( $wikiPage, $contentModel );
-		if ( !$status->isOK() ) {
-			$errors_ = $status->getErrorsByType( 'error' );
-			foreach ( $errors_ as $error ) {
-				$msg = array_merge( [ $error['message'] ], $error['params'] );
+	protected function updateContentModel(
+		$targetTitle,
+		$wikiPage,
+		$contentModel,
+		&$errors,
+	) {
+		$status = $this->changeContentModel($wikiPage, $contentModel);
+		if (!$status->isOK()) {
+			$errors_ = $status->getErrorsByType("error");
+			foreach ($errors_ as $error) {
+				$msg = array_merge([$error["message"]], $error["params"]);
 				// @see SpecialVisualData -> getMessage
-				$errors[] = \Message::newFromSpecifier( $msg )->setContext( $this->context )->parse();
+				$errors[] = \Message::newFromSpecifier($msg)
+					->setContext($this->context)
+					->parse();
 			}
 		}
 	}
@@ -199,93 +222,139 @@ class SubmitForm {
 	 * @param array $structuredValue
 	 * @return array
 	 */
-	protected function postProcessJsonData( $json, $structuredValue ) {
-	 	$callback = static function ( &$parent, $key, $value, $pathArr ) use ( $structuredValue ) {
-	 		$path = implode( '.', $pathArr );
-	 		
-	 		// strip writeOnly
-	 		if (
-	 			isset( $structuredValue[ $path ]['schema']['writeOnly'] ) &&
-	 			$structuredValue[ $path ]['schema']['writeOnly'] === true
-	 		) {
-	 			unset( $parent[$key] );
-	 		}
+	protected function postProcessJsonData($json, $structuredValue)
+	{
+		$callback = static function (&$parent, $key, $value, $pathArr) use (
+			$structuredValue,
+		) {
+			$path = implode(".", $pathArr);
+
+			// strip writeOnly
+			// Access as object: $structuredValue->$path instead of $structuredValue[$path]
+			if (
+				isset($structuredValue->$path) &&
+				isset($structuredValue->$path->schema->writeOnly) &&
+				$structuredValue->$path->schema->writeOnly === true
+			) {
+				// Remove property from object
+				unset($parent->$key);
+			}
 		};
 
-		return \JsonForms::traverseSchema( $json, $callback );
+		return \JsonForms::traverseSchema($json, $callback);
+	}
+
+	protected function postProcessJsonData_($json, $structuredValue)
+	{
+		$callback = static function (&$parent, $key, $value, $pathArr) use (
+			$structuredValue,
+		) {
+			$path = implode(".", $pathArr);
+
+			// strip writeOnly
+			if (
+				isset($structuredValue[$path]["schema"]["writeOnly"]) &&
+				$structuredValue[$path]["schema"]["writeOnly"] === true
+			) {
+				unset($parent[$key]);
+			}
+		};
+
+		return \JsonForms::traverseSchema($json, $callback);
 	}
 
 	/**
-	 * @param array $data
+	 * @param stdClass $data
 	 * @return array
 	 */
-	public function processData( $data ) {
-		$className = $data['processor'];
+	public function processData($data)
+	{
+		$className = $data->processor;
 		$class = "MediaWiki\Extension\JsonForms\SubmitProcessors\\{$className}";
 		if (!class_exists($class)) {
-			$errors[] = $this->context->msg( 'jsonforms-special-submit-processor-not-found' )->text();
+			$errors[] = $this->context
+				->msg("jsonforms-special-submit-processor-not-found")
+				->text();
 			return [
-				'errors' => $errors
+				"errors" => $errors,
 			];
 		}
 
 		$services = $this->services;
 
 		$errors = [];
-		$services->getHookContainer()->run( 'JsonForms::FormSubmitBeforeProcess', [
-			$this->user,
-			&$data,
-			&$errors
-		] );
+		$services
+			->getHookContainer()
+			->run("JsonForms::FormSubmitBeforeProcess", [
+				$this->user,
+				&$data,
+				&$errors,
+			]);
 
-		if ( count( $errors ) ) {
+		if (count($errors)) {
 			return [
-				'errors' => $errors
+				"errors" => $errors,
 			];
 		}
 
-		$submitProcessor = new $class( $this->user );
-		$res_ = $submitProcessor->processData( $data );
+		$submitProcessor = new $class($this->user);
+		$res_ = $submitProcessor->processData($data);
 
-		if ( !$res_->ok ) {
+		if (!$res_->ok) {
 			return [
-				'errors' => [ $res_->error ]
+				"errors" => [$res_->error],
 			];
 		}
 
-		[ $processedData, $returnData ] = $res_->value;
+		[$processedData, $returnData] = $res_->value;
 
 		// move page
-		if ( $processedData['movePage'] ) {
-			[ $oldTitle, $newTitle ] = $processedData['movePage'];
-			$reason = 'JsonForms move';
+		if ($processedData["movePage"]) {
+			[$oldTitle, $newTitle] = $processedData["movePage"];
+			$reason = "JsonForms move";
 			$createRedirect = false;
-			if ( !\JsonForms::movePage( $this->user, $oldTitle, $newTitle, $reason, $createRedirect ) ) {
+			if (
+				!\JsonForms::movePage(
+					$this->user,
+					$oldTitle,
+					$newTitle,
+					$reason,
+					$createRedirect,
+				)
+			) {
 				return [
-					'errors' => [ 
-						$this->context->msg( 'jsonforms-special-submit-move-error', $oldTitle->getFullText(), $newTitle->getFullText(),  )->text() 
-					]
+					"errors" => [
+						$this->context
+							->msg(
+								"jsonforms-special-submit-move-error",
+								$oldTitle->getFullText(),
+								$newTitle->getFullText(),
+							)
+							->text(),
+					],
 				];
 			}
 		}
 
-		$services->getHookContainer()->run( 'JsonForms::FormSubmitBeforeSave', [
-			$this->user,
-			&$data,
-			&$processedData,
-			&$errors
-		] );
+		$services
+			->getHookContainer()
+			->run("JsonForms::FormSubmitBeforeSave", [
+				$this->user,
+				&$data,
+				&$processedData,
+				&$errors,
+			]);
 
-		if ( count( $errors ) ) {
+		if (count($errors)) {
 			return [
-				'errors' => $errors
+				"errors" => $errors,
 			];
 		}
 
 		$slotEditor = new SlotEditor();
 
-		$summary = $data['options']['summary'] ?? '';
-		$minor = $data['options']['minor'] ?? false;
+		$summary = isset($data->options) ? $data->options->summary ?? "" : "";
+		$minor = isset($data->options) ? $data->options->minor ?? false : false;
 		$append = false;
 		$watchlist = "";
 		$prepend = false;
@@ -293,14 +362,14 @@ class SubmitForm {
 		$createonly = false;
 		$nocreate = false;
 		$suppress = false;
-		$updateStrategy = 'replace';
+		$updateStrategy = "replace";
 
-		$wikiPage = \JsonForms::getWikiPage( $processedData['targetTitle'] );
+		$wikiPage = \JsonForms::getWikiPage($processedData["targetTitle"]);
 
 		$ret = $slotEditor->editSlots(
 			$this->user,
 			$wikiPage,
-			$processedData['slots'],
+			$processedData["slots"],
 			$summary,
 			$append,
 			$watchlist,
@@ -310,34 +379,37 @@ class SubmitForm {
 			$createonly,
 			$nocreate,
 			$suppress,
-			$updateStrategy
+			$updateStrategy,
 		);
 
-		if ( $ret !== true ) {
+		if ($ret !== true) {
 			$errors = $ret;
 			return [
-				'errors' => $errors
-			];	
+				"errors" => $errors,
+			];
 		}
 
 		// \JsonForms::setMetadata( $this->context, $wikiPage, $metadata );
-		if ( !$processedData['isNewPage'] ) {
+		if (!$processedData["isNewPage"]) {
 			$wikiPage->doPurge();
 		}
 
-		$services->getHookContainer()->run( 'JsonForms::FormSubmitSuccess', [
-			$this->user,
-			$data,
-			$processedData,
-			&$errors
-		] );
+		$services
+			->getHookContainer()
+			->run("JsonForms::FormSubmitSuccess", [
+				$this->user,
+				$data,
+				$processedData,
+				&$errors,
+			]);
 
-		if ( count( $errors ) ) {
+		if (count($errors)) {
 			return [
-				'errors' => $errors
+				"errors" => $errors,
 			];
 		}
 
 		return $returnData;
 	}
 }
+

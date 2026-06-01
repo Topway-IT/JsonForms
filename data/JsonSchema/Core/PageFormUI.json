@@ -69,6 +69,7 @@
 			},
 			"properties": {
 				"editor": {
+					"x-css-class": "jsonforms-innerform-editor",
 					"type": "string",
 					"x-format": "json",
 					"x-compact": true,
@@ -79,7 +80,7 @@
 				},
 				"options": {
 					"type": "object",
-					"x-compact": true,
+					"title": "",
 					"x-css-class": "jsonforms-innerform-options",
 					"properties": {
 						"title": {

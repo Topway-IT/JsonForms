@@ -107,8 +107,7 @@
 	},
 	"properties": {
 		"form": {
-			"x-compact": true,
-			"title": "regular",
+			"title": "",
 			"description": "Regular wiki article (only main slot)",
 			"$ref": "#/definitions/article"
 		},

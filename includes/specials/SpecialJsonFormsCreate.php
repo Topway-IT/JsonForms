@@ -78,7 +78,7 @@ class SpecialJsonFormsCreate extends SpecialPage {
 		$jsonForm = \JsonForms::getSourceSchema( $schema, 'JsonSchema/Core' );
 		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		$formData = [
+		$formData = (object)[
 			'schema' => $jsonForm,
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',

@@ -465,7 +465,6 @@
 						"hidden",
 						"month",
 						"rating",
-						"stripe",
 						"tel",
 						"text",
 						"textarea",
@@ -543,8 +542,17 @@
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"path": "x-input",
-						"op": "exists"
+						"and": [
+							{
+								"path": "x-input",
+								"op": "exists"
+							},
+							{
+								"path": "x-input",
+								"op": "!=",
+								"value": ""
+							}
+						]							
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -660,8 +668,17 @@
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"path": "x-input",
-						"op": "exists"
+						"and": [
+							{
+								"path": "x-input",
+								"op": "exists"
+							},
+							{
+								"path": "x-input",
+								"op": "!=",
+								"value": ""
+							}
+						]							
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -759,8 +776,17 @@
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"path": "x-input",
-						"op": "exists"
+						"and": [
+							{
+								"path": "x-input",
+								"op": "exists"
+							},
+							{
+								"path": "x-input",
+								"op": "!=",
+								"value": ""
+							}
+						]							
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -824,8 +850,17 @@
 				"x-input-config": {
 					"type": "object",
 					"x-dependency": {
-						"path": "x-input",
-						"op": "exists"
+						"and": [
+							{
+								"path": "x-input",
+								"op": "exists"
+							},
+							{
+								"path": "x-input",
+								"op": "!=",
+								"value": ""
+							}
+						]							
 					},
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
@@ -1013,16 +1048,24 @@
 						"OO.ui.TagMultiselectWidget"
 					],
 					"default": "",
-					"description": "Widget type for array input"
+					"description": "Widget type for array's items (leave empty if not primitives)"
 				},
 				"x-input-config": {
 					"type": "object",
 					"description": "Configuration options passed to the selected input widget",
 					"x-watch": "x-input",
 					"x-dependency": {
-						"path": "x-input",
-						"op": "!=",
-						"value": ""
+						"and": [
+							{
+								"path": "x-input",
+								"op": "exists"
+							},
+							{
+								"path": "x-input",
+								"op": "!=",
+								"value": ""
+							}
+						]							
 					},
 					"links": [
 						{

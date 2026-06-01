@@ -155,6 +155,22 @@
 							"description": "Whether to show an infobox on the target page",
 							"default": true
 						},
+						"infobox_position": {
+							"type": "string",
+							"title": "Infobox position",
+							"enum": [
+								"right",
+								"left",
+								"top",
+								"bottom"
+							],
+							"default": "right",
+							"x-dependency": {
+								"path": "show_infobox",
+								"op": "==",
+								"value": true
+							}
+						},
 						"infobox_template": {
 							"type": "string",
 							"title": "Infobox template",

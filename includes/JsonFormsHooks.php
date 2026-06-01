@@ -24,11 +24,11 @@
 use MediaWiki\Extension\JsonForms\Aliases\Title as TitleClass;
 use MediaWiki\Extension\JsonForms\SlotEditor;
 
-define( 'SLOT_ROLE_JSONFORMS_DATA', 'jsonforms-data' );
-define( 'SLOT_ROLE_JSONFORMS_METADATA', 'jsonforms-metadata' );
+define("SLOT_ROLE_JSONFORMS_DATA", "jsonforms-data");
+define("SLOT_ROLE_JSONFORMS_METADATA", "jsonforms-metadata");
 
-class JsonFormsHooks {
-
+class JsonFormsHooks
+{
 	/** @var array */
 	public static $PageUpdate = [];
 
@@ -36,131 +36,107 @@ class JsonFormsHooks {
 	 * @param array $credits
 	 * @return void
 	 */
-	public static function initExtension( $credits = [] ) {
-	}
+	public static function initExtension($credits = []) {}
 
 	/**
 	 * @param Parser $parser
 	 */
-	public static function onParserFirstCallInit( Parser $parser ) {
-		$parser->setFunctionHook( 'jsonforms', [ \JsonForms::class, 'parserFunctionForm' ] );
-		$parser->setFunctionHook( 'jsonformsrender', [ \JsonForms::class, 'parserFunctionRender' ] );
-		$parser->setFunctionHook( 'jsonformsquerylink', [ \JsonForms::class, 'parserFunctionQueryLink' ] );
+	public static function onParserFirstCallInit(Parser $parser)
+	{
+		$parser->setFunctionHook("jsonforms", [
+			\JsonForms::class,
+			"parserFunctionForm",
+		]);
+		$parser->setFunctionHook("jsonformsrender", [
+			\JsonForms::class,
+			"parserFunctionRender",
+		]);
+		$parser->setFunctionHook("jsonformsquerylink", [
+			\JsonForms::class,
+			"parserFunctionQueryLink",
+		]);
 	}
 
 	/**
 	 * @param DatabaseUpdater|null $updater
 	 */
-	public static function onLoadExtensionSchemaUpdates( ?DatabaseUpdater $updater = null ) {
-	}
+	public static function onLoadExtensionSchemaUpdates(
+		?DatabaseUpdater $updater = null,
+	) {}
 
 	/**
 	 * @param MediaWikiServices $services
 	 * @return void
 	 */
-	public static function onMediaWikiServices( $services ) {
-		$services->addServiceManipulator( 'SlotRoleRegistry', static function ( \MediaWiki\Revision\SlotRoleRegistry $registry ) {
-			if ( !$registry->isDefinedRole( SLOT_ROLE_JSONFORMS_DATA ) ) {
-				$registry->defineRoleWithModel( SLOT_ROLE_JSONFORMS_DATA, 'json', [
-					'display' => 'none',
-					'region' => 'center',
-					'placement' => 'append'
-				] );
+	public static function onMediaWikiServices($services)
+	{
+		$services->addServiceManipulator("SlotRoleRegistry", static function (
+			\MediaWiki\Revision\SlotRoleRegistry $registry,
+		) {
+			if (!$registry->isDefinedRole(SLOT_ROLE_JSONFORMS_DATA)) {
+				$registry->defineRoleWithModel(
+					SLOT_ROLE_JSONFORMS_DATA,
+					"json",
+					[
+						"display" => "none",
+						"region" => "center",
+						"placement" => "append",
+					],
+				);
 			}
-			if ( !$registry->isDefinedRole( SLOT_ROLE_JSONFORMS_METADATA ) ) {
-				$registry->defineRoleWithModel( SLOT_ROLE_JSONFORMS_METADATA, 'json', [
-					'display' => 'none',
-					'region' => 'center',
-					'placement' => 'append'
-				] );
+			if (!$registry->isDefinedRole(SLOT_ROLE_JSONFORMS_METADATA)) {
+				$registry->defineRoleWithModel(
+					SLOT_ROLE_JSONFORMS_METADATA,
+					"json",
+					[
+						"display" => "none",
+						"region" => "center",
+						"placement" => "append",
+					],
+				);
 			}
-		} );
-	}
-
-	/**
-	 * @param array $scriptSrc
-	 * @param array $policyConfig
-	 * @param int &$mode
-	 * @return void
-	 */
-	public static function onContentSecurityPolicyScriptSource( array &$scriptSrc, array $policyConfig, int $mode ) {
-        // $scriptSrc[] = 'https://js.stripe.com';    
-
-		// Allow data: URLs (needed for dynamically imported modules)
-		// $scriptSrc[] = 'data:';
-
-        return true;
+		});
 	}
 
 	/**
 	 * @param User $user
-	 * @param array &$submittedData
+	 * @param stdClass &$submittedData
 	 * @param array &$errors
 	 * @return void
 	 */
-	public static function onFormSubmitBeforeProcess( User $user, array &$submittedData, &$errors = [] ) {
-	}
+	public static function onFormSubmitBeforeProcess(
+		User $user,
+		stdClass &$submittedData,
+		&$errors = [],
+	) {}
 
 	/**
 	 * @param User $user
-	 * @param array $submittedData
+	 * @param stdClass $submittedData
 	 * @param array &$processedData
 	 * @param array &$errors
 	 * @return void
 	 */
-	public static function onFormSubmitBeforeSave( User $user, array $submittedData, array &$processedData, &$errors = [] ) {
-	   	if ( isset( $submittedData['value']['paymentMethodId'] ) ) {
-			$stripe = new MediaWiki\Extension\JsonForms\StripePayment( $GLOBALS['wgJsonFormsStripeSecretKey'] );
-			// $stripe->createPaymentIntent( $submitteData['paymentMethodId'] );
-
-			$paymentMethodId = $submittedData['value']['paymentMethodId'];
-
-   			$content = $processedData['slots'][$processedData['targetSlot']]['content'];
-   			$content = SlotEditor::parseMaybeJSON( $content );
-
-			// create customer with payment method
-			try {
-				$customerData = [
-					'name' => $content['name'],
-					'email' => $content['email'],
-					'payment_method' => $paymentMethodId,
-				];
-
-				$customer = $stripe->createCustomer( $customerData );
-
-			} catch (\Exception $e) {
-				$errors[] = $e->getMessage();
-				return;
-			}
-
-			$customerId = $customer->id;
-			$product_id = 'prod_U75pdGkYlfKVLm';
-			try {
-				$ret = $stripe->createPaymentIntentForProduct($product_id, $customerId, $paymentMethodId);
-				$paymentIntentData = $ret->toArray();
-
-    			if ($ret->status !== 'succeeded' && !empty($ret->next_action)) {
-     			   $paymentIntentData['next_action'] = $ret->next_action;
-    			}
-
-   				$content['paymentIntentData'] = $paymentIntentData;
-   				$processedData['slots'][$processedData['targetSlot']]['content'] = json_encode( $content );
-
-			} catch (\Exception $e) {
-				$errors[] = $e->getMessage();
-			}
-	   	}
-	}
+	public static function onFormSubmitBeforeSave(
+		User $user,
+		stdClass $submittedData,
+		array &$processedData,
+		&$errors = [],
+	) {}
 
 	/**
 	 * @param User $user
-	 * @param array $submittedData
+	 * @param stdClass $submittedData
 	 * @param array $processedData
 	 * @param array &$errors
 	 * @return void
 	 */
-	public static function onJsonFormsFormSubmitSuccess( User $user, array $submittedData, array $processedData, &$errors = [] ) {
-	}
+	public static function onJsonFormsFormSubmitSuccess(
+		User $user,
+		stdClass $submittedData,
+		array $processedData,
+		&$errors = [],
+	) {}
 
 	/**
 	 * @param Content $content
@@ -168,39 +144,47 @@ class JsonFormsHooks {
 	 * @param ParserOutput &$parserOutput
 	 * @return void
 	 */
-	public static function onContentAlterParserOutput( Content $content, $title, ParserOutput &$parserOutput ) {
+	public static function onContentAlterParserOutput(
+		Content $content,
+		$title,
+		ParserOutput &$parserOutput,
+	) {
 		// $key = $title->getFullText();
 		// if ( self::$PageUpdate[$key] ) {
 		//	$parserOutput->setExtensionData( 'JsonForms', self::$PageUpdate[$key] );
 		//}
 
-		$wikiPage = \JsonForms::getWikiPage( $title );
-		if ( !$wikiPage ) {
+		$wikiPage = \JsonForms::getWikiPage($title);
+		if (!$wikiPage) {
 			return;
 		}
 
-		$data = \JsonForms::getSlotContent( $wikiPage, SLOT_ROLE_JSONFORMS_METADATA );
+		$data = \JsonForms::getSlotContent(
+			$wikiPage,
+			SLOT_ROLE_JSONFORMS_METADATA,
+		);
 
 		// $data = $parserOutput->getExtensionData( 'JsonForms' );
-		if ( !$data ) {
+		if (!$data) {
 			return;
 		}
 
-		$data = json_decode( $data, true );
+		$data = json_decode($data, true);
 
 		// this includes annotated categories and tracking categories
-		$getCategoriesMethod = ( version_compare( MW_VERSION, '1.38', '>=' ) ?
-			'getCategoryNames' : 'getCategoryLinks' );
+		$getCategoriesMethod = version_compare(MW_VERSION, "1.38", ">=")
+			? "getCategoryNames"
+			: "getCategoryLinks";
 
 		$categoryNames = $parserOutput->$getCategoriesMethod();
 
-		foreach ( $categoryNames as $category ) {
-			$parserOutput->addCategory( $category );
+		foreach ($categoryNames as $category) {
+			$parserOutput->addCategory($category);
 		}
 
-		if ( $data && !empty( $data['categories'] ) ) {
-			foreach ( $data['categories'] as $category ) {
-				$parserOutput->addCategory( $category );
+		if ($data && !empty($data["categories"])) {
+			foreach ($data["categories"] as $category) {
+				$parserOutput->addCategory($category);
 			}
 		}
 	}
@@ -210,7 +194,18 @@ class JsonFormsHooks {
 	 * @param Skin $skin
 	 * @return void
 	 */
-	public static function onBeforePageDisplay( OutputPage $outputPage, Skin $skin ) {
+	public static function onBeforePageDisplay(
+		OutputPage $outputPage,
+		Skin $skin,
+	) {
+		$articleUrl = RequestContext::getMain()->getTitle()->getLocalURL();
+		$requestUrl = $skin->getRequest()->getRequestURL();
+
+		if (\JsonForms::isKnownArticle($outputPage->getTitle()) && 
+			$articleUrl === $requestUrl
+		) {
+			\JsonForms::appendContent($outputPage);
+		}
 	}
 
 	/**
@@ -218,45 +213,72 @@ class JsonFormsHooks {
 	 * @param array &$links
 	 * @return void
 	 */
-	public static function onSkinTemplateNavigation( SkinTemplate $skinTemplate, array &$links ) {
+	public static function onSkinTemplateNavigation(
+		SkinTemplate $skinTemplate,
+		array &$links,
+	) {
 		$user = $skinTemplate->getUser();
 		$title = $skinTemplate->getTitle();
 
-		if ( !$title->canExist() ) {
+		if (!$title->canExist()) {
 			return;
 		}
 
 		$errors = [];
-		if ( \JsonForms::checkWritePermissions( $user, $title, $errors ) &&
+		if (
+			\JsonForms::checkWritePermissions($user, $title, $errors) &&
 			!$title->isSpecialPage()
-		 ) {
-		 
-		 	$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
-			if ( count( array_intersect( $groups, \JsonForms::getUserGroups( $user ) ) ) ) {
+		) {
+			$groups = ["sysop", "bureaucrat", "jsonforms-admin"];
+			if (
+				count(
+					array_intersect($groups, \JsonForms::getUserGroups($user)),
+				)
+			) {
 				$link = [
-					'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'slotedit' ? 'selected' : '' ),
-					'text' => wfMessage( 'jsonforms-slotedit-label' )->text(),
-					'href' => $title->getLocalURL( 'action=slotedit' )
+					"class" =>
+						$skinTemplate->getRequest()->getVal("action") ===
+						"slotedit"
+							? "selected"
+							: "",
+					"text" => wfMessage("jsonforms-slotedit-label")->text(),
+					"href" => $title->getLocalURL("action=slotedit"),
 				];
 
-				$keys = array_keys( $links['views'] );
-				$pos = array_search( 'edit', $keys );
+				$keys = array_keys($links["views"]);
+				$pos = array_search("edit", $keys);
 
-				$links['views'] = array_intersect_key( $links['views'], array_flip( array_slice( $keys, 0, $pos + 1 ) ) )
-					+ [ 'slotedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
+				$links["views"] =
+					array_intersect_key(
+						$links["views"],
+						array_flip(array_slice($keys, 0, $pos + 1)),
+					) + ["slotedit" => $link] +
+					array_intersect_key(
+						$links["views"],
+						array_flip(array_slice($keys, $pos + 1)),
+					);
 			}
-			$keys = array_keys( $links['views'] );
-			$pos = array_search( 'edit', $keys );
+			$keys = array_keys($links["views"]);
+			$pos = array_search("edit", $keys);
 
 			$link = [
-				'class' => ( $skinTemplate->getRequest()->getVal( 'action' ) === 'jsonedit' ? 'selected' : '' ),
-				'text' => wfMessage( 'jsonforms-jsonedit-label' )->text(),
-				'href' => $title->getLocalURL( 'action=jsonedit' )
+				"class" =>
+					$skinTemplate->getRequest()->getVal("action") === "jsonedit"
+						? "selected"
+						: "",
+				"text" => wfMessage("jsonforms-jsonedit-label")->text(),
+				"href" => $title->getLocalURL("action=jsonedit"),
 			];
-			
-			$links['views'] = array_intersect_key( $links['views'], array_flip( array_slice( $keys, 0, $pos + 1 ) ) )
-				+ [ 'jsonedit' => $link ] + array_intersect_key( $links['views'], array_flip( array_slice( $keys, $pos + 1 ) ) );
-			
+
+			$links["views"] =
+				array_intersect_key(
+					$links["views"],
+					array_flip(array_slice($keys, 0, $pos + 1)),
+				) + ["jsonedit" => $link] +
+				array_intersect_key(
+					$links["views"],
+					array_flip(array_slice($keys, $pos + 1)),
+				);
 		}
 	}
 
@@ -275,7 +297,7 @@ class JsonFormsHooks {
 		OutputPage $output,
 		User $user,
 		WebRequest $request,
-		/* MediaWiki|MediaWiki\Actions\ActionEntryPoint */ $mediaWiki
+		/* MediaWiki|MediaWiki\Actions\ActionEntryPoint */ $mediaWiki,
 	) {
 		\JsonForms::initialize();
 	}
@@ -285,16 +307,19 @@ class JsonFormsHooks {
 	 * @param ParserOutput $parserOutput
 	 * @return void
 	 */
-	public static function onOutputPageParserOutput( OutputPage $out, ParserOutput $parserOutput ) {
+	public static function onOutputPageParserOutput(
+		OutputPage $out,
+		ParserOutput $parserOutput,
+	) {
 		$title = $out->getTitle();
 		$user = $out->getUser();
 
-		if ( $parserOutput->getExtensionData( 'jsonforms' ) !== null ) {
-			\JsonForms::addJsConfigVars( $out, [
-				'context' => 'parserfunction'
-			] );
+		if ($parserOutput->getExtensionData("jsonforms") !== null) {
+			\JsonForms::addJsConfigVars($out, [
+				"context" => "parserfunction",
+			]);
 
-			$out->addModules( 'ext.JsonForms.pageForms' );
+			$out->addModules("ext.JsonForms.pageForms");
 		}
 	}
 
@@ -303,52 +328,63 @@ class JsonFormsHooks {
 	 * @param array &$bar
 	 * @return void
 	 */
-	public static function onSkinBuildSidebar( $skin, &$bar ) {
-		if ( !empty( $GLOBALS['wgJsonFormsDisableSidebarLink'] ) ) {
+	public static function onSkinBuildSidebar($skin, &$bar)
+	{
+		if (!empty($GLOBALS["wgJsonFormsDisableSidebarLink"])) {
 			return;
 		}
 
 		$user = $skin->getUser();
 		$title = $skin->getTitle();
 
-		if ( $user->isAllowed( 'edit' ) ) {
-			$specialpage_title = SpecialPage::getTitleFor( 'JsonForms' );
-			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
-				'text'   => wfMessage( 'jsonforms-forms' )->text(),
-				'class'   => "jsonforms-forms",
-				'href'   => $specialpage_title->getLocalURL()
+		if ($user->isAllowed("edit")) {
+			$specialpage_title = SpecialPage::getTitleFor("JsonForms");
+			$bar[wfMessage("jsonforms-sidepanel-section")->text()][] = [
+				"text" => wfMessage("jsonforms-forms")->text(),
+				"class" => "jsonforms-forms",
+				"href" => $specialpage_title->getLocalURL(),
 			];
 
-			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsCreate' );
-			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
-				'text'   => wfMessage( 'jsonforms-new-article' )->text(),
-				'class'   => "jsonforms-new-article",
-				'href'   => $specialpage_title->getLocalURL()
-			];
-		}
-
-		if ( $user->isAllowed( 'jsonforms-canmanageforms' ) ) {
-			$specialpage_title =SpecialPage::getTitleFor( 'JsonFormsManage', 'Forms' );
-			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
-				'text'   => wfMessage( 'jsonforms-sidepanel-managesforms' )->text(),
-				'href'   => $specialpage_title->getLocalURL()
+			$specialpage_title = SpecialPage::getTitleFor("JsonFormsCreate");
+			$bar[wfMessage("jsonforms-sidepanel-section")->text()][] = [
+				"text" => wfMessage("jsonforms-new-article")->text(),
+				"class" => "jsonforms-new-article",
+				"href" => $specialpage_title->getLocalURL(),
 			];
 		}
 
-		if ( $user->isAllowed( 'jsonforms-canmanageschemas' ) ) {
-			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsManage', 'Schemas' );
-			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
-				'text'   => wfMessage( 'jsonforms-sidepanel-manageschemas' )->text(),
-				'href'   => $specialpage_title->getLocalURL()
+		if ($user->isAllowed("jsonforms-canmanageforms")) {
+			$specialpage_title = SpecialPage::getTitleFor(
+				"JsonFormsManage",
+				"Forms",
+			);
+			$bar[wfMessage("jsonforms-sidepanel-section")->text()][] = [
+				"text" => wfMessage("jsonforms-sidepanel-managesforms")->text(),
+				"href" => $specialpage_title->getLocalURL(),
 			];
 		}
 
-		$groups = [ 'sysop', 'bureaucrat', 'jsonforms-admin' ];
-		if ( count( array_intersect( $groups, \JsonForms::getUserGroups( $user ) ) ) ) {			
-			$specialpage_title = SpecialPage::getTitleFor( 'JsonFormsSlotManager' );
-			$bar[ wfMessage( 'jsonforms-sidepanel-section' )->text() ][] = [
-				'text'   => wfMessage( 'jsonforms-sidepanel-slotmanager' )->text(),
-				'href'   => $specialpage_title->getLocalURL()
+		if ($user->isAllowed("jsonforms-canmanageschemas")) {
+			$specialpage_title = SpecialPage::getTitleFor(
+				"JsonFormsManage",
+				"Schemas",
+			);
+			$bar[wfMessage("jsonforms-sidepanel-section")->text()][] = [
+				"text" => wfMessage(
+					"jsonforms-sidepanel-manageschemas",
+				)->text(),
+				"href" => $specialpage_title->getLocalURL(),
+			];
+		}
+
+		$groups = ["sysop", "bureaucrat", "jsonforms-admin"];
+		if (count(array_intersect($groups, \JsonForms::getUserGroups($user)))) {
+			$specialpage_title = SpecialPage::getTitleFor(
+				"JsonFormsSlotManager",
+			);
+			$bar[wfMessage("jsonforms-sidepanel-section")->text()][] = [
+				"text" => wfMessage("jsonforms-sidepanel-slotmanager")->text(),
+				"href" => $specialpage_title->getLocalURL(),
 			];
 		}
 	}
@@ -359,6 +395,10 @@ class JsonFormsHooks {
 	 * @param Config $config
 	 * @return void
 	 */
-	public static function onResourceLoaderGetConfigVars( &$vars, $skin, $config ) {
-	}
+	public static function onResourceLoaderGetConfigVars(
+		&$vars,
+		$skin,
+		$config,
+	) {}
 }
+

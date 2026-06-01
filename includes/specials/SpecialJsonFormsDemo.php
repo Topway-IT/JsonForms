@@ -59,7 +59,7 @@ class SpecialJsonFormsDemo extends SpecialPage {
 		$jsonForm = \JsonForms::getSourceSchema( 'DemoForm', 'JsonSchema/Core' );
 		// $jsonForm = \JsonForms::processSchema( $out, $jsonForm );
 
-		$formData = [
+		$formData = (object)[
 			'schema' => $jsonForm,
 			'editorOptions' => 'MediaWiki:DefaultEditorOptions',
 			'editorScript'=> 'MediaWiki:DefaultEditorScript',

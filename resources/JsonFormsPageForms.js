@@ -216,11 +216,11 @@ JsonForms.prototype.initButtons = function (jsonEditor) {
 		gobackButton.theme.toggle(gobackButton.container, false);
 	}
 
-	if ( summaryInput ) {
+	if (summaryInput) {
 		summaryInput.theme.toggle(summaryInput.container, false);
 	}
 
-	if ( minorInput ) {
+	if (minorInput) {
 		minorInput.theme.toggle(minorInput.container, false);
 	}
 };
@@ -310,6 +310,8 @@ JsonForms.prototype.createPopup = async function (config) {
 			dialog.optionsEditor = jsonFormsOptions.createEditor(elOptions, {
 				display_path: 'form.options',
 				startval: this.startval,
+				// used by this.theme $overlay
+				dialog,
 				schema: config.schema,
 			});
 			panelB.$element.append(elOptions);
@@ -362,6 +364,10 @@ JsonForms.prototype.createPopup = async function (config) {
 						const innerEditorValidationResults = innerEditor.validate();
 
 						if (innerEditorValidationResults.length) {
+							console.log(
+								'innerEditorValidationResults',
+								innerEditorValidationResults,
+							);
 							JsonForms.Alert('there are errors');
 							return;
 						} else {
@@ -377,24 +383,40 @@ JsonForms.prototype.createPopup = async function (config) {
 				case 'validate&submit':
 				case 'submit':
 				case 'delete': {
+					const optionsEditor = dialog.optionsEditor;
+					const optionsEditorValidationResults = optionsEditor.validate();
+
+					if (optionsEditorValidationResults.length) {
+						console.log(
+							'optionsEditorValidationResults',
+							optionsEditorValidationResults,
+						);
+						JsonForms.Alert('there are errors');
+						return;
+					}
+
 					const innerformEditor = dialog.editor.getEditor('root.form.editor');
 					const innerEditor = innerformEditor.input.editor;
 
 					const innerEditorValidationResults = innerEditor.validate();
 
 					if (innerEditorValidationResults.length) {
+						console.log(
+							'innerEditorValidationResults',
+							innerEditorValidationResults,
+						);
 						JsonForms.Alert('there are errors');
 						return;
-					} else {
-						return getActionProcess.call(this, action).next(() => {
-							// return promise
-							const optionsEditor =
-								dialog.optionsEditor.getEditor('root.form.options');
-							return this.submitForm(innerEditor, optionsEditor).then((res) => {
-								dialog.close({ action });
-							});
-						});
 					}
+					return getActionProcess.call(this, action).next(() => {
+						// return promise
+						const optionsEditorOptions = optionsEditor.getEditor('root.form.options');
+						return this.submitForm(innerEditor, optionsEditorOptions).then((res) => {
+							if (res !== false) {
+								dialog.close({ action });
+							}
+						});
+					});
 				}
 			}
 		},
@@ -429,9 +451,6 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 	// console.log('editor',editor)
 	// console.log('this.editor',this.editor)
 
-	// @TODO @ATTENTION
-	// this.editor is wrong when there are more than 2 forms
-	// and first is validated/submitted
 	const jsonEditor = editor.jsoneditor;
 	const formEditor = jsonEditor.getEditor('root.form');
 
@@ -458,6 +477,11 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 				jsonEditorValidationResults.length ||
 				innerEditorValidationResults.length
 			) {
+				console.log('jsonEditorValidationResults', jsonEditorValidationResults);
+				console.log(
+					'innerEditorValidationResults',
+					innerEditorValidationResults,
+				);
 				JsonForms.Alert('there are errors');
 				return;
 			} else {
@@ -475,12 +499,12 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 
 			const summaryInput = jsonEditor.getEditor('root.footer.summary');
 			const minorInput = jsonEditor.getEditor('root.footer.minor');
-			
-			if ( summaryInput ) {
+
+			if (summaryInput) {
 				summaryInput.theme.toggle(summaryInput.container, false);
 			}
-			
-			if ( minorInput ) {
+
+			if (minorInput) {
 				minorInput.theme.toggle(minorInput.container, false);
 			}
 			break;
@@ -490,7 +514,14 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 			console.log('innerEditorValidationResults', innerEditorValidationResults);
 
 			// the inner editor
-			if (innerEditorValidationResults.length === 0) {
+			if (innerEditorValidationResults.length) {
+				console.log(
+					'innerEditorValidationResults',
+					innerEditorValidationResults,
+				);
+				JsonForms.Alert('there are errors');
+				return;
+			} else {
 				booklet.setPage('options');
 				validateButton.theme.toggle(validateButton.container, false);
 				submitButton.theme.toggle(submitButton.container, true);
@@ -498,17 +529,14 @@ JsonFormsPageForm.prototype.onNavButton = function (editor) {
 
 				const summaryInput = jsonEditor.getEditor('root.footer.summary');
 				const minorInput = jsonEditor.getEditor('root.footer.minor');
-				
-				if ( summaryInput ) {
+
+				if (summaryInput) {
 					summaryInput.theme.toggle(summaryInput.container, true);
 				}
-				
-				if ( minorInput ) {
+
+				if (minorInput) {
 					minorInput.theme.toggle(minorInput.container, true);
 				}
-			} else {
-				JsonForms.Alert('there are errors');
-				return;
 			}
 		}
 	}
@@ -528,7 +556,12 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 	// Create a shallow copy to avoid mutating the original
 	const formDescriptor = { ...this.formDescriptor };
 
-	const substitutions = ['pagename_formula', 'preload_wikitext', 'return_url'];
+	const substitutions = [
+		'pagename_formula',
+		'preload_wikitext',
+		'return_url',
+		'return_page',
+	];
 	for (const field of substitutions) {
 		if (formDescriptor[field]) {
 			formDescriptor[field] = this.processTemplate(
@@ -588,6 +621,7 @@ JsonFormsPageForm.prototype.submitForm = function (innerEditor, optionsEditor) {
 						),
 						type: 'error',
 					};
+					resolve(false);
 					const nonModalDialog = new JsonForms.NonModalDialog();
 					nonModalDialog.open(config);
 				} else {
@@ -667,8 +701,6 @@ $(function () {
 			textareaB.val(JSON.stringify(Object.keys(editor.editors), null, 2));
 		});
 */
-		// console.log('editor', editor);
-		// console.log('editor.editors', editor.editors);
 	});
 });
 

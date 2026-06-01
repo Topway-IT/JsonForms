@@ -1,7 +1,7 @@
 {
 	"name": "JsonForms",
 	"author": "thomas-topway-it",
-	"version": "0.9",
+	"version": "1.0",
 	"url": "https://www.mediawiki.org/wiki/Extension:JsonForms",
 	"descriptionmsg": "jsonforms-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -53,7 +53,6 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "JsonFormsHooks::onLoadExtensionSchemaUpdates",
 		"MediaWikiServices": "JsonFormsHooks::onMediaWikiServices",
-		"ContentSecurityPolicyScriptSource": "JsonFormsHooks::onContentSecurityPolicyScriptSource",		
 		"ContentAlterParserOutput": "JsonFormsHooks::onContentAlterParserOutput",
 		"BeforeInitialize": "JsonFormsHooks::onBeforeInitialize",
 		"ParserFirstCallInit": "JsonFormsHooks::onParserFirstCallInit",
@@ -87,12 +86,12 @@
 			"jsonforms-canmanageschemas": true,
 			"jsonforms-canmanageforms": true
 		},
-		"visualdata-admin": {
+		"jsonforms-editor": {
 			"jsonforms-caneditdata": true,
 			"jsonforms-canmanageschemas": true,
 			"jsonforms-canmanageforms": true
 		},
-		"jsonforms-editor": {
+		"jsonforms-admin": {
 			"jsonforms-caneditdata": true,
 			"jsonforms-canmanageschemas": true,
 			"jsonforms-canmanageforms": true
@@ -174,8 +173,6 @@
 				"datatables/datatables.min.js",
 				"libs/autocomplete.min.js",
 				"libs/handlebars.min.js",
-				"libs/imask.min.js",
-				"libs/signature_pad.umd.min.js",
 				"libs/split.min.js",
 				"libs/intl-tel-input/js/intlTelInput.js",
 				"editor/jsonforms-editor.js",
@@ -229,6 +226,19 @@
 			"messages": ["jsonforms-jsmodule-return-errors"],
 			"position": "top"
 		},
+		"ext.JsonForms.infobox": {
+			"localBasePath": "resources",
+			"remoteExtPath": "JsonForms/resources",
+			"styles": [
+				"styleInfobox.css"
+			],
+			"scripts": [
+			],
+			"dependencies": [
+			],
+			"messages": [],
+			"position": "top"
+		},
 		"ext.JsonForms.newArticle": {
 			"localBasePath": "resources",
 			"remoteExtPath": "JsonForms/resources",
@@ -270,14 +280,6 @@
 			],
 			"messages": [],
 			"position": "top"
-		},
-		"ext.JsonForms.stripe": {
-			"localBasePath": "resources",
-			"remoteExtPath": "JsonForms/resources",
-			"styles": [],
-			"scripts": [
-				"stripe/js.stripe.com.js"
-			]
 		},
 		"ext.JsonForms.demo": {
 			"localBasePath": "resources",
@@ -336,9 +338,6 @@
 			"value": ""
 		},
 		"JsonFormsReCaptchaSecretKey": {
-			"value": ""
-		},
-		"JsonFormsStripeSecretKey": {
 			"value": ""
 		}
 	},

@@ -26,7 +26,6 @@
 		}
 	},
 	"require": {
-		"opis/json-schema": "^2.6",
-		"stripe/stripe-php": "^19.4"
+		"opis/json-schema": "^2.6"
 	}
 }
