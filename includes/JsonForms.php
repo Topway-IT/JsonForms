@@ -1716,147 +1716,109 @@ class JsonForms
 	 * @return bool True if value was set, false otherwise
 	 */
 	public static function setValueByPath(
-		&$obj,
-		$path,
-		$value,
-		$createMissing = true,
-	) {
-		// Initialize if null
-		if ($obj === null) {
-			$obj = new stdClass();
-		}
+    &$obj,
+    $path,
+    $value,
+    $createMissing = true,
+) {
+    // Initialize if null
+    if ($obj === null) {
+        $obj = new stdClass();
+    }
 
-		if (!is_object($obj)) {
-			return false;
-		}
+    // Allow both objects and arrays at root
+    if (!is_object($obj) && !is_array($obj)) {
+        return false;
+    }
 
-		if (empty($path)) {
-			$obj = $value;
-			return true;
-		}
+    if (empty($path)) {
+        $obj = $value;
+        return true;
+    }
 
-		$addPathSymbols = [".[]", ".", "[]"];
+    // Parse append symbols
+    list($shouldAppend, $cleanPath) = self::parseAppendPath($path);
+    
+    // Handle root-level append (e.g., "[]" or ".[]")
+    if ($shouldAppend && empty($cleanPath)) {
+        if (!is_array($obj)) {
+            $obj = [];
+        }
+        $obj[] = $value;
+        return true;
+    }
 
-		if (in_array($path, $addPathSymbols)) {
-			// Append to array property
-			if (!property_exists($obj, "_append")) {
-				if ($createMissing) {
-					$obj->_append = [];
-				} else {
-					return false;
-				}
-			}
-			if (!is_array($obj->_append)) {
-				if ($createMissing) {
-					$obj->_append = [];
-				} else {
-					return false;
-				}
-			}
-			$obj->_append[] = $value;
-			return true;
-		}
-
-		[$shouldAppend, $path] = self::parseAppendPath($path);
-
-		if (empty($path) && $shouldAppend) {
-			if (!property_exists($obj, "_append")) {
-				if ($createMissing) {
-					$obj->_append = [];
-				} else {
-					return false;
-				}
-			}
-			if (!is_array($obj->_append)) {
-				if ($createMissing) {
-					$obj->_append = [];
-				} else {
-					return false;
-				}
-			}
-			$obj->_append[] = $value;
-			return true;
-		}
-
-		// Convert bracket notation to dot notation: a[1].b -> a.1.b
-		$normalizedPath = preg_replace("/\[(\d+)\]/", '.$1', $path);
-		$keys = explode(".", $normalizedPath);
-		$current = &$obj;
-
-		foreach ($keys as $i => $key) {
-			$isLastKey = $i === count($keys) - 1;
-
-			if ($isLastKey) {
-				if ($shouldAppend) {
-					// Get or create the array property
-					if (!property_exists($current, $key)) {
-						if ($createMissing) {
-							$current->$key = [];
-						} else {
-							return false;
-						}
-					}
-
-					if (!is_array($current->$key)) {
-						if ($createMissing) {
-							$current->$key = [];
-						} else {
-							return false;
-						}
-					}
-
-					$current->$key[] = $value;
-				} else {
-					$current->$key = $value;
-				}
-				return true;
-			}
-
-			// Next level - create missing if needed
-			if (!property_exists($current, $key)) {
-				if ($createMissing) {
-					$current->$key = new stdClass();
-				} else {
-					return false;
-				}
-			}
-
-			// Handle array access for numeric keys at intermediate levels
-			if (is_numeric($key) && is_array($current)) {
-				// This case shouldn't happen with objects, but keep for safety
-				if (!isset($current[$key])) {
-					if ($createMissing) {
-						$current[$key] = new stdClass();
-					} else {
-						return false;
-					}
-				}
-				$current = &$current[$key];
-			} else {
-				// Object property access
-				if (!property_exists($current, $key)) {
-					if ($createMissing) {
-						$current->$key = new stdClass();
-					} else {
-						return false;
-					}
-				}
-
-				// Ensure it's an object for further traversal
-				if (!is_object($current->$key) && !is_array($current->$key)) {
-					if ($createMissing) {
-						$current->$key = new stdClass();
-					} else {
-						return false;
-					}
-				}
-
-				$current = &$current->$key;
-			}
-		}
-
-		return false;
-	}
+    // Handle path with append (e.g., "users.[]" or "users.")
+    $pathToUse = $cleanPath ?: $path;
+    
+    // Convert bracket notation to dot notation
+    $normalizedPath = preg_replace("/\[(\d+)\]/", '.$1', $pathToUse);
+    $keys = explode(".", $normalizedPath);
+    $current = &$obj;
+    
+    foreach ($keys as $i => $key) {
+        $isLastKey = $i === count($keys) - 1;
+        
+        if ($isLastKey) {
+            if ($shouldAppend) {
+                // Get or create the container for append operation
+                if (is_array($current)) {
+                    if (!isset($current[$key])) {
+                        if (!$createMissing) return false;
+                        $current[$key] = [];
+                    }
+                    if (!is_array($current[$key])) {
+                        if (!$createMissing) return false;
+                        $current[$key] = [];
+                    }
+                    $current[$key][] = $value;
+                } else {
+                    // Object property access
+                    if (!property_exists($current, $key)) {
+                        if (!$createMissing) return false;
+                        $current->$key = [];
+                    }
+                    if (!is_array($current->$key)) {
+                        if (!$createMissing) return false;
+                        $current->$key = [];
+                    }
+                    $current->$key[] = $value;
+                }
+            } else {
+                // Set value directly
+                if (is_array($current)) {
+                    $current[$key] = $value;
+                } else {
+                    $current->$key = $value;
+                }
+            }
+            return true;
+        }
+        
+        // Navigate to next level - determine if we need array or object
+        $isNextNumeric = isset($keys[$i + 1]) && is_numeric($keys[$i + 1]);
+        
+        if (is_array($current)) {
+            // Current is array
+            if (!isset($current[$key])) {
+                if (!$createMissing) return false;
+                // Create array if next key is numeric, otherwise create object
+                $current[$key] = $isNextNumeric ? [] : new stdClass();
+            }
+            $current = &$current[$key];
+        } else {
+            // Current is object
+            if (!property_exists($current, $key)) {
+                if (!$createMissing) return false;
+                // Create array if next key is numeric, otherwise create object
+                $current->$key = $isNextNumeric ? [] : new stdClass();
+            }
+            $current = &$current->$key;
+        }
+    }
+    
+    return false;
+}
 
 	/**
 	 * @param StdClass $schema
